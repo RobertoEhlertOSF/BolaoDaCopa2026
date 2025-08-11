@@ -1,4 +1,4 @@
-# Bolão Copa do Mundo 2026
+z# Bolão Copa do Mundo 2026
 
 Projeto simples de sistema web para bolão da Copa do Mundo 2026, com foco em aprendizado prático para iniciantes em programação.  
 Usamos ASP.NET Core MVC para facilitar o desenvolvimento backend e SQLite como banco de dados leve e fácil de usar.
