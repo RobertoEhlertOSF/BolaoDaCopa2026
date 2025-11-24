@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace BolaoDaCopa2026.Pages
+namespace BolaoDaCopa2026.View.Home
 {
     public class IndexModel : PageModel
     {
