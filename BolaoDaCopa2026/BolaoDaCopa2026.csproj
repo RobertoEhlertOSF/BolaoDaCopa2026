@@ -10,4 +10,8 @@
     <Content Include="Controllers\HomeController.cs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="NovaPasta\" />
+  </ItemGroup>
+
 </Project>

@@ -1,6 +1,8 @@
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddHttpClient();
+
 
 var app = builder.Build();
 
@@ -22,4 +24,10 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}"
 );
 
+app.MapControllerRoute(
+    name: "movie",
+    pattern: "{controller=Movie}/{action=Filme}/{id?}"
+);
+
 app.Run();
+
