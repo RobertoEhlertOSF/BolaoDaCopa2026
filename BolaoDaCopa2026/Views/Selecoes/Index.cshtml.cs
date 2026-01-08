@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace BolaoDaCopa2026.Views.Movie
+namespace BolaoDaCopa2026.Views.Selecoes
 {
-    public class FilmeModel : PageModel
+    public class IndexSelecoesModel : PageModel
     {
         public void OnGet()
         {

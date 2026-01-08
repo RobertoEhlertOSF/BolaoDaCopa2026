@@ -1,0 +1,24 @@
+﻿@model IEnumerable<BolaoDaCopa2026.Models.Selecao>
+
+<h2>Seleções</h2>
+
+<a asp-action="GestaoSelecoes">Nova Seleção</a>
+
+<table>
+    <thead>
+        <tr>
+            <th>Nome</th>
+            <th>Grupo</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var s in Model)
+        {
+            <tr>
+                <td>@s.Nome</td>
+                <td>@s.Grupo</td>
+            </tr>
+        }
+    </tbody>
+</table>
+    

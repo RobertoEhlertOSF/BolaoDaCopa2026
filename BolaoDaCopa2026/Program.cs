@@ -1,8 +1,14 @@
+using BolaoDaCopa2026.Data;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
-builder.Services.AddHttpClient();
 
+builder.Services.AddDbContext<BolaoContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("BolaoConnection")));
+
+builder.Services.AddHttpClient();
 
 var app = builder.Build();
 
