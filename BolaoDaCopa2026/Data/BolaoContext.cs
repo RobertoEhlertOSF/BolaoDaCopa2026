@@ -19,33 +19,61 @@ namespace BolaoDaCopa2026.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Usuario <-> Apostador (1:1) com shadow FK
+            // =========================
+            // Usuario <-> Apostador (1:1)
+            // =========================
             modelBuilder.Entity<Apostador>()
                 .HasOne(a => a.Usuario)
                 .WithOne(u => u.Apostador)
                 .HasForeignKey<Apostador>("UsuarioId")
+                .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // =========================
             // Apostador -> Apostas (1:N)
+            // =========================
             modelBuilder.Entity<Aposta>()
                 .HasOne(a => a.Apostador)
                 .WithMany(ap => ap.Apostas)
                 .HasForeignKey(a => a.ApostadorId)
+                .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Aposta -> Selecao A (shadow FK)
+            // =========================
+            // Aposta -> Selecao A
+            // =========================
             modelBuilder.Entity<Aposta>()
                 .HasOne(a => a.SelecaoA)
                 .WithMany()
                 .HasForeignKey("SelecaoAId")
+                .IsRequired()
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Aposta -> Selecao B (shadow FK)
+            // =========================
+            // Aposta -> Selecao B
+            // =========================
             modelBuilder.Entity<Aposta>()
                 .HasOne(a => a.SelecaoB)
                 .WithMany()
                 .HasForeignKey("SelecaoBId")
+                .IsRequired()
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // =========================
+            // Selecao
+            // =========================
+            modelBuilder.Entity<Selecao>()
+                .Property(s => s.Nome)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            modelBuilder.Entity<Selecao>()
+                .Property(s => s.Grupo)
+                .HasMaxLength(1);
+
+            modelBuilder.Entity<Selecao>()
+                .Property(s => s.BandeiraUrl)
+                .HasMaxLength(300);
         }
     }
 }

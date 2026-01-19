@@ -1,0 +1,153 @@
+﻿/* ===============================
+   T002 – Lista de Jogos
+   Bolão da Copa 2026
+   =============================== */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    background: radial-gradient(circle at top, #1a1a1a, #000);
+    color: #ffffff;
+}
+
+/* Header da página */
+header {
+    padding: 24px 16px;
+    text-align: center;
+}
+
+    header h1 {
+        margin: 0;
+        font-size: 2rem;
+        letter-spacing: 1px;
+    }
+
+/* Container principal */
+.container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 16px;
+}
+
+/* Bloco de fase */
+.fase {
+    margin-bottom: 32px;
+}
+
+    .fase h2 {
+        margin-bottom: 16px;
+        font-size: 1.4rem;
+        border-left: 4px solid #f5c518;
+        padding-left: 12px;
+        color: #f5c518;
+    }
+
+/* Card de jogo */
+.jogo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 14px;
+    padding: 16px 18px;
+    margin-bottom: 14px;
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+
+    /* Jogo aberto */
+    .jogo.aberto:hover {
+        transform: scale(1.01);
+        background: rgba(255, 255, 255, 0.09);
+    }
+
+    /* Jogo encerrado */
+    .jogo.encerrado {
+        opacity: 0.4;
+        pointer-events: none;
+    }
+
+/* Times */
+.times {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.time {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: bold;
+}
+
+    .time img {
+        width: 34px;
+        height: 22px;
+        object-fit: cover;
+        border-radius: 3px;
+    }
+
+/* VS */
+.vs {
+    opacity: 0.6;
+    font-size: 0.85rem;
+}
+
+/* Infos do jogo */
+.info {
+    text-align: right;
+    font-size: 0.9rem;
+    opacity: 0.85;
+    min-width: 90px;
+}
+
+/* Ações */
+.acao {
+    margin-left: 16px;
+}
+
+/* Botões */
+.btn {
+    padding: 8px 18px;
+    border-radius: 20px;
+    border: none;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+/* Apostar */
+.btn-apostar {
+    background: #f5c518;
+    color: #000;
+    cursor: pointer;
+}
+
+    .btn-apostar:hover {
+        background: #ffd84d;
+    }
+
+/* Bloqueado */
+.btn-bloqueado {
+    background: #444;
+    color: #999;
+    cursor: not-allowed;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+    .jogo {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .info {
+        text-align: left;
+    }
+
+    .acao {
+        margin-left: 0;
+    }
+}
