@@ -1,4 +1,6 @@
 using BolaoDaCopa2026.Data;
+using BolaoDaCopa2026.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,6 +9,8 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddDbContext<BolaoContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("BolaoConnection")));
+
+builder.Services.AddScoped<IPasswordHasher<Usuario>, PasswordHasher<Usuario>>();
 
 builder.Services.AddHttpClient();
 

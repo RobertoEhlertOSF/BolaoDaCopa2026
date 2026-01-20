@@ -1,0 +1,82 @@
+﻿<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Crie sua conta</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <header class="cabecalho">
+        <nav class="cabecalho_menu"></nav>
+    </header>
+
+    <main class="pagina">
+        <section class="card">
+            <div class="card_topo">
+                <div class="tag">Cadastro</div>
+                <h1 class="titulo">Crie sua conta</h1>
+                <p class="subtitulo">Rapidinho — e já seguimos para as apostas 😄</p>
+            </div>
+
+            <div class="card_conteudo grid">
+                <div class="painel_imagem" aria-hidden="true">
+                    <img class="img_napers" src="Img/meganapers.png" alt="Napers" />
+                </div>
+
+                <div class="painel_form">
+                    <form action="/DadosCadastro" method="post" class="form">
+                        <div class="campo">
+                            <label for="nome">Nome completo</label>
+                            <input type="text"
+                                   id="nome"
+                                   name="nome"
+                                   placeholder="Digite seu nome completo"
+                                   autocomplete="name"
+                                   required />
+                        </div>
+
+                        <div class="campo">
+                            <label for="dataNascimento">Data de Nascimento</label>
+                            <input type="date"
+                                   id="dataNascimento"
+                                   name="dataNascimento"
+                                   required />
+                        </div>
+
+                        <div class="campo">
+                            <label for="email">E-mail</label>
+                            <input type="email"
+                                   id="email"
+                                   name="email"
+                                   placeholder="Digite seu e-mail"
+                                   autocomplete="email"
+                                   required />
+                        </div>
+
+                        <div class="campo">
+                            <label for="senha">Escolha sua senha</label>
+                            <input type="password"
+                                   id="senha"
+                                   name="senha"
+                                   placeholder="Digite sua senha"
+                                   autocomplete="new-password"
+                                   required />
+                        </div>
+
+                        <button type="submit" class="btn btn_primario">Concluir</button>
+
+                        <div class="acoes">
+                            <a class="btn btn_secundario" href="acesso.html">Voltar pro login</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="rodape"></footer>
+</body>
+</html>
