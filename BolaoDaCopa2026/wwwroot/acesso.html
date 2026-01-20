@@ -1,0 +1,65 @@
+﻿<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Acesse:</title>
+    <link rel="stylesheet" href="css/TelaLogin.css">
+</head>
+
+<body>
+    <header class="cabecalho">
+        <nav class="cabecalho_menu"></nav>
+    </header>
+
+    <main class="pagina">
+        <section class="card">
+            <div class="card_topo">                
+                <h1 class="titulo">Sejam bem-vindos ao bolão Napers da copa do mundo de 2026!</h1>
+                <p class="subtitulo">Onde seu palpite vale muito!</p>
+            </div>
+
+            <div class="card_conteudo grid">
+                <div class="painel_imagem" aria-hidden="true">
+                    <img class="img_napers" src="Img/meganapers.png" alt="Napers" />
+                </div>
+
+                <div class="painel_form">
+                    <h2 class="form_titulo">Para o seu primeiro golaço, acesse sua conta:</h2>
+
+                    <form action="/FazerLogin" method="POST" class="form">
+                        <div class="campo">
+                            <label for="email">Email</label>
+                            <input type="email"
+                                   id="email"
+                                   name="email"
+                                   placeholder="Digite seu e-mail"
+                                   autocomplete="email"
+                                   required />
+                        </div>
+
+                        <div class="campo">
+                            <label for="senha">Senha</label>
+                            <input type="password"
+                                   id="senha"
+                                   name="senha"
+                                   placeholder="Digite sua senha"
+                                   autocomplete="current-password"
+                                   required />
+                        </div>
+
+                        <button type="submit" class="btn btn_primario">Entrar</button>
+                    </form>
+
+                    <div class="acoes">
+                        <a class="btn btn_secundario" href="cadastro.html">Novo? Crie uma conta</a>                        
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="rodape"></footer>
+</body>
+</html>
