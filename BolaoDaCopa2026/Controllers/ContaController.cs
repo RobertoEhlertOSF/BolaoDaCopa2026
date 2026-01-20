@@ -46,7 +46,7 @@ public class ContaController : ControllerBase
             Nome = dto.Nome.Trim(),
             DataNascimento = dto.DataNascimento,
             Email = dto.Email.Trim(),
-            // Salvar em hash, mais efetivo que só texto
+            //TODO: Implementar HASH F0019
             Senha = ""
         };
 
