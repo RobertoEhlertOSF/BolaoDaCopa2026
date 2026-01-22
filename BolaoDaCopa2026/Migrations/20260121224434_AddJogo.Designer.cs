@@ -3,6 +3,7 @@ using System;
 using BolaoDaCopa2026.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BolaoDaCopa2026.Migrations
 {
     [DbContext(typeof(BolaoContext))]
-    partial class BolaoContextModelSnapshot : ModelSnapshot
+    [Migration("20260121224434_AddJogo")]
+    partial class AddJogo
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0-preview.3.24172.4");
@@ -60,15 +63,8 @@ namespace BolaoDaCopa2026.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime>("DataNascimento")
-                        .HasColumnType("TEXT");
-
                     b.Property<bool>("IsPago")
                         .HasColumnType("INTEGER");
-
-                    b.Property<string>("Nome")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
 
                     b.Property<int>("PalpitesExatos")
                         .HasColumnType("INTEGER");
@@ -98,7 +94,6 @@ namespace BolaoDaCopa2026.Migrations
 
                     b.Property<bool>("EstaAberto")
                         .HasColumnType("INTEGER");
-
 
                     b.Property<string>("Fase")
                         .IsRequired()
@@ -873,7 +868,6 @@ namespace BolaoDaCopa2026.Migrations
                         .WithMany()
                         .HasForeignKey("SelecaoAId")
                         .OnDelete(DeleteBehavior.Restrict)
-
                         .IsRequired();
 
                     b.HasOne("BolaoDaCopa2026.Models.Selecao", "SelecaoB")

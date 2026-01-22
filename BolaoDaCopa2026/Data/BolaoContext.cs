@@ -1,5 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using BolaoDaCopa2026.Data.Seeds;
 using BolaoDaCopa2026.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace BolaoDaCopa2026.Data
 {
@@ -14,6 +15,8 @@ namespace BolaoDaCopa2026.Data
         public DbSet<Apostador> Apostadores { get; set; }
         public DbSet<Selecao> Selecoes { get; set; }
         public DbSet<Aposta> Apostas { get; set; }
+        public DbSet<Jogo> Jogos { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -74,6 +77,23 @@ namespace BolaoDaCopa2026.Data
             modelBuilder.Entity<Selecao>()
                 .Property(s => s.BandeiraUrl)
                 .HasMaxLength(300);
+
+            SelecaoSeed.Seed(modelBuilder);
+
+            modelBuilder.Entity<Jogo>()
+                .HasOne(j => j.SelecaoA)
+                .WithMany()
+                .HasForeignKey(j => j.SelecaoAId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Jogo>()
+                .HasOne(j => j.SelecaoB)
+                .WithMany()
+                .HasForeignKey(j => j.SelecaoBId)
+                .OnDelete(DeleteBehavior.Restrict);
+
         }
     }
 }
+
+
