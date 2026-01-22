@@ -1,9 +1,5 @@
 ﻿@page
-@model BolaoDaCopa2026.Models.Jogo
-@{
-    ViewData["Title"] = "Jogos da Copa";
-}
-
+@model BolaoDaCopa2026.Pages.Jogos.IndexModel
 
 <header>
     <h1>Jogos da Copa</h1>
@@ -14,28 +10,42 @@
     <div class="fase">
         <h2>Fase de Grupos</h2>
 
-        <div class="jogo aberto">
-            <div class="times">
-                <div class="time">
-                    <img src="https://flagcdn.com/w40/br.png">
-                    Brasil
-                </div>
-                <div class="vs">vs</div>
-                <div class="time">
-                    <img src="https://flagcdn.com/w40/ar.png">
-                    Argentina
-                </div>
-            </div>
+        @foreach (var jogo in Model.Jogos)
+        {
+            <div class="jogo @(jogo.EstaAberto ? "aberto" : "fechado")">
 
-            <div class="info">
-                <div>20/06/2026</div>
-                <div>18:00</div>
-            </div>
+                <div class="times">
+                    <div class="time">
+                        <img src="@jogo.SelecaoA.BandeiraUrl">
+                        @jogo.SelecaoA.Nome
+                    </div>
 
-            <div class="acao">
-                <button class="btn btn-apostar">Apostar</button>
+                    <div class="vs">vs</div>
+
+                    <div class="time">
+                        <img src="@jogo.SelecaoB.BandeiraUrl">
+                        @jogo.SelecaoB.Nome
+                    </div>
+                </div>
+
+                <div class="info">
+                    <div>@jogo.DataHora.ToString("dd/MM/yyyy")</div>
+                    <div>@jogo.DataHora.ToString("HH:mm")</div>
+                </div>
+
+                <div class="acao">
+                    @if (jogo.EstaAberto)
+                    {
+                        <button class="btn btn-apostar">Apostar</button>
+                    }
+                    else
+                    {
+                        <span class="encerrado">Encerrado</span>
+                    }
+                </div>
+
             </div>
-        </div>
+        }
 
     </div>
 

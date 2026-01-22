@@ -1,24 +1,83 @@
 ﻿@model IEnumerable<BolaoDaCopa2026.Models.Selecao>
 
-<h2>Seleções</h2>
-
-<a asp-action="GestaoSelecoes">Nova Seleção</a>
-
-<table>
-    <thead>
-        <tr>
-            <th>Nome</th>
-            <th>Grupo</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var s in Model)
-        {
-            <tr>
-                <td>@s.Nome</td>
-                <td>@s.Grupo</td>
-            </tr>
+<header>
+    <h1>Classificação</h1>
+    <style>
+        /* Linha de classificação (cabeçalho e times) */
+        .classificacao-row {
+            display: grid;
+            grid-template-columns: 1fr /* Seleção */
+            40px /* J */
+            40px /* V */
+            40px /* E */
+            40px /* D */
+            50px /* GP */
+            50px /* GC */
+            50px; /* SG */
+            align-items: center;
+            column-gap: 8px;
         }
-    </tbody>
-</table>
-    
+
+        /* Cabeçalho */
+        .classificacao-header {
+            opacity: 0.6;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        /* Números centralizados */
+        .col-num {
+            text-align: center;
+        }
+
+    </style>
+</header>
+
+<div class="container">
+
+    @foreach (var grupo in Model.GroupBy(s => s.Grupo).OrderBy(g => g.Key))
+    {
+        <div class="fase">
+            <h2>Grupo @grupo.Key</h2>
+
+            <!-- Cabeçalho -->
+            <div class="jogo classificacao-row classificacao-header">
+                <div>Seleção</div>
+                <div class="col-num">J</div>
+                <div class="col-num">V</div>
+                <div class="col-num">E</div>
+                <div class="col-num">D</div>
+                <div class="col-num">GP</div>
+                <div class="col-num">GC</div>
+                <div class="col-num">SG</div>
+            </div>
+
+            @foreach (var s in grupo
+                    .OrderByDescending(s => s.Vitorias)
+                    .ThenByDescending(s => s.GolsPro - s.GolsContra)
+                    .ThenByDescending(s => s.GolsPro))
+            {
+                <div class="jogo aberto classificacao-row">
+
+                    <!-- Seleção -->
+                    <div class="times">
+                        <div class="time">
+                            <img src="@s.BandeiraUrl" alt="@s.Nome" />
+                            <span>@s.Nome</span>
+                        </div>
+                    </div>
+
+                    <!-- Estatísticas -->
+                    <div class="col-num">@s.Jogos</div>
+                    <div class="col-num">@s.Vitorias</div>
+                    <div class="col-num">@s.Empates</div>
+                    <div class="col-num">@s.Derrotas</div>
+                    <div class="col-num">@s.GolsPro</div>
+                    <div class="col-num">@s.GolsContra</div>
+                    <div class="col-num">@(@s.GolsPro - s.GolsContra)</div>
+                </div>
+            }
+        </div>
+    }
+
+</div>
