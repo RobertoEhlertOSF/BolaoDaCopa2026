@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BolaoDaCopa2026.Migrations
 {
     [DbContext(typeof(BolaoContext))]
-    [Migration("20260121221602_SelecaoSeed")]
-    partial class SelecaoSeed
+    [Migration("20260122203119_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -63,8 +63,15 @@ namespace BolaoDaCopa2026.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<DateTime>("DataNascimento")
+                        .HasColumnType("TEXT");
+
                     b.Property<bool>("IsPago")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("PalpitesExatos")
                         .HasColumnType("INTEGER");
@@ -92,6 +99,9 @@ namespace BolaoDaCopa2026.Migrations
                     b.Property<DateTime>("DataHora")
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("EstaAberto")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Fase")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -118,7 +128,7 @@ namespace BolaoDaCopa2026.Migrations
 
                     b.HasIndex("SelecaoBId");
 
-                    b.ToTable("Jogo");
+                    b.ToTable("Jogos");
                 });
 
             modelBuilder.Entity("BolaoDaCopa2026.Models.Selecao", b =>
@@ -864,13 +874,13 @@ namespace BolaoDaCopa2026.Migrations
                     b.HasOne("BolaoDaCopa2026.Models.Selecao", "SelecaoA")
                         .WithMany()
                         .HasForeignKey("SelecaoAId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("BolaoDaCopa2026.Models.Selecao", "SelecaoB")
                         .WithMany()
                         .HasForeignKey("SelecaoBId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("SelecaoA");

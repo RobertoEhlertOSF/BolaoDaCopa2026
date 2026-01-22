@@ -1,11 +1,28 @@
 using BolaoDaCopa2026.Data;
 using BolaoDaCopa2026.Models;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddRazorPages();
+
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(20);
+        options.SlidingExpiration = true;
+        options.AccessDeniedPath = "/Forbidden/";
+    });
 
 builder.Services.AddDbContext<BolaoContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("BolaoConnection")));
@@ -24,10 +41,14 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
+app.UseSession();
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapRazorPages();
+app.MapDefaultControllerRoute();
 
 app.MapControllerRoute(
     name: "default",
@@ -35,9 +56,9 @@ app.MapControllerRoute(
 );
 
 app.MapControllerRoute(
-    name: "movie",
-    pattern: "{controller=Movie}/{action=Filme}/{id?}"
-);
+    name: "conta",
+    pattern: "Conta/{action=Login}/{id?}",
+    defaults: new { controller = "Conta" });
 
 app.Run();
 
