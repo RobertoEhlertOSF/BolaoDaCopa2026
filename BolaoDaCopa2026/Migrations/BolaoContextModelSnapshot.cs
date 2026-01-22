@@ -60,8 +60,15 @@ namespace BolaoDaCopa2026.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<DateTime>("DataNascimento")
+                        .HasColumnType("TEXT");
+
                     b.Property<bool>("IsPago")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("PalpitesExatos")
                         .HasColumnType("INTEGER");
@@ -91,6 +98,7 @@ namespace BolaoDaCopa2026.Migrations
 
                     b.Property<bool>("EstaAberto")
                         .HasColumnType("INTEGER");
+
 
                     b.Property<string>("Fase")
                         .IsRequired()
@@ -865,6 +873,7 @@ namespace BolaoDaCopa2026.Migrations
                         .WithMany()
                         .HasForeignKey("SelecaoAId")
                         .OnDelete(DeleteBehavior.Restrict)
+
                         .IsRequired();
 
                     b.HasOne("BolaoDaCopa2026.Models.Selecao", "SelecaoB")
