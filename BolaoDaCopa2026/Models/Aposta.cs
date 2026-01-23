@@ -9,6 +9,9 @@
         public int JogoId { get; set; }
         public Jogo Jogo { get; set; }
 
+        public int SelecaoAId { get; set; }
+        public int SelecaoBId { get; set; }
+
         public Selecao SelecaoA { get; set; }
         public Selecao SelecaoB { get; set; }
         public int GolsSelecaoA { get; set; }

@@ -1,4 +1,5 @@
 using BolaoDaCopa2026.Data;
+using BolaoDaCopa2026.Data.Seeds;
 using BolaoDaCopa2026.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
@@ -39,6 +40,14 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+
+
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<BolaoContext>();
+    JogosSeed.Seed(context);
+}
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseSession();
@@ -59,6 +68,12 @@ app.MapControllerRoute(
     name: "conta",
     pattern: "Conta/{action=Login}/{id?}",
     defaults: new { controller = "Conta" });
+
+app.MapControllerRoute(
+    name: "apostas",
+    pattern: "apostas/{action=Index}/{id?}",
+    defaults: new { controller = "Apostas" });
+
 
 app.Run();
 
