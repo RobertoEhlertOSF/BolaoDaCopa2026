@@ -156,10 +156,6 @@
     }
 </style>
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-</div>
-
 <section class="landing">
     <div class="overlay"></div>
 
@@ -190,8 +186,12 @@
         </div>
 
         <div class="actions">
-            <a href="#" class="btn btn-main">Entrar no Bolão</a>
-            <a href="#" class="btn btn-secondary">Minhas Apostas</a>
+            <a asp-controller="Conta"
+               asp-action="Login"
+               class="btn btn-main">
+                Entrar no Bolão
+            </a>
+            <a href="/Apostas" class="btn btn-secondary">Minhas Apostas</a>
             <a href="/Selecoes" class="btn btn-secondary">Tabela da Copa</a>
             <!-- TODO: Implementar a href="/Jogos" class="btn btn-main">Ver Jogos</a> -->
         </div>

@@ -1,0 +1,63 @@
+﻿/* ===============================
+   Área de Palpite
+   =============================== */
+
+.palpite {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-left: 24px;
+}
+
+/* Placar */
+.placar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+    .placar input {
+        width: 42px;
+        height: 42px;
+        text-align: center;
+        font-size: 1.2rem;
+        font-weight: bold;
+        background: rgba(0, 0, 0, 0.6);
+        border: 2px solid rgba(255, 255, 255, 0.15);
+        border-radius: 10px;
+        color: #fff;
+        outline: none;
+        transition: border 0.2s ease, box-shadow 0.2s ease;
+    }
+
+        .placar input:focus {
+            border-color: #f5c518;
+            box-shadow: 0 0 0 2px rgba(245, 197, 24, 0.25);
+        }
+
+    .placar .x {
+        font-weight: bold;
+        opacity: 0.6;
+    }
+
+/* Botão salvar */
+.btn-salvar {
+    background: transparent;
+    border: 2px solid #f5c518;
+    color: #f5c518;
+    cursor: pointer;
+}
+
+    .btn-salvar:hover {
+        background: #f5c518;
+        color: #000;
+    }
+
+
+@media (max-width: 600px) {
+    .palpite {
+        width: 100%;
+        justify-content: space-between;
+        margin-left: 0;
+    }
+}
