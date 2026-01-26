@@ -25,12 +25,23 @@ namespace BolaoDaCopa2026.Data
             // =========================
             // Usuario <-> Apostador (1:1)
             // =========================
-            modelBuilder.Entity<Apostador>()
-                .HasOne(a => a.Usuario)
-                .WithOne(u => u.Apostador)
-                .HasForeignKey<Apostador>("UsuarioId")
+            modelBuilder.Entity<Usuario>()
+                .HasOne(u => u.Apostador)
+                .WithOne(a => a.Usuario)
+                .HasForeignKey<Apostador>(a => a.UsuarioId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // =========================
+            // Usuario <-> Apostador (1:1)
+            // =========================
+            modelBuilder.Entity<Usuario>()
+                .HasOne(u => u.Apostador)
+                .WithOne(a => a.Usuario)
+                .HasForeignKey<Apostador>(a => a.UsuarioId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+
 
             // =========================
             // Apostador -> Apostas (1:N)

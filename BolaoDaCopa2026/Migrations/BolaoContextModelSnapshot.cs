@@ -99,7 +99,6 @@ namespace BolaoDaCopa2026.Migrations
                     b.Property<bool>("EstaAberto")
                         .HasColumnType("INTEGER");
 
-
                     b.Property<string>("Fase")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -873,7 +872,6 @@ namespace BolaoDaCopa2026.Migrations
                         .WithMany()
                         .HasForeignKey("SelecaoAId")
                         .OnDelete(DeleteBehavior.Restrict)
-
                         .IsRequired();
 
                     b.HasOne("BolaoDaCopa2026.Models.Selecao", "SelecaoB")
