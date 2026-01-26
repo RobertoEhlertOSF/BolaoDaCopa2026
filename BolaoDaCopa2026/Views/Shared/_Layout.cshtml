@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Http
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -10,10 +11,21 @@
     <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/jogos.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/TelaLogin.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/Apostas.css" asp-append-version="true" />
 
 
-</head>
+</head> 
 <body>
+
+    @if (Context.Session.GetString("NomeUsuario") != null)
+    {
+
+        <div class="text-center">
+            <h1 class="display-4">Bem-vindo, @Context.Session.GetString("NomeUsuario") !</h1>
+        </div>
+
+    }
+
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()

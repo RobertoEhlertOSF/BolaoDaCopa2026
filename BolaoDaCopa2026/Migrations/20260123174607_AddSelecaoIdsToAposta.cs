@@ -5,7 +5,7 @@
 namespace BolaoDaCopa2026.Migrations
 {
     /// <inheritdoc />
-    public partial class CreateSelecoes : Migration
+    public partial class AddSelecaoIdsToAposta : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

@@ -1,0 +1,8 @@
+{
+  "rootDirectory": "BolaoDaCopa2026",
+  "build": {
+    "builder": "RAILPACK",
+    "buildCommand": "dotnet publish -c Release -o out",
+    "startCommand": "dotnet out/BolaoDaCopa2026.dll"
+  }
+}
