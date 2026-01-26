@@ -121,16 +121,24 @@ public class ContaController : Controller
             return RedirectToAction(nameof(Login));
         }
 
-        var nome = _ctx.Usuarios
+        var apostador = _ctx.Usuarios
             .Where(u => u.Email == email)
-            .Select(u => u.Apostador.Nome)
+            .Select(u => new
+            {
+                Id = u.Apostador.Id,
+                Nome = u.Apostador.Nome
+            })
             .FirstOrDefault();
 
-        HttpContext.Session.SetString("NomeUsuario", nome);
+        if (apostador == null)
+        {
+            TempData["Erro"] = "E-mail ou senha inválidos.";
+            return RedirectToAction(nameof(Login));
+        }
 
+        HttpContext.Session.SetInt32("ApostadorId", apostador.Id);
+        HttpContext.Session.SetString("NomeUsuario", apostador.Nome);
 
-
-        // ⚠️ login real (cookie / claims) vem depois
         return RedirectToAction("Index", "Home");
     }
 }

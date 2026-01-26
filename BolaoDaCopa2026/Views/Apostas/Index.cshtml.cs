@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace BolaoDaCopa2026.Views.Selecoes
+namespace BolaoDaCopa2026.Views.Apostas
 {
-    public class GestaoSelecoesModel : PageModel
+    public class IndexModel : PageModel
     {
         public void OnGet()
         {
