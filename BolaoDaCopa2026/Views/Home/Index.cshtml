@@ -3,163 +3,133 @@
 }
 
 <style>
-
-
-    html, body {
-        height: 100%;
-    }
-
+    /* =========================================================
+           FUNDO DO SITE (HOME)
+           Mantém o amarelo no canto — SEM invadir o centro
+           ========================================================= */
     body {
-        background: #000;
-        color: #fff;
+        background: radial-gradient( 700px 500px at 5% 95%, rgba(255, 203, 0, 0.12), transparent 65% ), radial-gradient( 900px 500px at 50% 0%, rgba(37, 99, 235, 0.22), transparent 65% ), linear-gradient(180deg, var(--bg), var(--bg2));
     }
 
-    /* LANDING */
+    /* =========================================================
+           LANDING — NÃO CRIA FUNDO PRÓPRIO
+           ========================================================= */
     .landing {
-        position: relative;
         min-height: 100vh;
         display: flex;
         align-items: center;
         justify-content: center;
-        background: linear-gradient( rgba(0,0,0,0.75), rgba(0,0,0,0.9) ), url("https://rcrusadernews.com/wp-content/uploads/2022/06/World-Cup.png");
-        background-size: contain;
-        background-repeat: no-repeat;
-        background-position: center;
-        background-color: #000;
+        padding: 42px 18px;
+        background: transparent;
+        overflow: hidden;
     }
 
-    .overlay {
-        position: absolute;
-        inset: 0;
-        background: radial-gradient( circle at center, rgba(0,0,0,0), rgba(0,0,0,0.85) );
-    }
-
-    /* CONTEÚDO */
-    .content {
-        position: relative;
-        z-index: 2;
+    .landing_card {
+        width: 100%;
+        max-width: 1200px;
+        background: var(--card);
+        border: 1px solid var(--stroke);
+        border-radius: 22px;
+        box-shadow: var(--shadow);
+        padding: 88px 72px;
         text-align: center;
-        max-width: 800px;
-        padding: 2rem;
+        position: relative;
+        overflow: hidden;
     }
 
-    h1 {
-        font-size: 3rem;
-        font-weight: 800;
-        letter-spacing: -1px;
-        margin-bottom: 0.5rem;
+        .landing_card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: url("https://rcrusadernews.com/wp-content/uploads/2022/06/World-Cup.png") center/contain no-repeat;
+            opacity: 0.08;
+            pointer-events: none;
+        }
+
+    /* =========================================================
+           TEXTO
+           ========================================================= */
+    .landing h1 {
+        font-family: var(--fonte-primaria);
+        font-size: 32px;
+        margin-bottom: 10px;
+        line-height: 1.2;
     }
 
     .subtitle {
-        opacity: 0.75;
-        margin-bottom: 2rem;
+        color: var(--muted);
+        margin-bottom: 36px;
     }
 
-    /* CONTADOR */
+    /* =========================================================
+           COUNTDOWN
+           ========================================================= */
     .countdown {
         display: flex;
         justify-content: center;
-        gap: 1.5rem;
-        margin-bottom: 2.5rem;
+        gap: 18px;
+        margin-bottom: 36px;
+        flex-wrap: wrap;
     }
 
     .time-box {
-        background: rgba(255,255,255,0.08);
-        border: 1px solid rgba(255,255,255,0.15);
+        background: rgba(0,0,0,0.28);
+        border: 1px solid var(--stroke);
         border-radius: 14px;
-        padding: 1rem 1.5rem;
+        padding: 16px 18px;
         min-width: 90px;
+        backdrop-filter: blur(6px);
     }
 
     .time-value {
-        font-size: 2.2rem;
+        font-size: 26px;
         font-weight: 700;
+        color: var(--amarelo);
     }
 
     .time-label {
-        font-size: 0.75rem;
-        opacity: 0.7;
+        font-size: 11px;
         letter-spacing: 1px;
         text-transform: uppercase;
+        color: var(--muted);
     }
 
-    /* BOTÕES */
+    /* =========================================================
+           AÇÕES
+           ========================================================= */
     .actions {
         display: flex;
-        gap: 1rem;
+        gap: 14px;
         justify-content: center;
         flex-wrap: wrap;
     }
 
-    .btn {
-        padding: 1rem 2.2rem;
-        border-radius: 14px;
-        font-size: 1.05rem;
-        text-decoration: none;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        border: 1px solid transparent;
-    }
-
-    .btn-main {
-        background: #fff;
-        color: #000;
-        font-weight: 600;
-    }
-
-        .btn-main:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 15px 40px rgba(255,255,255,0.25);
-        }
-
-    .btn-secondary {
-        background: rgba(255,255,255,0.1);
-        color: #fff;
-        border-color: rgba(255,255,255,0.25);
-    }
-
-    .btn-outline {
-        background: transparent;
-        color: #aaa;
-        border-color: rgba(255,255,255,0.25);
-    }
-
-        .btn-secondary:hover,
-        .btn-outline:hover {
-            border-color: #fff;
-            color: #fff;
-            transform: translateY(-3px);
-        }
-
-    /* MOBILE */
+    /* =========================================================
+           MOBILE
+           ========================================================= */
     @@media (max-width: 768px) {
-        h1 {
-            font-size: 2.2rem;
+        .landing_card {
+            padding: 36px 22px;
+        }
+
+        .landing h1 {
+            font-size: 24px;
         }
 
         .countdown {
-            gap: 0.8rem;
+            gap: 10px;
         }
 
         .time-box {
-            min-width: 70px;
-            padding: 0.8rem;
-        }
-
-        .actions {
-            flex-direction: column;
-        }
-
-        .btn {
-            width: 100%;
+            min-width: 78px;
+            padding: 14px 16px;
         }
     }
 </style>
 
 <section class="landing">
-    <div class="overlay"></div>
+    <div class="landing_card">
 
-    <div class="content">
         <h1>Bolão da Copa 2026</h1>
         <p class="subtitle">
             O tempo está correndo.
@@ -188,13 +158,23 @@
         <div class="actions">
             <a asp-controller="Conta"
                asp-action="Login"
-               class="btn btn-main">
+               class="btn btn_primario">
                 Entrar no Bolão
             </a>
-            <a href="/Apostas" class="btn btn-secondary">Minhas Apostas</a>
-            <a href="/Selecoes" class="btn btn-secondary">Tabela da Copa</a>
-            <!-- TODO: Implementar a href="/Jogos" class="btn btn-main">Ver Jogos</a> -->
+
+            <a href="/Apostas" class="btn btn_secundario">
+                Minhas Apostas
+            </a>
+
+            <a href="/Selecoes" class="btn btn_secundario">
+                Tabela da Copa
+            </a>
+
+            @* TODO:
+            <a href="/Jogos" class="btn btn_primario">Ver Jogos</a>
+            *@
         </div>
+
     </div>
 </section>
 
@@ -204,7 +184,12 @@
     function updateCountdown() {
         const now = new Date().getTime();
         const diff = targetDate - now;
-        if (diff <= 0) return;
+
+        if (diff <= 0) {
+            ["days", "hours", "minutes", "seconds"]
+                .forEach(id => document.getElementById(id).textContent = "00");
+            return;
+        }
 
         const days = Math.floor(diff / (1000 * 60 * 60 * 24));
         const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
@@ -220,3 +205,6 @@
     updateCountdown();
     setInterval(updateCountdown, 1000);
 </script>
+
+
+
