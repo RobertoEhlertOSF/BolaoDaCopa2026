@@ -1,0 +1,266 @@
+﻿/* =========================================================
+   FUNDO DO SITE (HOME)
+   Mantém o amarelo no canto — sem invadir o centro
+   ========================================================= */
+
+
+body {
+    background:
+        radial-gradient(
+            700px 500px at 5% 95%,
+            rgba(255, 203, 0, 0.12),
+            transparent 65%
+        ),
+        radial-gradient(
+            900px 500px at 50% 0%,
+            rgba(37, 99, 235, 0.22),
+            transparent 65%
+        ),
+        linear-gradient(180deg, var(--bg), var(--bg2));
+}
+
+/* =========================================================
+   LANDING — estrutura geral
+   ========================================================= */
+.landing {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 42px 18px;
+    background: transparent;
+    overflow: hidden;
+}
+
+/* =========================================================
+   CARD PRINCIPAL
+   ========================================================= */
+.landing_card {
+    width: 100%;
+    max-width: 1100px;
+    background: var(--card);
+    border: 1px solid var(--stroke);
+    border-radius: 22px;
+    box-shadow: var(--shadow);
+    padding: 32px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.landing_card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: url("https://rcrusadernews.com/wp-content/uploads/2022/06/World-Cup.png")
+        center / contain no-repeat;
+    opacity: 0.08;
+    pointer-events: none;
+}
+
+/* =========================================================
+   TEXTO
+   ========================================================= */
+.landing h1 {
+    font-family: var(--fonte-primaria);
+    font-size: 32px;
+    margin-bottom: 10px;
+    line-height: 1.2;
+}
+
+.subtitle {
+    color: var(--muted);
+    margin-bottom: 36px;
+}
+
+/* =========================================================
+   STATUS DO JOGO
+   ========================================================= */
+.game-status {
+    display: inline-block;
+    margin-bottom: 22px;
+    padding: 6px 16px;
+    border-radius: 999px;
+    font-size: 12px;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    border: 1px solid var(--stroke);
+}
+
+.game-status.upcoming {
+    color: var(--muted);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.game-status.live {
+    color: #fff;
+    background: rgba(220, 38, 38, 0.85);
+    border-color: rgba(220, 38, 38, 0.9);
+    box-shadow: 0 0 14px rgba(220, 38, 38, 0.45);
+}
+
+.game-meta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+    /* estados */
+    .game-meta.upcoming {
+        background: rgba(255,255,255,0.08);
+        color: #ddd;
+    }
+
+    .game-meta.live {
+        background: rgba(255, 80, 80, 0.15);
+        color: #ff5c5c;
+    }
+
+    /* detalhes */
+    .game-meta .divider {
+        opacity: 0.4;
+    }
+
+    .game-meta .datetime {
+        opacity: 0.8;
+        white-space: nowrap;
+    }
+
+
+
+/* =========================================================
+   CONFRONTO
+   ========================================================= */
+
+.matchup {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    margin: 28px 0;
+}
+
+.team {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 20px;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--stroke);
+    backdrop-filter: blur(6px);
+}
+
+    .team img {
+        width: 46px;
+        height: 30px;
+        object-fit: cover;
+        border-radius: 4px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+    }
+
+.team-name {
+    font-size: 16px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.vs-badge {
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: var(--amarelo);
+    padding: 10px 14px;
+    border-radius: 999px;
+    background: rgba(255,203,0,0.15);
+    border: 1px solid rgba(255,203,0,0.35);
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .matchup {
+        gap: 16px;
+    }
+
+    .team {
+        padding: 12px 14px;
+    }
+
+    .team-name {
+        font-size: 14px;
+    }
+}
+
+
+/* =========================================================
+   COUNTDOWN
+   ========================================================= */
+.countdown {
+    display: flex;
+    justify-content: center;
+    gap: 18px;
+    margin-bottom: 36px;
+    flex-wrap: wrap;
+}
+
+.time-box {
+    background: rgba(0, 0, 0, 0.28);
+    border: 1px solid var(--stroke);
+    border-radius: 14px;
+    padding: 16px 18px;
+    min-width: 90px;
+    backdrop-filter: blur(6px);
+}
+
+.time-value {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--amarelo);
+}
+
+.time-label {
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+/* =========================================================
+   AÇÕES
+   ========================================================= */
+.actions {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+@media (max-width: 768px) {
+    .landing_card {
+        padding: 36px 22px;
+    }
+
+    .landing h1 {
+        font-size: 24px;
+    }
+
+    .countdown {
+        gap: 10px;
+    }
+
+    .time-box {
+        min-width: 78px;
+        padding: 14px 16px;
+    }
+}

@@ -19,5 +19,7 @@
 
         public int ApostadorId { get; set; }
         public Apostador Apostador { get; set; }
+
+        public int Pontos { get; set; }
     }
 }

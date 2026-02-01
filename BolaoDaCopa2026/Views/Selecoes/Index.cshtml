@@ -44,6 +44,7 @@
             <div class="jogo classificacao-row classificacao-header">
                 <div>Seleção</div>
                 <div class="col-num">J</div>
+                <div class="col-num">P</div>
                 <div class="col-num">V</div>
                 <div class="col-num">E</div>
                 <div class="col-num">D</div>
@@ -53,7 +54,7 @@
             </div>
 
             @foreach (var s in grupo
-                    .OrderByDescending(s => s.Vitorias)
+                    .OrderByDescending(s => s.Pontos)
                     .ThenByDescending(s => s.GolsPro - s.GolsContra)
                     .ThenByDescending(s => s.GolsPro))
             {
@@ -69,6 +70,7 @@
 
                     <!-- Estatísticas -->
                     <div class="col-num">@s.Jogos</div>
+                    <div class="col-num">@s.Pontos</div>
                     <div class="col-num">@s.Vitorias</div>
                     <div class="col-num">@s.Empates</div>
                     <div class="col-num">@s.Derrotas</div>

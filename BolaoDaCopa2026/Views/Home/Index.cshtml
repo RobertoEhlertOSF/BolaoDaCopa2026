@@ -1,166 +1,135 @@
-﻿@{
-    ViewData["Title"] = "Home page";
+﻿@model List<BolaoDaCopa2026.Models.Jogo>
+
+@{
+    ViewData["Title"] = "Home";
+    var agora = DateTime.Now;
+
+    var proximoJogo = Model?
+        .Where(j => j.DataHora > agora)
+        .OrderBy(j => j.DataHora)
+        .FirstOrDefault();
 }
-
-<style>
-    /* =========================================================
-           FUNDO DO SITE (HOME)
-           Mantém o amarelo no canto — SEM invadir o centro
-           ========================================================= */
-    body {
-        background: radial-gradient( 700px 500px at 5% 95%, rgba(255, 203, 0, 0.12), transparent 65% ), radial-gradient( 900px 500px at 50% 0%, rgba(37, 99, 235, 0.22), transparent 65% ), linear-gradient(180deg, var(--bg), var(--bg2));
-    }
-
-    /* =========================================================
-           LANDING — NÃO CRIA FUNDO PRÓPRIO
-           ========================================================= */
-    .landing {
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 42px 18px;
-        background: transparent;
-        overflow: hidden;
-    }
-
-    .landing_card {
-        width: 100%;
-        max-width: 1200px;
-        background: var(--card);
-        border: 1px solid var(--stroke);
-        border-radius: 22px;
-        box-shadow: var(--shadow);
-        padding: 88px 72px;
-        text-align: center;
-        position: relative;
-        overflow: hidden;
-    }
-
-        .landing_card::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: url("https://rcrusadernews.com/wp-content/uploads/2022/06/World-Cup.png") center/contain no-repeat;
-            opacity: 0.08;
-            pointer-events: none;
-        }
-
-    /* =========================================================
-           TEXTO
-           ========================================================= */
-    .landing h1 {
-        font-family: var(--fonte-primaria);
-        font-size: 32px;
-        margin-bottom: 10px;
-        line-height: 1.2;
-    }
-
-    .subtitle {
-        color: var(--muted);
-        margin-bottom: 36px;
-    }
-
-    /* =========================================================
-           COUNTDOWN
-           ========================================================= */
-    .countdown {
-        display: flex;
-        justify-content: center;
-        gap: 18px;
-        margin-bottom: 36px;
-        flex-wrap: wrap;
-    }
-
-    .time-box {
-        background: rgba(0,0,0,0.28);
-        border: 1px solid var(--stroke);
-        border-radius: 14px;
-        padding: 16px 18px;
-        min-width: 90px;
-        backdrop-filter: blur(6px);
-    }
-
-    .time-value {
-        font-size: 26px;
-        font-weight: 700;
-        color: var(--amarelo);
-    }
-
-    .time-label {
-        font-size: 11px;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-        color: var(--muted);
-    }
-
-    /* =========================================================
-           AÇÕES
-           ========================================================= */
-    .actions {
-        display: flex;
-        gap: 14px;
-        justify-content: center;
-        flex-wrap: wrap;
-    }
-
-    /* =========================================================
-           MOBILE
-           ========================================================= */
-    @@media (max-width: 768px) {
-        .landing_card {
-            padding: 36px 22px;
-        }
-
-        .landing h1 {
-            font-size: 24px;
-        }
-
-        .countdown {
-            gap: 10px;
-        }
-
-        .time-box {
-            min-width: 78px;
-            padding: 14px 16px;
-        }
-    }
-</style>
 
 <section class="landing">
     <div class="landing_card">
 
         <h1>Bolão da Copa 2026</h1>
-        <p class="subtitle">
-            O tempo está correndo.
-            Seus palpites… questionáveis.
-        </p>
 
-        <div class="countdown">
-            <div class="time-box">
-                <div class="time-value" id="days">00</div>
-                <div class="time-label">Dias</div>
+        @if (Model != null && Model.Any())
+        {
+            <div class="games-wrapper">
+                @{
+                    bool countdownUsado = false;
+                }
+
+                @foreach (var jogo in Model)
+                {
+                    var emAndamento =
+                    jogo.DataHora <= agora &&
+                    jogo.Status == "EmAndamento";
+
+                    <div class="game-card">
+                        <div class="game-meta @(emAndamento ? "live" : "upcoming")">
+                            <span class="status-text">
+                                @(emAndamento
+                                                        ? "Jogo em andamento"
+                                                        : jogo.Status == "Finalizado"
+                                                        ? "Jogo finalizado"
+                                                        : "Próximo jogo")
+                    </span>
+
+                            <span class="divider">•</span>
+
+                            <span class="datetime">
+                                @jogo.DataHora.ToString("dd/MM • HH:mm")
+                            </span>
+                        </div>
+
+                        <h2>@jogo.Fase</h2>
+
+                        <div class="matchup">
+                            <div class="team side-a">
+                                <img src="@jogo.SelecaoA.BandeiraUrl"
+                                     alt="@jogo.SelecaoA.Nome" />
+                                <span class="team-name">@jogo.SelecaoA.Nome</span>
+                            </div>
+
+                            <div class="vs-badge">×</div>
+
+                            <div class="team side-b">
+                                <img src="@jogo.SelecaoB.BandeiraUrl"
+                                     alt="@jogo.SelecaoB.Nome" />
+                                <span class="team-name">@jogo.SelecaoB.Nome</span>
+                            </div>
+                        </div>
+
+                @if (jogo.Status == "Finalizado")
+                        {
+                            <div class="resultado-final">
+                                <strong>
+                                    @jogo.GolsSelecaoA
+                                    ×
+                                    @jogo.GolsSelecaoB
+                                </strong>
+                            </div>
+                        }
+                        else if (!emAndamento && !countdownUsado)
+                        {
+                            countdownUsado = true;
+
+                            <div class="countdown"
+                                 data-date="@jogo.DataHora.ToString("yyyy-MM-ddTHH:mm:ss")">
+                                <div class="time-box">
+                                    <div class="time-value days">00</div>
+                                    <div class="time-label">Dias</div>
+                                </div>
+                                <div class="time-box">
+                                    <div class="time-value hours">00</div>
+                                    <div class="time-label">Horas</div>
+                                </div>
+                                <div class="time-box">
+                                    <div class="time-value minutes">00</div>
+                                    <div class="time-label">Min</div>
+                                </div>
+                                <div class="time-box">
+                                    <div class="time-value seconds">00</div>
+                                    <div class="time-label">Seg</div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
             </div>
-            <div class="time-box">
-                <div class="time-value" id="hours">00</div>
-                <div class="time-label">Horas</div>
-            </div>
-            <div class="time-box">
-                <div class="time-value" id="minutes">00</div>
-                <div class="time-label">Min</div>
-            </div>
-            <div class="time-box">
-                <div class="time-value" id="seconds">00</div>
-                <div class="time-label">Seg</div>
-            </div>
-        </div>
+        }
+        else
+        {
+            <p class="text-muted">
+                Nenhum jogo agendado.
+                O caos ainda está em preparação.
+            </p>
+        }
 
         <div class="actions">
-            <a asp-controller="Conta"
-               asp-action="Login"
-               class="btn btn_primario">
-                Entrar no Bolão
-            </a>
+            @using Microsoft.AspNetCore.Http
+
+            @if (Context.Session.GetInt32("ApostadorId") == null)
+            {
+                <a class="btn btn_primario"
+                   asp-controller="Conta"
+                   asp-action="Login">
+                    Entrar no Bolão
+                </a>
+            }
+
+            @if (Context.Session.GetString("IsAdmin")?.Equals("True", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                <a class="btn btn-outline-primary" asp-controller="AdminJogos"
+                   asp-action="Index"
+                   class="btn btn-admin">
+                    Painel de Administração
+                </a>
+            }
+
 
             <a href="/Apostas" class="btn btn_secundario">
                 Minhas Apostas
@@ -169,42 +138,42 @@
             <a href="/Selecoes" class="btn btn_secundario">
                 Tabela da Copa
             </a>
-
-            @* TODO:
-            <a href="/Jogos" class="btn btn_primario">Ver Jogos</a>
-            *@
         </div>
-
     </div>
-</section>
 
-<script>
-    const targetDate = new Date("2026-06-11T00:00:00").getTime();
+    @if (proximoJogo != null)
+    {
+        <script>
+            function updateCountdowns() {
+                document.querySelectorAll(".countdown").forEach(countdown => {
+                    const targetDate = new Date(countdown.dataset.date).getTime();
+                    const now = Date.now();
+                    const diff = targetDate - now;
 
-    function updateCountdown() {
-        const now = new Date().getTime();
-        const diff = targetDate - now;
+                    const daysEl = countdown.querySelector(".days");
+                    const hoursEl = countdown.querySelector(".hours");
+                    const minutesEl = countdown.querySelector(".minutes");
+                    const secondsEl = countdown.querySelector(".seconds");
 
-        if (diff <= 0) {
-            ["days", "hours", "minutes", "seconds"]
-                .forEach(id => document.getElementById(id).textContent = "00");
-            return;
-        }
+                    if (!daysEl || !hoursEl || !minutesEl || !secondsEl) return;
 
-        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-        const minutes = Math.floor((diff / (1000 * 60)) % 60);
-        const seconds = Math.floor((diff / 1000) % 60);
+                    if (diff <= 0) {
+                        daysEl.textContent =
+                        hoursEl.textContent =
+                        minutesEl.textContent =
+                        secondsEl.textContent = "00";
+                        return;
+                    }
 
-        document.getElementById("days").textContent = String(days).padStart(2, "0");
-        document.getElementById("hours").textContent = String(hours).padStart(2, "0");
-        document.getElementById("minutes").textContent = String(minutes).padStart(2, "0");
-        document.getElementById("seconds").textContent = String(seconds).padStart(2, "0");
+                    daysEl.textContent = String(Math.floor(diff / (1000 * 60 * 60 * 24))).padStart(2, "0");
+                    hoursEl.textContent = String(Math.floor((diff / (1000 * 60 * 60)) % 24)).padStart(2, "0");
+                    minutesEl.textContent = String(Math.floor((diff / (1000 * 60)) % 60)).padStart(2, "0");
+                    secondsEl.textContent = String(Math.floor((diff / 1000) % 60)).padStart(2, "0");
+                });
+            }
+
+            updateCountdowns();
+            setInterval(updateCountdowns, 1000);
+        </script>
     }
-
-    updateCountdown();
-    setInterval(updateCountdown, 1000);
-</script>
-
-
-
+</section>

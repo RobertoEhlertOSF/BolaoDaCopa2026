@@ -9,12 +9,22 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+builder.Services.AddDistributedMemoryCache(); // para usar session em memória
+
+builder.Services.AddScoped<JogoService>();
+builder.Services.AddScoped<SelecaoService>();
+builder.Services.AddScoped<ApostaService>();
+builder.Services.AddScoped<PontuacaoService>();
+
+
 
 builder.Services.AddSession(options =>
 {
+
     options.IdleTimeout = TimeSpan.FromMinutes(30);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 });
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
