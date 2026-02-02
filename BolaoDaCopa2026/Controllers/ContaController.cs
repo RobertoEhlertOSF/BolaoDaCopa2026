@@ -105,7 +105,9 @@ public class ContaController : Controller
 
         var email = dto.Email.Trim().ToLower();
 
-        var usuario = _ctx.Usuarios.FirstOrDefault(u => u.Email.ToLower() == email);
+        var usuario = _ctx.Usuarios
+            .AsNoTracking()
+            .FirstOrDefault(u => u.Email.ToLower() == email);
         if (usuario is null)
         {
             TempData["Erro"] = "E-mail ou senha inválidos.";
@@ -138,6 +140,8 @@ public class ContaController : Controller
 
         HttpContext.Session.SetInt32("ApostadorId", apostador.Id);
         HttpContext.Session.SetString("NomeUsuario", apostador.Nome);
+        HttpContext.Session.SetInt32("UsuarioId", usuario.Id);
+        HttpContext.Session.SetString("IsAdmin", usuario.IsAdmin.ToString());
 
         return RedirectToAction("Index", "Home");
     }

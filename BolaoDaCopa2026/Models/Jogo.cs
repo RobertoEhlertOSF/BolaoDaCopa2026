@@ -20,5 +20,10 @@
             
             public int? GolsSelecaoA { get; set; }
             public int? GolsSelecaoB { get; set; }
-        }
+            
+            public bool ApostasProcessadas { get; set; }
+            public bool ClassificacaoProcessada { get; set; }
+
+
+    }
     }

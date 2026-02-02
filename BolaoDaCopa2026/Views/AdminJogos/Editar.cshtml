@@ -1,0 +1,18 @@
+﻿@model BolaoDaCopa2026.Models.Jogo
+
+<h2>Atualizar Resultado: @Model.SelecaoA.Nome × @Model.SelecaoB.Nome</h2>
+
+<form asp-action="Finalizar" asp-route-id="@Model.Id" method="post">
+    <div>
+        <label>@Model.SelecaoA.Nome</label>
+        <input type="number" name="golsA" value="@Model.GolsSelecaoA ?? 0" min="0" />
+    </div>
+
+    <div>
+        <label>@Model.SelecaoB.Nome</label>
+        <input type="number" name="golsB" value="@Model.GolsSelecaoB ?? 0" min="0" />
+    </div>
+
+    <button type="submit" class="btn btn-success mt-2">Finalizar Jogo</button>
+    <a asp-action="Index" class="btn btn-secondary mt-2">Cancelar</a>
+</form>

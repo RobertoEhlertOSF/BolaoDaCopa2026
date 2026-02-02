@@ -1,12 +1,12 @@
-﻿
-@model IEnumerable<BolaoDaCopa2026.Models.Jogo>
+﻿@model IEnumerable<BolaoDaCopa2026.Models.Jogo>
+@using BolaoDaCopa2026.Models
 @{
-    var apostas = ViewBag.Apostas as List<BolaoDaCopa2026.Models.Aposta>
-        ;
+    var apostas = ViewBag.Apostas as List<Aposta>;
+    var pontuacaoService = new PontuacaoService();
 }
 
 <header>
-    <h1>Palpites</h1>
+    <h1>Meus Palpites</h1>
 </header>
 
 <div class="container">
@@ -15,10 +15,28 @@
     {
         var aposta = apostas?.FirstOrDefault(a => a.JogoId == jogo.Id);
 
+        int pontos = 0;
+        string classePontos = "pontos-neutro";
+
+        if (!jogo.EstaAberto && aposta != null)
+        {
+            pontos = pontuacaoService.CalcularPontuacaoApostador(
+            jogo.GolsSelecaoA ?? 0,
+            jogo.GolsSelecaoB ?? 0,
+            aposta.GolsSelecaoA,
+            aposta.GolsSelecaoB
+            );
+
+            // Define cores para visual feedback
+            if (pontos == 10) classePontos = "pontos-exato";       // Placar exato
+            else if (pontos == 7 || pontos == 5) classePontos = "pontos-parcial"; // Resultado certo
+            else if (pontos == 2) classePontos = "pontos-minimo";  // Acerto parcial
+        }
+
         <div class="fase">
             <h2>@jogo.Fase</h2>
 
-            <div class="jogo @(jogo.EstaAberto ? " aberto" : "encerrado")">
+            <div class="jogo @(jogo.EstaAberto ? "aberto" : "encerrado")">
 
                 <div class="times">
                     <div class="time">
@@ -69,11 +87,58 @@
                             <strong>@aposta?.GolsSelecaoA</strong>
                             <span class="x">x</span>
                             <strong>@aposta?.GolsSelecaoB</strong>
+                            @if (aposta != null)
+                            {
+                                <span class="pontos @classePontos">(@pontos pts)</span>
+                            }
                         </div>
                     }
                 </div>
+
             </div>
         </div>
     }
 
 </div>
+
+<style>
+    .placar {
+        font-size: 1.2rem;
+        margin-top: 0.5rem;
+    }
+
+    .x {
+        margin: 0 0.5rem;
+        font-weight: bold;
+    }
+
+    .pontos {
+        margin-left: 1rem;
+        font-weight: bold;
+    }
+
+    .pontos-exato {
+        color: green;
+    }
+
+    .pontos-parcial {
+        color: orange;
+    }
+
+    .pontos-minimo {
+        color: #555;
+    }
+
+    .pontos-neutro {
+        color: #999;
+    }
+
+    .palpite input {
+        width: 50px;
+        text-align: center;
+    }
+
+    .btn-salvar {
+        margin-left: 10px;
+    }
+</style>

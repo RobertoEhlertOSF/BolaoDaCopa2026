@@ -1,4 +1,8 @@
 ﻿@using Microsoft.AspNetCore.Http
+@{
+    var isHome = ViewData["Title"]?.ToString() == "Home";
+}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,26 +21,31 @@
 </head> 
 <body>
 
-    @if (Context.Session.GetString("NomeUsuario") != null)
+    @if (!isHome && Context.Session.GetString("NomeUsuario") != null)
     {
-
-        <div class="text-center">
-            <h1 class="display-4">Bem-vindo, @Context.Session.GetString("NomeUsuario") !</h1>
+        <div class="text-center my-4">
+            <p class="text-muted mb-1">Bem-vindo de volta</p>
+            <h2 class="fw-semibold">
+                @Context.Session.GetString("NomeUsuario")
+            </h2>
         </div>
-
     }
 
-    <div class="container">
-        <main role="main" class="pb-3">
+    <div class="@(isHome ? "" : "container")">
+        <main role="main" class="@(isHome ? "" : "pb-3")">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - BolaoDaCopa2026 - <a asp-area="" asp-page="/Privacy">Privacy</a>
-        </div>
-    </footer>
+    @if (!isHome)
+    {
+        <footer class="border-top footer text-muted">
+            <div class="container">
+                &copy; 2025 - BolaoDaCopa2026
+            </div>
+        </footer>
+    }
+
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

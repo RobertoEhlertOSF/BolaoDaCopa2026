@@ -1,0 +1,110 @@
+﻿@model List<BolaoDaCopa2026.Models.Jogo>
+
+<h1 class="mb-4">Painel de Jogos - Admin</h1>
+
+<table class="table table-hover table-bordered align-middle">
+    <thead class="table-dark">
+        <tr>
+            <th>Data/Hora</th>
+            <th>Fase</th>
+            <th>Seleção A</th>
+            <th>Placar</th>
+            <th>Seleção B</th>
+            <th>Status</th>
+            <th>Ação</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var jogo in Model)
+        {
+            var statusClass = jogo.Status switch
+            {
+                "Finalizado" => "text-success fw-bold",
+                "EmAndamento" => "text-warning fw-bold",
+                _ => "text-muted"
+            };
+
+            <tr>
+                <td>@jogo.DataHora.ToString("dd/MM HH:mm")</td>
+                <td>@jogo.Fase</td>
+                <td>
+                    <img src="@jogo.SelecaoA.BandeiraUrl" alt="@jogo.SelecaoA.Nome" width="24" class="me-1" />
+                    @jogo.SelecaoA.Nome
+                </td>
+                <td>
+                    @if (jogo.Status == "Finalizado")
+                    {
+                        <span class="badge bg-primary">@jogo.GolsSelecaoA × @jogo.GolsSelecaoB</span>
+                    }
+                    else
+                    {
+                        <span class="text-muted">—</span>
+                    }
+                </td>
+                <td>
+                    <img src="@jogo.SelecaoB.BandeiraUrl" alt="@jogo.SelecaoB.Nome" width="24" class="me-1" />
+                    @jogo.SelecaoB.Nome
+                </td>
+                <td class="@statusClass">@jogo.Status</td>
+                <td>
+                    <a asp-action="Editar"
+                       asp-route-id="@jogo.Id"
+                       class="btn btn-sm btn-outline-primary">
+                        ✏ Atualizar
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<style>
+    /* Hover da tabela */
+    .table-hover tbody tr:hover {
+        background-color: #f1f5f9;
+        transition: color 0.2s ease, background-color 0.2s ease;
+    }
+
+    /* Fonte das células por padrão */
+    .table-hover tbody tr td {
+        color: darkgrey; 
+        transition: color 0.2s ease;
+    }
+
+    /* Cabeçalho */
+    .table-hover thead th {
+        color: #FFF; 
+    }
+
+    /* Botões */
+    .table-hover .btn {
+        font-size: 0.85rem;
+        padding: 0.35em 0.6em;
+        color: #fff;
+        background-color: #007bff;
+        border: 1px solid #007bff;
+        border-radius: 4px;
+        transition: background-color 0.2s, color 0.2s;
+    }
+
+        .table-hover .btn:hover {
+            background-color: #0056b3;
+            color: #fff;
+            border-color: #0056b3;
+        }
+
+    /* Badges */
+    .badge {
+        font-size: 1rem;
+        padding: 0.4em 0.7em;
+    }
+
+    /* Bandeiras */
+    img {
+        vertical-align: middle;
+        border-radius: 3px;
+        max-height: 24px;
+        margin-right: 6px;
+    }
+</style>
+
