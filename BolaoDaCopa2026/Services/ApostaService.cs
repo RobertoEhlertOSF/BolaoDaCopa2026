@@ -26,12 +26,26 @@ public class ApostaService
 
         foreach (var aposta in apostas)
         {
-            // calcula pontos usando seu service
-            int pontos = _pontuacaoService.CalcularPontuacaoApostador(
-                jogo.GolsSelecaoA.Value,
-                jogo.GolsSelecaoB.Value,
-                aposta.GolsSelecaoA,
-                aposta.GolsSelecaoB);
+            int pontos;
+
+            if (jogo.IsMataMata())
+            {
+                pontos = _pontuacaoService.CalcularPontuacaoApostadorMataMata(
+                    jogo.GolsSelecaoA.Value,
+                    jogo.GolsSelecaoB.Value,
+                    aposta.GolsSelecaoA,
+                    aposta.GolsSelecaoB,
+                    jogo.ObterVencedorId(),
+                    aposta.SelecaoVencedoraId);
+            }
+            else
+            {
+                pontos = _pontuacaoService.CalcularPontuacaoApostador(
+                    jogo.GolsSelecaoA.Value,
+                    jogo.GolsSelecaoB.Value,
+                    aposta.GolsSelecaoA,
+                    aposta.GolsSelecaoB);
+            }
 
             aposta.Pontos = pontos; // armazenar pontos na aposta
             aposta.Apostador.Pontuacao += pontos;

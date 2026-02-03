@@ -46,8 +46,7 @@ namespace BolaoDaCopa2026.Controllers
         }
 
         [HttpPost]
-        [HttpPost]
-        public IActionResult Salvar(int jogoId, int golsSelecaoA, int golsSelecaoB)
+        public IActionResult Salvar(int jogoId, int golsSelecaoA, int golsSelecaoB, int? selecaoVencedoraId)
         {
             var apostadorId = HttpContext.Session.GetInt32("ApostadorId");
             if (apostadorId == null)
@@ -61,6 +60,15 @@ namespace BolaoDaCopa2026.Controllers
             if (jogo == null || !jogo.EstaAberto)
                 return RedirectToAction(nameof(Index));
 
+            if (jogo.IsMataMata())
+            {
+                if (!selecaoVencedoraId.HasValue ||
+                    (selecaoVencedoraId != jogo.SelecaoAId && selecaoVencedoraId != jogo.SelecaoBId))
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+            }
+
             if (aposta == null)
             {
                 aposta = new Aposta
@@ -70,7 +78,8 @@ namespace BolaoDaCopa2026.Controllers
                     SelecaoAId = jogo.SelecaoAId,
                     SelecaoBId = jogo.SelecaoBId,
                     GolsSelecaoA = golsSelecaoA,
-                    GolsSelecaoB = golsSelecaoB
+                    GolsSelecaoB = golsSelecaoB,
+                    SelecaoVencedoraId = jogo.IsMataMata() ? selecaoVencedoraId : null
                 };
                 _context.Apostas.Add(aposta);
             }
@@ -78,6 +87,7 @@ namespace BolaoDaCopa2026.Controllers
             {
                 aposta.GolsSelecaoA = golsSelecaoA;
                 aposta.GolsSelecaoB = golsSelecaoB;
+                aposta.SelecaoVencedoraId = jogo.IsMataMata() ? selecaoVencedoraId : null;
             }
 
             _context.SaveChanges();
