@@ -74,6 +74,15 @@ namespace BolaoDaCopa2026.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
             // =========================
+            // Aposta -> Selecao Vencedora (mata-mata)
+            // =========================
+            modelBuilder.Entity<Aposta>()
+                .HasOne(a => a.SelecaoVencedora)
+                .WithMany()
+                .HasForeignKey(a => a.SelecaoVencedoraId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // =========================
             // Selecao
             // =========================
             modelBuilder.Entity<Selecao>()
@@ -103,8 +112,13 @@ namespace BolaoDaCopa2026.Data
                 .HasForeignKey(j => j.SelecaoBId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<Jogo>()
+                .HasOne(j => j.SelecaoVencedoraPenaltis)
+                .WithMany()
+                .HasForeignKey(j => j.SelecaoVencedoraPenaltisId)
+                .OnDelete(DeleteBehavior.Restrict);
+
         }
     }
 }
-
 

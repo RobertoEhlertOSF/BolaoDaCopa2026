@@ -17,6 +17,9 @@
         public int GolsSelecaoA { get; set; }
         public int GolsSelecaoB { get; set; }
 
+        public int? SelecaoVencedoraId { get; set; }
+        public Selecao SelecaoVencedora { get; set; }
+
         public int ApostadorId { get; set; }
         public Apostador Apostador { get; set; }
 

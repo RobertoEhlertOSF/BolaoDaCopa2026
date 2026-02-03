@@ -27,6 +27,30 @@ public class PontuacaoService
         return pontos;
     }
 
+    public int CalcularPontuacaoApostadorMataMata(
+        int golsRealA,
+        int golsRealB,
+        int golsPalpiteA,
+        int golsPalpiteB,
+        int? vencedorRealId,
+        int? vencedorPalpiteId)
+    {
+        if (golsPalpiteA == golsRealA && golsPalpiteB == golsRealB)
+            return 10;
+
+        int pontos = 0;
+
+        if (vencedorRealId.HasValue && vencedorPalpiteId == vencedorRealId)
+            pontos += 7;
+
+        if (golsPalpiteA == golsRealA)
+            pontos += 2;
+        if (golsPalpiteB == golsRealB)
+            pontos += 2;
+
+        return pontos;
+    }
+
 
     public void AtualizarPontuacaoSelecao(Selecao selecao, int golsMarcados, int golsSofridos)
     {
@@ -49,5 +73,4 @@ public class PontuacaoService
         }
     }
    }
-
 

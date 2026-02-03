@@ -65,7 +65,13 @@ public class AdminJogosController : Controller
 
     // POST: /Admin/Jogos/Finalizar/5
     [HttpPost("Finalizar/{id}")]
-    public IActionResult Finalizar(int id, int golsA, int golsB)
+    public IActionResult Finalizar(
+        int id,
+        int golsA,
+        int golsB,
+        int? golsProrrogacaoA,
+        int? golsProrrogacaoB,
+        int? vencedorPenaltisId)
     {
         var usuarioId = HttpContext.Session.GetInt32("UsuarioId");
         var usuario = _context.Usuarios.Find(usuarioId);
@@ -73,9 +79,28 @@ public class AdminJogosController : Controller
         if (usuario == null || !usuario.IsAdmin)
             return Forbid();
 
-        var jogo = _jogoService.FinalizarJogo(id, golsA, golsB);
+        var jogo = _context.Jogos.FirstOrDefault(j => j.Id == id);
+        if (jogo == null)
+            return NotFound();
 
-        _selecaoService.AtualizarClassificacao(jogo);
+        if (jogo.IsMataMata())
+        {
+            jogo = _jogoService.FinalizarJogoMataMata(
+                id,
+                golsA,
+                golsB,
+                golsProrrogacaoA,
+                golsProrrogacaoB,
+                vencedorPenaltisId);
+        }
+        else
+        {
+            jogo = _jogoService.FinalizarJogo(id, golsA, golsB);
+        }
+
+        if (!jogo.IsMataMata())
+            _selecaoService.AtualizarClassificacao(jogo);
+
         _apostaService.RecalcularApostasPorJogo(jogo);
 
         return RedirectToAction("Index");

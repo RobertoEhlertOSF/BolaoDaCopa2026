@@ -13,6 +13,32 @@
         <input type="number" name="golsB" value="@Model.GolsSelecaoB ?? 0" min="0" />
     </div>
 
+    @if (Model.IsMataMata())
+    {
+        <div>
+            <label>Gols na prorrogação (@Model.SelecaoA.Nome)</label>
+            <input type="number" name="golsProrrogacaoA" value="@Model.GolsProrrogacaoA ?? 0" min="0" />
+        </div>
+
+        <div>
+            <label>Gols na prorrogação (@Model.SelecaoB.Nome)</label>
+            <input type="number" name="golsProrrogacaoB" value="@Model.GolsProrrogacaoB ?? 0" min="0" />
+        </div>
+
+        <div>
+            <label>Vencedor nos pênaltis</label>
+            <select name="vencedorPenaltisId">
+                <option value="">Selecione</option>
+                <option value="@Model.SelecaoAId" selected="@(Model.SelecaoVencedoraPenaltisId == Model.SelecaoAId ? "selected" : null)">
+                    @Model.SelecaoA.Nome
+                </option>
+                <option value="@Model.SelecaoBId" selected="@(Model.SelecaoVencedoraPenaltisId == Model.SelecaoBId ? "selected" : null)">
+                    @Model.SelecaoB.Nome
+                </option>
+            </select>
+        </div>
+    }
+
     <button type="submit" class="btn btn-success mt-2">Finalizar Jogo</button>
     <a asp-action="Index" class="btn btn-secondary mt-2">Cancelar</a>
 </form>

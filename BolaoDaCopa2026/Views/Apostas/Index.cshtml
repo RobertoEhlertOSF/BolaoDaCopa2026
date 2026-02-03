@@ -20,12 +20,25 @@
 
         if (!jogo.EstaAberto && aposta != null)
         {
-            pontos = pontuacaoService.CalcularPontuacaoApostador(
-            jogo.GolsSelecaoA ?? 0,
-            jogo.GolsSelecaoB ?? 0,
-            aposta.GolsSelecaoA,
-            aposta.GolsSelecaoB
-            );
+            if (jogo.IsMataMata())
+            {
+                pontos = pontuacaoService.CalcularPontuacaoApostadorMataMata(
+                    jogo.GolsSelecaoA ?? 0,
+                    jogo.GolsSelecaoB ?? 0,
+                    aposta.GolsSelecaoA,
+                    aposta.GolsSelecaoB,
+                    jogo.ObterVencedorId(),
+                    aposta.SelecaoVencedoraId);
+            }
+            else
+            {
+                pontos = pontuacaoService.CalcularPontuacaoApostador(
+                    jogo.GolsSelecaoA ?? 0,
+                    jogo.GolsSelecaoB ?? 0,
+                    aposta.GolsSelecaoA,
+                    aposta.GolsSelecaoB
+                );
+            }
 
             // Define cores para visual feedback
             if (pontos == 10) classePontos = "pontos-exato";       // Placar exato
@@ -75,6 +88,31 @@
                                        min="0"
                                        value="@aposta?.GolsSelecaoB" />
                             </div>
+
+                            @if (jogo.IsMataMata())
+                            {
+                                <div class="vencedor">
+                                    <label>Vencedor</label>
+                                    <div class="opcoes-vencedor">
+                                        <label>
+                                            <input type="radio"
+                                                   name="selecaoVencedoraId"
+                                                   value="@jogo.SelecaoAId"
+                                                   required="required"
+                                                   checked="@(aposta?.SelecaoVencedoraId == jogo.SelecaoAId ? "checked" : null)" />
+                                            @jogo.SelecaoA.Nome
+                                        </label>
+                                        <label>
+                                            <input type="radio"
+                                                   name="selecaoVencedoraId"
+                                                   value="@jogo.SelecaoBId"
+                                                   required="required"
+                                                   checked="@(aposta?.SelecaoVencedoraId == jogo.SelecaoBId ? "checked" : null)" />
+                                            @jogo.SelecaoB.Nome
+                                        </label>
+                                    </div>
+                                </div>
+                            }
 
                             <button class="btn btn-salvar">
                                 @(aposta == null ? "Salvar" : "Atualizar")
@@ -140,5 +178,14 @@
 
     .btn-salvar {
         margin-left: 10px;
+    }
+
+    .vencedor {
+        margin-top: 0.75rem;
+    }
+
+    .opcoes-vencedor {
+        display: flex;
+        gap: 1rem;
     }
 </style>
