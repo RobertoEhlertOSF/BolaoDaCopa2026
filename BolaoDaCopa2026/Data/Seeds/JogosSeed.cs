@@ -756,6 +756,43 @@ namespace BolaoDaCopa2026.Data.Seeds
                 Status = "Agendado",
                 EstaAberto = true
             },
+            // ===== Mata-mata (exemplos para teste) =====
+            new Jogo
+            {
+                SelecaoAId = S("Brasil").Id,
+                SelecaoBId = S("Argentina").Id,
+                DataHora = new DateTime(2026, 6, 29, 21, 0, 0),
+                Fase = "Oitavas de Final",
+                Status = "Agendado",
+                EstaAberto = true
+            },
+            new Jogo
+            {
+                SelecaoAId = S("França").Id,
+                SelecaoBId = S("Inglaterra").Id,
+                DataHora = new DateTime(2026, 6, 30, 21, 0, 0),
+                Fase = "Quartas de Final",
+                Status = "Agendado",
+                EstaAberto = true
+            },
+            new Jogo
+            {
+                SelecaoAId = S("Alemanha").Id,
+                SelecaoBId = S("Espanha").Id,
+                DataHora = new DateTime(2026, 7, 3, 21, 0, 0),
+                Fase = "Semifinal",
+                Status = "Agendado",
+                EstaAberto = true
+            },
+            new Jogo
+            {
+                SelecaoAId = S("Portugal").Id,
+                SelecaoBId = S("Holanda").Id,
+                DataHora = new DateTime(2026, 7, 7, 21, 0, 0),
+                Fase = "Final",
+                Status = "Agendado",
+                EstaAberto = true
+            },
         };
 
                 context.Jogos.AddRange(jogos);
@@ -764,4 +801,3 @@ namespace BolaoDaCopa2026.Data.Seeds
         }
 
     }
-
