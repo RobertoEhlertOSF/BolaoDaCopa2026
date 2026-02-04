@@ -14,59 +14,99 @@ namespace BolaoDaCopa2026.Controllers
             _context = context;
         }
 
-        public IActionResult Index()
+        // GET /Apostas?filtro=todos&grupo=A
+        public IActionResult Index(string filtro = "todos", string? grupo = null)
         {
             var apostadorId = HttpContext.Session.GetInt32("ApostadorId");
             if (apostadorId == null)
-            {
-                // não logado, redireciona ou trata o caso
                 return RedirectToAction("Login", "Conta");
+
+            int id = apostadorId.Value;
+
+            // IDs dos jogos em que o usuário já apostou
+            var apostaJogoIdsQuery = _context.Apostas
+                .AsNoTracking()
+                .Where(a => a.ApostadorId == id)
+                .Select(a => a.JogoId);
+
+            // Base da lista de jogos
+            var jogosQuery = _context.Jogos
+                .AsNoTracking()
+                .Include(j => j.SelecaoA)
+                .Include(j => j.SelecaoB)
+                .AsQueryable();
+
+            // ===== FILTRO POR GRUPO =====
+            // Assumindo que j.Fase vem como "Grupo A", "Grupo B", etc.
+            if (!string.IsNullOrWhiteSpace(grupo))
+            {
+                var textoGrupo = $"Grupo {grupo.Trim().ToUpper()}";
+                jogosQuery = jogosQuery.Where(j => j.Fase != null && j.Fase.Contains(textoGrupo));
             }
 
-            var jogos = _context.Jogos
-                .Select(j => new Jogo
-                {
-                    Id = j.Id,
-                    DataHora = j.DataHora,
-                    Fase = j.Fase,
-                    EstaAberto = j.EstaAberto,
-                    SelecaoA = j.SelecaoA,
-                    SelecaoB = j.SelecaoB
-                })
-                .ToList();
+            // ===== FILTRO POR PALPITE =====
+            // todos | com | sem
+            switch ((filtro ?? "todos").ToLower())
+            {
+                case "com":
+                    jogosQuery = jogosQuery.Where(j => apostaJogoIdsQuery.Contains(j.Id));
+                    break;
 
+                case "sem":
+                    jogosQuery = jogosQuery.Where(j => !apostaJogoIdsQuery.Contains(j.Id));
+                    break;
 
+                case "todos":
+                default:
+                    break;
+            }
+
+            // ===== ORDEM FIXA (SEM "ORDENAR" NA UI) =====
+            jogosQuery = jogosQuery.OrderBy(j => j.DataHora);
+
+            // Carrega apostas do usuário pra view preencher os inputs
             var apostas = _context.Apostas
-                .Where(a => a.ApostadorId == apostadorId)
+                .AsNoTracking()
+                .Where(a => a.ApostadorId == id)
                 .ToList();
 
             ViewBag.Apostas = apostas;
 
+            // Guarda estado atual pra View manter selecionado
+            ViewBag.Filtro = filtro;
+            ViewBag.Grupo = grupo ?? "";
+
+            var jogos = jogosQuery.ToList();
             return View(jogos);
         }
 
         [HttpPost]
-        [HttpPost]
-        public IActionResult Salvar(int jogoId, int golsSelecaoA, int golsSelecaoB)
+        public IActionResult Salvar(
+            int jogoId,
+            int golsSelecaoA,
+            int golsSelecaoB,
+            string filtro = "todos",
+            string? grupo = null)
         {
             var apostadorId = HttpContext.Session.GetInt32("ApostadorId");
             if (apostadorId == null)
                 return RedirectToAction("Login", "Conta");
 
-            var aposta = _context.Apostas
-                .FirstOrDefault(a => a.JogoId == jogoId && a.ApostadorId == apostadorId);
+            int id = apostadorId.Value;
 
             var jogo = _context.Jogos.FirstOrDefault(j => j.Id == jogoId);
-
             if (jogo == null || !jogo.EstaAberto)
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index), new { filtro, grupo });
+
+            var aposta = _context.Apostas
+                .FirstOrDefault(a => a.JogoId == jogoId && a.ApostadorId == id);
 
             if (aposta == null)
             {
                 aposta = new Aposta
                 {
                     JogoId = jogoId,
-                    ApostadorId = apostadorId.Value,
+                    ApostadorId = id,
                     SelecaoAId = jogo.SelecaoAId,
                     SelecaoBId = jogo.SelecaoBId,
                     GolsSelecaoA = golsSelecaoA,
@@ -81,8 +121,9 @@ namespace BolaoDaCopa2026.Controllers
             }
 
             _context.SaveChanges();
-            return RedirectToAction(nameof(Index));
-        }
 
+            // volta mantendo filtros atuais
+            return RedirectToAction(nameof(Index), new { filtro, grupo });
+        }
     }
 }

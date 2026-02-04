@@ -1,8 +1,13 @@
 ﻿@model IEnumerable<BolaoDaCopa2026.Models.Jogo>
 @using BolaoDaCopa2026.Models
+
 @{
     var apostas = ViewBag.Apostas as List<Aposta>;
     var pontuacaoService = new PontuacaoService();
+
+    // Agora só existem 2 "estados": filtro e grupo
+    var filtro = (string)(ViewBag.Filtro ?? "todos");
+    var grupo = (string)(ViewBag.Grupo ?? "");
 }
 
 <header>
@@ -11,97 +16,176 @@
 
 <div class="container">
 
-    @foreach (var jogo in Model)
+    <!-- ====== FILTROS (GET) - SOMENTE 2 SELECTS ====== -->
+    <form method="get" class="filtros">
+
+        <select name="filtro">
+            <option value="todos" selected="@(filtro == "todos")">Mostrar todos</option>
+            <option value="com" selected="@(filtro == "com")">Somente com palpite</option>
+            <option value="sem" selected="@(filtro == "sem")">Somente sem palpite</option>
+        </select>
+
+        <select name="grupo">
+            <option value="" selected="@(string.IsNullOrEmpty(grupo))">Todos os grupos</option>
+            <option value="A" selected="@(grupo == "A")">Grupo A</option>
+            <option value="B" selected="@(grupo == "B")">Grupo B</option>
+            <option value="C" selected="@(grupo == "C")">Grupo C</option>
+            <option value="D" selected="@(grupo == "D")">Grupo D</option>
+            <option value="E" selected="@(grupo == "E")">Grupo E</option>
+            <option value="F" selected="@(grupo == "F")">Grupo F</option>
+            <option value="G" selected="@(grupo == "G")">Grupo G</option>
+            <option value="H" selected="@(grupo == "H")">Grupo H</option>
+        </select>
+
+        <button type="submit" class="btn-filtro">Aplicar</button>
+    </form>
+
+    @{
+        var jogos = Model ?? Enumerable.Empty<Jogo>();
+
+        // Continua agrupando por fase na tela (fica bem legível)
+        var grupos = jogos
+        .GroupBy(j => j.Fase ?? "Outros")
+        .OrderBy(g => g.Key);
+    }
+
+    @foreach (var bloco in grupos)
     {
-        var aposta = apostas?.FirstOrDefault(a => a.JogoId == jogo.Id);
-
-        int pontos = 0;
-        string classePontos = "pontos-neutro";
-
-        if (!jogo.EstaAberto && aposta != null)
-        {
-            pontos = pontuacaoService.CalcularPontuacaoApostador(
-            jogo.GolsSelecaoA ?? 0,
-            jogo.GolsSelecaoB ?? 0,
-            aposta.GolsSelecaoA,
-            aposta.GolsSelecaoB
-            );
-
-            // Define cores para visual feedback
-            if (pontos == 10) classePontos = "pontos-exato";       // Placar exato
-            else if (pontos == 7 || pontos == 5) classePontos = "pontos-parcial"; // Resultado certo
-            else if (pontos == 2) classePontos = "pontos-minimo";  // Acerto parcial
-        }
-
         <div class="fase">
-            <h2>@jogo.Fase</h2>
+            <h2>@bloco.Key</h2>
 
-            <div class="jogo @(jogo.EstaAberto ? "aberto" : "encerrado")">
+            @foreach (var jogo in bloco.OrderBy(j => j.DataHora))
+            {
+                var aposta = apostas?.FirstOrDefault(a => a.JogoId == jogo.Id);
 
-                <div class="times">
-                    <div class="time">
-                        <img src="@jogo.SelecaoA.BandeiraUrl" />
-                        @jogo.SelecaoA.Nome
-                    </div>
+                int pontos = 0;
+                string classePontos = "pontos-neutro";
 
-                    <span class="vs">vs</span>
+                if (!jogo.EstaAberto && aposta != null)
+                {
+                    pontos = pontuacaoService.CalcularPontuacaoApostador(
+                    jogo.GolsSelecaoA ?? 0,
+                    jogo.GolsSelecaoB ?? 0,
+                    aposta.GolsSelecaoA,
+                    aposta.GolsSelecaoB
+                    );
 
-                    <div class="time">
-                        <img src="@jogo.SelecaoB.BandeiraUrl" />
-                        @jogo.SelecaoB.Nome
-                    </div>
-                </div>
+                    if (pontos == 10) classePontos = "pontos-exato";
+                    else if (pontos == 7 || pontos == 5) classePontos = "pontos-parcial";
+                    else if (pontos == 2) classePontos = "pontos-minimo";
+                }
 
-                <div class="info">
-                    @jogo.DataHora.ToString("dd/MM HH:mm")
-                </div>
+                <div class="jogo @(jogo.EstaAberto ? "aberto" : "encerrado")">
 
-                <div class="acao">
-                    @if (jogo.EstaAberto)
-                    {
-                        <form asp-action="Salvar" method="post" class="palpite">
-                            <input type="hidden" name="jogoId" value="@jogo.Id" />
-
-                            <div class="placar">
-                                <input type="number"
-                                       name="golsSelecaoA"
-                                       min="0"
-                                       value="@aposta?.GolsSelecaoA" />
-
-                                <span class="x">x</span>
-
-                                <input type="number"
-                                       name="golsSelecaoB"
-                                       min="0"
-                                       value="@aposta?.GolsSelecaoB" />
-                            </div>
-
-                            <button class="btn btn-salvar">
-                                @(aposta == null ? "Salvar" : "Atualizar")
-                            </button>
-                        </form>
-                    }
-                    else
-                    {
-                        <div class="placar">
-                            <strong>@aposta?.GolsSelecaoA</strong>
-                            <span class="x">x</span>
-                            <strong>@aposta?.GolsSelecaoB</strong>
-                            @if (aposta != null)
-                            {
-                                <span class="pontos @classePontos">(@pontos pts)</span>
-                            }
+                    <div class="times">
+                        <div class="time">
+                            <img src="@jogo.SelecaoA.BandeiraUrl" />
+                            @jogo.SelecaoA.Nome
                         </div>
-                    }
-                </div>
 
-            </div>
+                        <span class="vs">vs</span>
+
+                        <div class="time">
+                            <img src="@jogo.SelecaoB.BandeiraUrl" />
+                            @jogo.SelecaoB.Nome
+                        </div>
+                    </div>
+
+                    <div class="info">
+                        @jogo.DataHora.ToString("dd/MM HH:mm")
+                    </div>
+
+                    <div class="acao">
+                        @if (jogo.EstaAberto)
+                        {
+                            <!-- manda filtro e grupo via hidden pra manter estado ao salvar -->
+                            <form asp-action="Salvar" method="post" class="palpite">
+                                <input type="hidden" name="filtro" value="@filtro" />
+                                <input type="hidden" name="grupo" value="@grupo" />
+
+                                <input type="hidden" name="jogoId" value="@jogo.Id" />
+
+                                <div class="placar">
+                                    <input type="number"
+                                           name="golsSelecaoA"
+                                           min="0"
+                                           value="@aposta?.GolsSelecaoA" />
+
+                                    <span class="x">x</span>
+
+                                    <input type="number"
+                                           name="golsSelecaoB"
+                                           min="0"
+                                           value="@aposta?.GolsSelecaoB" />
+                                </div>
+
+                                <button class="btn btn-salvar">
+                                    @(aposta == null ? "Salvar" : "Atualizar")
+                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            <div class="placar">
+                                <strong>@aposta?.GolsSelecaoA</strong>
+                                <span class="x">x</span>
+                                <strong>@aposta?.GolsSelecaoB</strong>
+
+                                @if (aposta != null)
+                                {
+                                    <span class="pontos @classePontos">(@pontos pts)</span>
+                                }
+                            </div>
+                        }
+                    </div>
+
+                </div>
+            }
         </div>
     }
 
 </div>
 
 <style>
+    /* ===== filtros ===== */
+    .filtros {
+        margin: 18px 0 26px;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+    }
+
+        .filtros select {
+            padding: 10px 12px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.18);
+            color: #fff;
+            outline: none;
+        }
+
+            .filtros select option {
+                color: #000; /* texto preto dentro do dropdown */
+                background: #fff; /* fundo branco padrão */
+            }
+
+    .btn-filtro {
+        padding: 10px 16px;
+        border-radius: 10px;
+        cursor: pointer;
+        background: rgba(255, 203, 0, 0.95);
+        color: #0b0f17;
+        border: none;
+        font-weight: 700;
+    }
+
+        .btn-filtro:hover {
+            filter: brightness(1.03);
+        }
+
+    /* ===== seu CSS original ===== */
     .placar {
         font-size: 1.2rem;
         margin-top: 0.5rem;
@@ -140,5 +224,18 @@
 
     .btn-salvar {
         margin-left: 10px;
+    }
+
+    @@media (max-width: 768px) {
+        .filtros {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+            .filtros select,
+            .btn-filtro {
+                width: 100%;
+                max-width: 420px;
+            }
     }
 </style>
