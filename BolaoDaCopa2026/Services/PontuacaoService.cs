@@ -2,30 +2,27 @@
 
 public class PontuacaoService
 {
-    public int CalcularPontuacaoApostador(int golsRealA, int golsRealB, int golsPalpiteA, int golsPalpiteB)
+    public int CalcularPontuacaoApostador(
+        int golsRealA, int golsRealB,
+        int golsPalpiteA, int golsPalpiteB)
     {
-        // Placar exato → 10 pontos
+        // Placar exato
         if (golsPalpiteA == golsRealA && golsPalpiteB == golsRealB)
             return 10;
 
-        int pontos = 0;
+        // Empate correto (mas placar errado)
+        if (golsRealA == golsRealB && golsPalpiteA == golsPalpiteB)
+            return 5;
 
-        // Acerto do vencedor
-        if ((golsRealA > golsRealB && golsPalpiteA > golsPalpiteB) ||  // vitória correta da A
-            (golsRealA < golsRealB && golsPalpiteA < golsPalpiteB) ||  // vitória correta da B
-            (golsRealA == golsRealB && golsPalpiteA == golsPalpiteB))  // empate correto
-        {
-            pontos += 7;
-        }
+        // Vitória correta (sem bônus oculto)
+        if ((golsRealA > golsRealB && golsPalpiteA > golsPalpiteB) ||
+            (golsRealA < golsRealB && golsPalpiteA < golsPalpiteB))
+            return 7;
 
-        // Acerto de gols individuais
-        if (golsPalpiteA == golsRealA)
-            pontos += 2;
-        if (golsPalpiteB == golsRealB)
-            pontos += 2;
-
-        return pontos;
+        // Errou tudo
+        return 0;
     }
+
 
 
     public void AtualizarPontuacaoSelecao(Selecao selecao, int golsMarcados, int golsSofridos)
