@@ -14,6 +14,7 @@
 
         public Selecao SelecaoA { get; set; }
         public Selecao SelecaoB { get; set; }
+
         public int GolsSelecaoA { get; set; }
         public int GolsSelecaoB { get; set; }
 
@@ -21,5 +22,12 @@
         public Apostador Apostador { get; set; }
 
         public int Pontos { get; set; }
+
+        public string HashCommit { get; set; } = string.Empty; //Hash do momento exato da aposta, qualquer modificação nao vai bater
+        public string Salt { get; set; } = string.Empty; //Função para deixar o hash unico, sem repetir mesmo com apostas iguais
+        
+        public DateTime CriadoEmUtc { get; set; } //Prova de que a aposta foi feita antes do jogo
+        public DateTime AtualizadoEmUtc { get; set; } //Momento da ultima atualização da aposta
+
     }
 }

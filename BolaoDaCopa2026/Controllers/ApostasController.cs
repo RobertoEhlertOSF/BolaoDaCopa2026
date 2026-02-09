@@ -1,5 +1,6 @@
 ﻿using BolaoDaCopa2026.Data;
 using BolaoDaCopa2026.Models;
+using BolaoDaCopa2026.Services; // <<< NOVO
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -37,7 +38,6 @@ namespace BolaoDaCopa2026.Controllers
                 .AsQueryable();
 
             // ===== FILTRO POR GRUPO =====
-            // Assumindo que j.Fase vem como "Grupo A", "Grupo B", etc.
             if (!string.IsNullOrWhiteSpace(grupo))
             {
                 var textoGrupo = $"Grupo {grupo.Trim().ToUpper()}";
@@ -45,7 +45,6 @@ namespace BolaoDaCopa2026.Controllers
             }
 
             // ===== FILTRO POR PALPITE =====
-            // todos | com | sem
             switch ((filtro ?? "todos").ToLower())
             {
                 case "com":
@@ -61,10 +60,10 @@ namespace BolaoDaCopa2026.Controllers
                     break;
             }
 
-            // ===== ORDEM FIXA (SEM "ORDENAR" NA UI) =====
+            // ===== ORDEM FIXA =====
             jogosQuery = jogosQuery.OrderBy(j => j.DataHora);
 
-            // Carrega apostas do usuário pra view preencher os inputs
+            // Carrega apostas do usuário
             var apostas = _context.Apostas
                 .AsNoTracking()
                 .Where(a => a.ApostadorId == id)
@@ -72,7 +71,6 @@ namespace BolaoDaCopa2026.Controllers
 
             ViewBag.Apostas = apostas;
 
-            // Guarda estado atual pra View manter selecionado
             ViewBag.Filtro = filtro;
             ViewBag.Grupo = grupo ?? "";
 
@@ -95,14 +93,23 @@ namespace BolaoDaCopa2026.Controllers
             int id = apostadorId.Value;
 
             var jogo = _context.Jogos.FirstOrDefault(j => j.Id == jogoId);
+
+            // Se jogo não existe ou já fechou, não permite salvar/editar
             if (jogo == null || !jogo.EstaAberto)
                 return RedirectToAction(nameof(Index), new { filtro, grupo });
 
             var aposta = _context.Apostas
                 .FirstOrDefault(a => a.JogoId == jogoId && a.ApostadorId == id);
 
+            // === NOVO: monta payload uma vez (com os gols atuais) ===
+            var payload = ApostaHashService.GerarPayload(jogoId, id, golsSelecaoA, golsSelecaoB);
+
             if (aposta == null)
             {
+                // === NOVO: gera salt e hash ao criar ===
+                var salt = ApostaHashService.GerarSalt();
+                var hash = ApostaHashService.GerarHash(payload, salt);
+
                 aposta = new Aposta
                 {
                     JogoId = jogoId,
@@ -110,19 +117,35 @@ namespace BolaoDaCopa2026.Controllers
                     SelecaoAId = jogo.SelecaoAId,
                     SelecaoBId = jogo.SelecaoBId,
                     GolsSelecaoA = golsSelecaoA,
-                    GolsSelecaoB = golsSelecaoB
+                    GolsSelecaoB = golsSelecaoB,
+
+                    // 🔐 novos campos
+                    Salt = salt,
+                    HashCommit = hash,
+
+                    // 🕒 auditoria
+                    CriadoEmUtc = DateTime.UtcNow,
+                    AtualizadoEmUtc = DateTime.UtcNow
                 };
+
                 _context.Apostas.Add(aposta);
             }
             else
             {
+                // Atualiza placar
                 aposta.GolsSelecaoA = golsSelecaoA;
                 aposta.GolsSelecaoB = golsSelecaoB;
+
+                // === NOVO: recalcula hash usando o MESMO salt ===
+                // Isso garante que qualquer alteração muda o HashCommit
+                aposta.HashCommit = ApostaHashService.GerarHash(payload, aposta.Salt);
+
+                // 🕒 auditoria
+                aposta.AtualizadoEmUtc = DateTime.UtcNow;
             }
 
             _context.SaveChanges();
 
-            // volta mantendo filtros atuais
             return RedirectToAction(nameof(Index), new { filtro, grupo });
         }
     }
