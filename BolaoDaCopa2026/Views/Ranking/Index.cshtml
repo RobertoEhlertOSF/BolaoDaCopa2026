@@ -1,0 +1,164 @@
+﻿@model BolaoDaCopa2026.ViewModels.RankingIndexViewModel
+
+<div class="top-actions">
+    <a asp-controller="Home" asp-action="Index" class="btn-voltar">← Voltar para o início</a>
+</div>
+
+<header class="ranking-header">
+    <h1>Classificação</h1>
+
+    <div class="ranking-meta">
+        <span><strong>Atualizado em:</strong> @Model.AtualizadoEmUtc.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</span>
+        <span class="dot">•</span>
+        <span><strong>Total Prêmio:</strong> @Model.TotalPremioTexto</span>
+    </div>
+</header>
+
+<div class="ranking-card">
+    <table class="ranking-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Apostador</th>
+                <th class="col-pontos">Pts</th>
+                <th class="col-dist">Dist.</th>
+                <th class="col-exatos">Placares Exatos</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var row in Model.Linhas)
+            {
+                <tr>
+                    <td class="col-pos">@row.Posicao</td>
+                    <td class="col-nome">@row.Nome</td>
+                    <td class="col-pontos">@row.Pontos</td>
+                    <td class="col-dist">@row.DistanciaDoPrimeiro</td>
+                    <td class="col-exatos">@row.PlacaresExatos</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<style>
+    .top-actions {
+        max-width: 1100px;
+        margin: 10px auto 12px;
+        padding: 0 18px;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+    }
+
+    .btn-voltar {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 16px;
+        border-radius: 10px;
+        background: rgba(255, 203, 0, 0.95);
+        color: #0b0f17;
+        text-decoration: none;
+        font-weight: 800;
+        transition: filter 0.2s ease, transform 0.1s ease;
+    }
+
+        .btn-voltar:hover {
+            filter: brightness(1.05);
+            transform: translateX(-2px);
+            color: #0b0f17;
+            text-decoration: none;
+        }
+
+    .ranking-header {
+        text-align: center;
+        margin: 10px 0 18px;
+    }
+
+        .ranking-header h1 {
+            margin: 0;
+            font-size: 2.2rem;
+            color: #fff;
+            letter-spacing: .02em;
+        }
+
+    .ranking-meta {
+        margin-top: 10px;
+        display: inline-flex;
+        gap: 10px;
+        align-items: center;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.14);
+        color: rgba(255,255,255,0.85);
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+        .ranking-meta .dot {
+            opacity: .6;
+        }
+
+    .ranking-card {
+        max-width: 760px;
+        margin: 0 auto 30px;
+        padding: 0 18px;
+    }
+
+    .ranking-table {
+        width: 100%;
+        border-collapse: collapse;
+        overflow: hidden;
+        border-radius: 16px;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.12);
+    }
+
+        .ranking-table thead th {
+            text-align: left;
+            padding: 14px 16px;
+            color: rgba(255,255,255,0.92);
+            font-size: 0.95rem;
+            background: rgba(0,0,0,0.25);
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .ranking-table tbody td {
+            padding: 14px 16px;
+            color: rgba(255,255,255,0.86);
+            border-top: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .ranking-table tbody tr:hover {
+            background: rgba(255,255,255,0.06);
+        }
+
+    .col-pos {
+        width: 56px;
+        font-weight: 900;
+        color: rgba(255, 203, 0, 0.95);
+    }
+
+    .col-pontos, .col-dist, .col-exatos {
+        width: 90px;
+        text-align: right;
+        font-weight: 900;
+        color: rgba(255, 203, 0, 0.95);
+    }
+
+    @@media (max-width: 520px) {
+        .ranking-header h1
+
+    {
+        font-size: 1.8rem;
+    }
+
+    .ranking-meta {
+        font-size: 0.9rem;
+    }
+
+    }
+</style>

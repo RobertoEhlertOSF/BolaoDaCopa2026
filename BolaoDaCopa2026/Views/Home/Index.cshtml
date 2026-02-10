@@ -13,12 +13,23 @@
 <section class="landing">
     <div class="landing_card">
 
+        @* ✅ Admin “fora” do card (visual), mas ancorado no card (pra não quebrar layout) *@
+        @if (Context.Session.GetString("IsAdmin")?.Equals("True", StringComparison.OrdinalIgnoreCase) == true)
+        {
+            <div class="admin-link-wrap">
+                <a asp-controller="AdminJogos"
+                   asp-action="Index"
+                   class="admin-link">
+                    Administrador
+                </a>
+            </div>
+        }
+
         <h1>Bolão da Copa 2026</h1>
 
         @if (Model != null && Model.Any())
         {
             <div class="games-wrapper">
-
                 @foreach (var jogo in Model)
                 {
                     var emAndamento =
@@ -63,19 +74,14 @@
                 @if (jogo.Status == "Finalizado")
                         {
                             <div class="resultado-final">
-                                <strong>
-                                    @jogo.GolsSelecaoA
-                                    ×
-                                    @jogo.GolsSelecaoB
-                                </strong>
+                                <strong>@jogo.GolsSelecaoA × @jogo.GolsSelecaoB</strong>
                             </div>
                         }
                     </div>
                 }
-
             </div>
 
-            <!-- ✅ CONTADOR SEMPRE FORA DOS CARDS (abaixo da lista) -->
+            @* ✅ Contador (abaixo da lista) *@
             @if (proximoJogo != null)
             {
                 <div class="countdown"
@@ -112,29 +118,26 @@
 
             @if (Context.Session.GetInt32("ApostadorId") == null)
             {
-                <a class="btn btn_primario"
+                <a class="btn-home btn-home--primary"
                    asp-controller="Conta"
                    asp-action="Login">
                     Entrar no Bolão
                 </a>
             }
-
-            @if (Context.Session.GetString("IsAdmin")?.Equals("True", StringComparison.OrdinalIgnoreCase) == true)
+            else
             {
-                <a class="btn btn-outline-primary"
-                   asp-controller="AdminJogos"
-                   asp-action="Index">
-                    Painel de Administração
+                <a href="/Apostas" class="btn-home btn-home--primary">
+                    Minhas Apostas
+                </a>
+
+                <a href="/Selecoes" class="btn-home btn-home--primary">
+                    Tabela da Copa
+                </a>
+
+                <a asp-controller="Ranking" asp-action="Index" class="btn-home btn-home--primary">
+                    Ranking
                 </a>
             }
-
-            <a href="/Apostas" class="btn btn_secundario">
-                Minhas Apostas
-            </a>
-
-            <a href="/Selecoes" class="btn btn_secundario">
-                Tabela da Copa
-            </a>
         </div>
     </div>
 
@@ -174,3 +177,82 @@
         </script>
     }
 </section>
+
+<style>
+    /* ✅ garante que o admin absoluto “use” o card como referência */
+    .landing_card {
+        position: relative;
+        overflow: visible;
+    }
+
+    /* ✅ Admin: fica “fora” do card (top negativo), mas preso no card */
+    .admin-link-wrap {
+        position: absolute;
+        top: -48px;
+        left: 0px;
+        z-index: 999;
+    }
+
+    .admin-link {
+        color: rgba(255,255,255,0.78);
+        text-decoration: none;
+        font-weight: 700;
+        padding: 10px 14px;
+        border-radius: 12px;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.12);
+        backdrop-filter: blur(8px);
+        transition: filter .2s ease, transform .1s ease, background .2s ease;
+    }
+
+        .admin-link:hover {
+            color: rgba(255,255,255,0.90);
+            background: rgba(255,255,255,0.10);
+            filter: brightness(1.05);
+            transform: translateX(-2px);
+            text-decoration: none;
+        }
+
+    /* =========================
+           BOTÕES DA HOME (amarelos + comportamento)
+           ========================= */
+    .btn-home {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 16px;
+        border-radius: 12px;
+        font-weight: 800;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: filter 0.2s ease, transform 0.1s ease, background 0.2s ease, border-color 0.2s ease;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+        .btn-home:hover,
+        .btn-home:focus,
+        .btn-home:active,
+        .btn-home:visited {
+            text-decoration: none;
+            outline: none;
+        }
+
+    .btn-home--primary {
+        background: rgba(255, 203, 0, 0.95);
+        color: #0b0f17;
+    }
+
+        .btn-home--primary:hover {
+            filter: brightness(1.05);
+            transform: translateX(-2px);
+            color: #0b0f17;
+        }
+
+        .btn-home--primary:active {
+            transform: translateX(-1px) scale(0.99);
+            filter: brightness(1.02);
+            color: #0b0f17;
+        }
+</style>
