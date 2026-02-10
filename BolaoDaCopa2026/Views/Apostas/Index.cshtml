@@ -1,6 +1,22 @@
 ﻿@model IEnumerable<BolaoDaCopa2026.Models.Jogo>
 @using BolaoDaCopa2026.Models
 
+
+<!-- ====== AÇÕES TOPO (Voltar / Regras) ====== -->
+<div class="top-actions">
+    <a asp-controller="Home"
+       asp-action="Index"
+       class="btn-voltar">
+        ← Voltar para o início
+    </a>
+
+    <a href="#"
+       class="btn-regras"
+       aria-disabled="true">
+        Regras do bolão
+    </a>
+</div>
+
 @{
     var apostas = ViewBag.Apostas as List<Aposta>;
     var pontuacaoService = new PontuacaoService();
@@ -13,6 +29,13 @@
 <header>
     <h1>Meus Palpites</h1>
 </header>
+
+<!-- ====== NAVEGAÇÃO DE FASE (placeholder por enquanto) ====== -->
+<div class="fase-nav">
+    <button type="button" class="fase-btn" disabled aria-label="Fase anterior" title="Em breve">‹</button>
+    <div class="fase-titulo">FASE DE GRUPOS</div>
+    <button type="button" class="fase-btn" disabled aria-label="Próxima fase" title="Em breve">›</button>
+</div>
 
 <div class="container">
 
@@ -167,8 +190,8 @@
         }
 
             .filtros select option {
-                color: #000; /* texto preto dentro do dropdown */
-                background: #fff; /* fundo branco padrão */
+                color: #000;
+                background: #fff;
             }
 
     .btn-filtro {
@@ -178,11 +201,13 @@
         background: rgba(255, 203, 0, 0.95);
         color: #0b0f17;
         border: none;
-        font-weight: 700;
+        font-weight: 800;
+        transition: filter 0.2s ease, transform 0.1s ease;
     }
 
         .btn-filtro:hover {
-            filter: brightness(1.03);
+            filter: brightness(1.05);
+            transform: translateX(-2px);
         }
 
     /* ===== seu CSS original ===== */
@@ -226,6 +251,105 @@
         margin-left: 10px;
     }
 
+    /* ===== topo: voltar + regras ===== */
+    .top-actions {
+        max-width: 1100px;
+        margin: 10px auto 18px;
+        padding: 0 18px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .btn-voltar {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 16px;
+        border-radius: 10px;
+        background: rgba(255, 203, 0, 0.95);
+        color: #0b0f17;
+        text-decoration: none;
+        font-weight: 800;
+        border: none;
+        transition: filter 0.2s ease, transform 0.1s ease;
+    }
+
+        .btn-voltar:hover {
+            filter: brightness(1.05);
+            transform: translateX(-2px);
+            color: #0b0f17;
+            text-decoration: none;
+        }
+
+        .btn-voltar:focus,
+        .btn-voltar:active {
+            color: #0b0f17;
+            text-decoration: none;
+        }
+
+    .btn-regras {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 16px;
+        border-radius: 10px;
+        border: none;
+        font-weight: 800;
+        background: rgba(255, 203, 0, 0.95);
+        color: #0b0f17 !important;
+        cursor: not-allowed;
+        opacity: 0.70;
+        text-decoration: none !important;
+    }
+
+        .btn-regras:hover,
+        .btn-regras:focus,
+        .btn-regras:active {
+            color: #0b0f17 !important;
+            text-decoration: none !important;
+        }
+
+    /* ===== navegação de fases (estilo GE) ===== */
+    .fase-nav {
+        max-width: 1100px;
+        margin: 8px auto 22px;
+        padding: 0 18px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+    }
+
+    .fase-titulo {
+        flex: 1;
+        text-align: center;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #ffffff;
+        opacity: 0.90;
+        font-size: 1.05rem;
+    }
+
+    .fase-btn {
+        width: 46px;
+        height: 46px;
+        border-radius: 999px;
+        border: 1px solid rgba(255,255,255,0.18);
+        background: rgba(255,255,255,0.08);
+        color: rgba(255,255,255,0.85);
+        font-size: 28px;
+        line-height: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: not-allowed;
+        opacity: 0.55;
+    }
+
+    /* ===== responsivo ===== */
     @@media (max-width: 768px) {
         .filtros {
             flex-direction: column;
@@ -237,5 +361,18 @@
                 width: 100%;
                 max-width: 420px;
             }
+
+        .top-actions {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+        }
+
+        .btn-voltar, .btn-regras {
+            width: 100%;
+            max-width: 420px;
+            margin: 0 auto;
+            justify-content: center;
+        }
     }
 </style>

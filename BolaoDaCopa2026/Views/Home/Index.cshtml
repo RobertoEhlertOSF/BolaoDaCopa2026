@@ -18,9 +18,6 @@
         @if (Model != null && Model.Any())
         {
             <div class="games-wrapper">
-                @{
-                    bool countdownUsado = false;
-                }
 
                 @foreach (var jogo in Model)
                 {
@@ -73,33 +70,34 @@
                                 </strong>
                             </div>
                         }
-                        else if (!emAndamento && !countdownUsado)
-                        {
-                            countdownUsado = true;
-
-                            <div class="countdown"
-                                 data-date="@jogo.DataHora.ToString("yyyy-MM-ddTHH:mm:ss")">
-                                <div class="time-box">
-                                    <div class="time-value days">00</div>
-                                    <div class="time-label">Dias</div>
-                                </div>
-                                <div class="time-box">
-                                    <div class="time-value hours">00</div>
-                                    <div class="time-label">Horas</div>
-                                </div>
-                                <div class="time-box">
-                                    <div class="time-value minutes">00</div>
-                                    <div class="time-label">Min</div>
-                                </div>
-                                <div class="time-box">
-                                    <div class="time-value seconds">00</div>
-                                    <div class="time-label">Seg</div>
-                                </div>
-                            </div>
-                        }
                     </div>
                 }
+
             </div>
+
+            <!-- ✅ CONTADOR SEMPRE FORA DOS CARDS (abaixo da lista) -->
+            @if (proximoJogo != null)
+            {
+                <div class="countdown"
+                     data-date="@proximoJogo.DataHora.ToString("yyyy-MM-ddTHH:mm:ss")">
+                    <div class="time-box">
+                        <div class="time-value days">00</div>
+                        <div class="time-label">Dias</div>
+                    </div>
+                    <div class="time-box">
+                        <div class="time-value hours">00</div>
+                        <div class="time-label">Horas</div>
+                    </div>
+                    <div class="time-box">
+                        <div class="time-value minutes">00</div>
+                        <div class="time-label">Min</div>
+                    </div>
+                    <div class="time-box">
+                        <div class="time-value seconds">00</div>
+                        <div class="time-label">Seg</div>
+                    </div>
+                </div>
+            }
         }
         else
         {
@@ -123,13 +121,12 @@
 
             @if (Context.Session.GetString("IsAdmin")?.Equals("True", StringComparison.OrdinalIgnoreCase) == true)
             {
-                <a class="btn btn-outline-primary" asp-controller="AdminJogos"
-                   asp-action="Index"
-                   class="btn btn-admin">
+                <a class="btn btn-outline-primary"
+                   asp-controller="AdminJogos"
+                   asp-action="Index">
                     Painel de Administração
                 </a>
             }
-
 
             <a href="/Apostas" class="btn btn_secundario">
                 Minhas Apostas
@@ -166,9 +163,9 @@
 
                     if (diff <= 0) {
                         daysEl.textContent =
-                        hoursEl.textContent =
-                        minutesEl.textContent =
-                        secondsEl.textContent = "00";
+                            hoursEl.textContent =
+                            minutesEl.textContent =
+                            secondsEl.textContent = "00";
                         return;
                     }
 
