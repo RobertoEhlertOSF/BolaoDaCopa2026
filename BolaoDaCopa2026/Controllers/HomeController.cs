@@ -9,6 +9,12 @@ namespace BolaoDaCopa2026.Controllers
     {
         private readonly BolaoContext _context;
 
+        public IActionResult Regras()
+        {
+            return View();
+        }
+
+
         public HomeController(BolaoContext context)
         {
             _context = context;

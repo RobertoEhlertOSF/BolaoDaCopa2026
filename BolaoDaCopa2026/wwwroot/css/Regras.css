@@ -1,0 +1,75 @@
+﻿.rules-page {
+    max-width: 900px;
+}
+
+.intro {
+    margin-bottom: 2rem;
+}
+
+.section-title {
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.points-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.point-card {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 1rem;
+    text-align: center;
+    color: black;
+}
+
+    .point-card .points {
+        font-size: 2rem;
+        font-weight: bold;
+        display: block;
+    }
+
+.examples {
+    display: grid;
+    gap: 1rem;
+    margin-top: 1rem;
+    color: black;
+}
+
+.example-card {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 1rem;
+    color: black;
+}
+
+    .example-card h3 {
+        margin-bottom: .5rem;
+    }
+
+.result {
+    font-weight: bold;
+    display: inline-block;
+    margin-top: .5rem;
+}
+
+    .result.good {
+        color: #198754;
+    }
+
+    .result.neutral {
+        color: #0d6efd;
+    }
+
+    .result.bad {
+        color: #dc3545;
+    }
+
+.example-card-center {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
