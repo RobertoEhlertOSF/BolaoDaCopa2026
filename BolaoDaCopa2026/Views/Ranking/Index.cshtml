@@ -2,6 +2,11 @@
 
 <div class="top-actions">
     <a asp-controller="Home" asp-action="Index" class="btn-voltar">← Voltar para o início</a>
+    <a asp-controller="Home"
+       asp-action="Regras"
+       class="btn-regras">
+        Regras do bolão
+    </a>
 </div>
 
 <header class="ranking-header">
@@ -42,13 +47,11 @@
 
 <style>
     .top-actions {
-        max-width: 1100px;
-        margin: 10px auto 12px;
-        padding: 0 18px;
         display: flex;
-        justify-content: flex-start;
+        justify-content: space-between;
         align-items: center;
     }
+
 
     .btn-voltar {
         display: inline-flex;
@@ -159,6 +162,28 @@
     .ranking-meta {
         font-size: 0.9rem;
     }
-
     }
+
+        .btn-regras {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 16px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 800;
+            background: rgba(255, 203, 0, 0.95);
+            color: #0b0f17 !important;
+            opacity: 0.70;
+            text-decoration: none !important;
+        }
+
+            .btn-regras:hover,
+            .btn-regras:focus,
+            .btn-regras:active {
+                color: #0b0f17 !important;
+                text-decoration: none !important;
+            }
+
+    
 </style>
