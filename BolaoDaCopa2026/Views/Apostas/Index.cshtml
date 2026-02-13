@@ -10,12 +10,13 @@
         ← Voltar para o início
     </a>
 
-    <a href="#"
-       class="btn-regras"
-       aria-disabled="true">
+    <a asp-controller="Home"
+       asp-action="Regras"
+       class="btn-regras">
         Regras do bolão
     </a>
 </div>
+
 
 @{
     var apostas = ViewBag.Apostas as List<Aposta>;
@@ -299,7 +300,6 @@
         font-weight: 800;
         background: rgba(255, 203, 0, 0.95);
         color: #0b0f17 !important;
-        cursor: not-allowed;
         opacity: 0.70;
         text-decoration: none !important;
     }
