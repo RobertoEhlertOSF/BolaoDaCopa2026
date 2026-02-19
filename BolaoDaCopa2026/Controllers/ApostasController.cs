@@ -114,8 +114,8 @@ namespace BolaoDaCopa2026.Controllers
                 {
                     JogoId = jogoId,
                     ApostadorId = id,
-                    SelecaoAId = jogo.SelecaoAId,
-                    SelecaoBId = jogo.SelecaoBId,
+                    SelecaoAId = jogo.SelecaoAId!.Value,
+                    SelecaoBId = jogo.SelecaoBId!.Value,
                     GolsSelecaoA = golsSelecaoA,
                     GolsSelecaoB = golsSelecaoB,
 

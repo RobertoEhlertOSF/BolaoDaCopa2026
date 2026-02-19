@@ -55,12 +55,16 @@ else
 }
 
 
-
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<BolaoContext>();
+
+    context.Database.Migrate();
+
     JogosSeed.Seed(context);
+    JogosSegundaFaseSeed.Seed(context);
 }
+
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

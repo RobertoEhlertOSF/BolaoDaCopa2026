@@ -1,5 +1,6 @@
 ﻿using BolaoDaCopa2026.Data;
 using BolaoDaCopa2026.Models;
+using BolaoDaCopa2026.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,14 +24,85 @@ public class AdminJogosController : Controller
         _apostaService = apostaService;
     }
 
-    // GET: /Admin/Jogos
-    [HttpGet("")]
-    public IActionResult Index()
+    // =====================================================
+    // MÉTODO PRIVADO - VALIDA ADMIN
+    // =====================================================
+    private bool UsuarioEhAdmin()
     {
         var usuarioId = HttpContext.Session.GetInt32("UsuarioId");
         var usuario = _context.Usuarios.Find(usuarioId);
 
-        if (usuario == null || !usuario.IsAdmin)
+        return usuario != null && usuario.IsAdmin;
+    }
+
+    // =====================================================
+    // TELA SEGUNDA FASE
+    // =====================================================
+    [HttpGet("SegundaFase")]
+    public IActionResult SegundaFase()
+    {
+        if (!UsuarioEhAdmin())
+            return Forbid();
+
+        var jogos = _context.Jogos
+            .Where(j => j.Fase == "Segunda Fase")
+            .OrderBy(j => j.Id)
+            .ToList();
+
+        var selecoes = _context.Selecoes.ToList();
+
+        var viewModel = new List<JogoAdminVM>();
+
+        for (int i = 0; i < jogos.Count; i++)
+        {
+            var jogo = jogos[i];
+
+            var vm = new JogoAdminVM
+            {
+                Id = jogo.Id,
+                SelecaoAId = jogo.SelecaoAId,
+                SelecaoBId = jogo.SelecaoBId,
+                DescricaoSelecaoA = jogo.DescricaoSelecaoA,
+                DescricaoSelecaoB = jogo.DescricaoSelecaoB 
+            };
+
+            vm.TodasSelecoes = selecoes.ToList();            
+
+            viewModel.Add(vm);
+        }
+
+        return View(viewModel);
+    }
+
+    // =====================================================
+    // SALVAR SEGUNDA FASE
+    // =====================================================
+    [HttpPost("SalvarSegundaFase")]
+    public async Task<IActionResult> SalvarSegundaFase(int id, int? selecaoAId, int? selecaoBId)
+    {
+        if (!UsuarioEhAdmin())
+            return Forbid();
+
+        var jogo = await _context.Jogos.FindAsync(id);
+
+        if (jogo == null)
+            return NotFound();
+
+        jogo.SelecaoAId = selecaoAId;
+        jogo.SelecaoBId = selecaoBId;
+
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction("SegundaFase");
+    }
+
+    // =====================================================
+    // LISTAR TODOS OS JOGOS
+    // =====================================================
+    [HttpGet("")]
+    public IActionResult Index()
+    {
+        if (!UsuarioEhAdmin())
             return Forbid();
 
         var jogos = _context.Jogos
@@ -42,14 +114,13 @@ public class AdminJogosController : Controller
         return View(jogos);
     }
 
-    // GET: /Admin/Jogos/Editar/5
+    // =====================================================
+    // EDITAR JOGO
+    // =====================================================
     [HttpGet("Editar/{id}")]
     public IActionResult Editar(int id)
     {
-        var usuarioId = HttpContext.Session.GetInt32("UsuarioId");
-        var usuario = _context.Usuarios.Find(usuarioId);
-
-        if (usuario == null || !usuario.IsAdmin)
+        if (!UsuarioEhAdmin())
             return Forbid();
 
         var jogo = _context.Jogos
@@ -63,14 +134,13 @@ public class AdminJogosController : Controller
         return View(jogo);
     }
 
-    // POST: /Admin/Jogos/Finalizar/5
+    // =====================================================
+    // FINALIZAR JOGO
+    // =====================================================
     [HttpPost("Finalizar/{id}")]
     public IActionResult Finalizar(int id, int golsA, int golsB)
     {
-        var usuarioId = HttpContext.Session.GetInt32("UsuarioId");
-        var usuario = _context.Usuarios.Find(usuarioId);
-
-        if (usuario == null || !usuario.IsAdmin)
+        if (!UsuarioEhAdmin())
             return Forbid();
 
         var jogo = _jogoService.FinalizarJogo(id, golsA, golsB);

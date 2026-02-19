@@ -10,12 +10,13 @@
         ← Voltar para o início
     </a>
 
-    <a href="#"
-       class="btn-regras"
-       aria-disabled="true">
+    <a asp-controller="Home"
+       asp-action="Regras"
+       class="btn-regras">
         Regras do bolão
     </a>
 </div>
+
 
 @{
     var apostas = ViewBag.Apostas as List<Aposta>;
@@ -102,17 +103,22 @@
 
                     <div class="times">
                         <div class="time">
-                            <img src="@jogo.SelecaoA.BandeiraUrl" />
-                            @jogo.SelecaoA.Nome
+                            <img src="@(jogo.SelecaoA?.BandeiraUrl ?? "https://placehold.co/80x50?text=--")"
+                                 alt="@(jogo.SelecaoA?.Nome ?? "A definir")"
+                                 onerror="this.onerror=null;this.src='https://placehold.co/80x50?text=--';" />
+                            @(jogo.SelecaoA?.Nome ?? "A definir")
                         </div>
 
                         <span class="vs">vs</span>
 
                         <div class="time">
-                            <img src="@jogo.SelecaoB.BandeiraUrl" />
-                            @jogo.SelecaoB.Nome
+                            <img src="@(jogo.SelecaoB?.BandeiraUrl ?? "https://placehold.co/80x50?text=--")"
+                                 alt="@(jogo.SelecaoB?.Nome ?? "A definir")"
+                                 onerror="this.onerror=null;this.src='https://placehold.co/80x50?text=--';" />
+                            @(jogo.SelecaoB?.Nome ?? "A definir")
                         </div>
                     </div>
+
 
                     <div class="info">
                         @jogo.DataHora.ToString("dd/MM HH:mm")
@@ -299,7 +305,6 @@
         font-weight: 800;
         background: rgba(255, 203, 0, 0.95);
         color: #0b0f17 !important;
-        cursor: not-allowed;
         opacity: 0.70;
         text-decoration: none !important;
     }

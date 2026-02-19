@@ -10,6 +10,14 @@
 
 <h1 class="mb-4">Painel de Jogos - Admin</h1>
 
+<div class="admin-acoes-topo">
+    <a asp-controller="AdminJogos"
+       asp-action="SegundaFase"
+       class="btn-segunda-fase">
+        ⚔ Configurar Segunda Fase
+    </a>
+</div>
+
 <table class="table table-hover table-bordered align-middle">
     <thead class="table-dark">
         <tr>
@@ -23,37 +31,68 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var jogo in Model)
+        @foreach (var jogo in Model ?? new List<BolaoDaCopa2026.Models.Jogo>())
         {
             var statusClass = jogo.Status switch
             {
                 "Finalizado" => "text-success fw-bold",
                 "EmAndamento" => "text-warning fw-bold",
+                "Aguardando definição" => "text-secondary fw-bold",
                 _ => "text-muted"
             };
 
             <tr>
                 <td>@jogo.DataHora.ToString("dd/MM HH:mm")</td>
                 <td>@jogo.Fase</td>
+
+                <!-- Seleção A -->
                 <td>
-                    <img src="@jogo.SelecaoA.BandeiraUrl" alt="@jogo.SelecaoA.Nome" width="24" class="me-1" />
-                    @jogo.SelecaoA.Nome
+                    @if (jogo.SelecaoA != null)
+                    {
+                        <img src="@jogo.SelecaoA.BandeiraUrl"
+                             alt="@jogo.SelecaoA.Nome"
+                             width="24"
+                             class="me-1" />
+                        @jogo.SelecaoA.Nome
+                    }
+                    else
+                    {
+                        <span class="text-muted">A definir</span>
+                    }
                 </td>
+
+                <!-- Placar -->
                 <td>
                     @if (jogo.Status == "Finalizado")
                     {
-                        <span class="badge bg-primary">@jogo.GolsSelecaoA × @jogo.GolsSelecaoB</span>
+                        <span class="badge bg-primary">
+                            @jogo.GolsSelecaoA × @jogo.GolsSelecaoB
+                        </span>
                     }
                     else
                     {
                         <span class="text-muted">—</span>
                     }
                 </td>
+
+                <!-- Seleção B -->
                 <td>
-                    <img src="@jogo.SelecaoB.BandeiraUrl" alt="@jogo.SelecaoB.Nome" width="24" class="me-1" />
-                    @jogo.SelecaoB.Nome
+                    @if (jogo.SelecaoB != null)
+                    {
+                        <img src="@jogo.SelecaoB.BandeiraUrl"
+                             alt="@jogo.SelecaoB.Nome"
+                             width="24"
+                             class="me-1" />
+                        @jogo.SelecaoB.Nome
+                    }
+                    else
+                    {
+                        <span class="text-muted">A definir</span>
+                    }
                 </td>
+
                 <td class="@statusClass">@jogo.Status</td>
+
                 <td>
                     <a asp-action="Editar"
                        asp-route-id="@jogo.Id"
@@ -66,73 +105,95 @@
     </tbody>
 </table>
 
-<style>
-    /* Hover da tabela */
-    .table-hover tbody tr:hover {
-        background-color: #f1f5f9;
-        transition: color 0.2s ease, background-color 0.2s ease;
-    }
 
-    /* Fonte das células por padrão */
-    .table-hover tbody tr td {
-        color: darkgrey; 
-        transition: color 0.2s ease;
-    }
+    <style>
+        /* Hover da tabela */
+        .table-hover tbody tr:hover {
+            background-color: #f1f5f9;
+            transition: color 0.2s ease, background-color 0.2s ease;
+        }
 
-    /* Cabeçalho */
-    .table-hover thead th {
-        color: #FFF; 
-    }
+        /* Fonte das células por padrão */
+        .table-hover tbody tr td {
+            color: darkgrey; 
+            transition: color 0.2s ease;
+        }
 
-    /* Botões */
-    .table-hover .btn {
-        font-size: 0.85rem;
-        padding: 0.35em 0.6em;
-        color: #fff;
-        background-color: #007bff;
-        border: 1px solid #007bff;
-        border-radius: 4px;
-        transition: background-color 0.2s, color 0.2s;
-    }
+        /* Cabeçalho */
+        .table-hover thead th {
+            color: #FFF; 
+        }
 
-        .table-hover .btn:hover {
-            background-color: #0056b3;
+        /* Botões */
+        .table-hover .btn {
+            font-size: 0.85rem;
+            padding: 0.35em 0.6em;
             color: #fff;
-            border-color: #0056b3;
+            background-color: #007bff;
+            border: 1px solid #007bff;
+            border-radius: 4px;
+            transition: background-color 0.2s, color 0.2s;
         }
 
-    /* Badges */
-    .badge {
-        font-size: 1rem;
-        padding: 0.4em 0.7em;
-    }
+            .table-hover .btn:hover {
+                background-color: #0056b3;
+                color: #fff;
+                border-color: #0056b3;
+            }
 
-    /* Bandeiras */
-    img {
-        vertical-align: middle;
-        border-radius: 3px;
-        max-height: 24px;
-        margin-right: 6px;
-    }
-
-    .admin-voltar {
-        margin-bottom: 16px;
-    }
-
-    .btn-voltar {
-        display: inline-block;
-        padding: 8px 14px;
-        border-radius: 10px;
-        background: rgba(255, 255, 255, 0.08);
-        color: #fff;
-        text-decoration: none;
-        font-weight: 600;
-        transition: background 0.2s ease, transform 0.1s ease;
-    }
-
-        .btn-voltar:hover {
-            background: rgba(255, 255, 255, 0.16);
-            transform: translateX(-2px);
+        /* Badges */
+        .badge {
+            font-size: 1rem;
+            padding: 0.4em 0.7em;
         }
-</style>
+
+        /* Bandeiras */
+        img {
+            vertical-align: middle;
+            border-radius: 3px;
+            max-height: 24px;
+            margin-right: 6px;
+        }
+
+        .admin-voltar {
+            margin-bottom: 16px;
+        }
+
+        .btn-voltar {
+            display: inline-block;
+            padding: 8px 14px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background 0.2s ease, transform 0.1s ease;
+        }
+
+            .btn-voltar:hover {
+                background: rgba(255, 255, 255, 0.16);
+                transform: translateX(-2px);
+            }
+
+        .admin-acoes-topo {
+            margin-bottom: 20px;
+        }
+
+        .btn-segunda-fase {
+            display: inline-block;
+            padding: 8px 14px;
+            border-radius: 10px;
+            background: rgba(255, 203, 0, 0.95);
+            color: #000;
+            text-decoration: none;
+            font-weight: 700;
+            transition: 0.2s ease;
+        }
+
+            .btn-segunda-fase:hover {
+                transform: translateY(-2px);
+                opacity: 0.9;
+            }
+
+    </style>
 
