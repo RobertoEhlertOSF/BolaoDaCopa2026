@@ -103,17 +103,22 @@
 
                     <div class="times">
                         <div class="time">
-                            <img src="@jogo.SelecaoA.BandeiraUrl" />
-                            @jogo.SelecaoA.Nome
+                            <img src="@(jogo.SelecaoA?.BandeiraUrl ?? "https://placehold.co/80x50?text=--")"
+                                 alt="@(jogo.SelecaoA?.Nome ?? "A definir")"
+                                 onerror="this.onerror=null;this.src='https://placehold.co/80x50?text=--';" />
+                            @(jogo.SelecaoA?.Nome ?? "A definir")
                         </div>
 
                         <span class="vs">vs</span>
 
                         <div class="time">
-                            <img src="@jogo.SelecaoB.BandeiraUrl" />
-                            @jogo.SelecaoB.Nome
+                            <img src="@(jogo.SelecaoB?.BandeiraUrl ?? "https://placehold.co/80x50?text=--")"
+                                 alt="@(jogo.SelecaoB?.Nome ?? "A definir")"
+                                 onerror="this.onerror=null;this.src='https://placehold.co/80x50?text=--';" />
+                            @(jogo.SelecaoB?.Nome ?? "A definir")
                         </div>
                     </div>
+
 
                     <div class="info">
                         @jogo.DataHora.ToString("dd/MM HH:mm")
