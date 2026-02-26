@@ -12,6 +12,8 @@ namespace BolaoDaCopa2026.ViewModels
         public string? DescricaoSelecaoA { get; set; }  
         public string? DescricaoSelecaoB { get; set; }
 
+        public DateTime DataHora { get; set; }
+
         public List<Selecao> TodasSelecoes { get; set; } = new();
     }
 }
