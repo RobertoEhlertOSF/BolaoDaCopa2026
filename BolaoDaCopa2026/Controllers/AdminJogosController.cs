@@ -75,6 +75,46 @@ public class AdminJogosController : Controller
     }
 
     // =====================================================
+    // TELA Oitavas
+    // =====================================================
+    [HttpGet("Oitavas")]
+    public IActionResult Oitavas()
+    {
+        if (!UsuarioEhAdmin())
+            return Forbid();
+
+        var jogos = _context.Jogos
+            .Where(j => j.Fase == "Oitavas")
+            .OrderBy(j => j.Id)
+            .ToList();
+
+        var selecoes = _context.Selecoes.ToList();
+
+        var viewModel = new List<JogoAdminVM>();
+
+        for (int i = 0; i < jogos.Count; i++)
+        {
+            var jogo = jogos[i];
+
+            var vm = new JogoAdminVM
+            {
+                Id = jogo.Id,
+                SelecaoAId = jogo.SelecaoAId,
+                SelecaoBId = jogo.SelecaoBId,
+                DescricaoSelecaoA = jogo.DescricaoSelecaoA,
+                DescricaoSelecaoB = jogo.DescricaoSelecaoB,
+                DataHora = jogo.DataHora 
+            };
+
+            vm.TodasSelecoes = selecoes.ToList();
+
+            viewModel.Add(vm);
+        }
+
+        return View(viewModel);
+    }
+
+    // =====================================================
     // SALVAR SEGUNDA FASE
     // =====================================================
     [HttpPost("SalvarSegundaFase")]
@@ -94,6 +134,28 @@ public class AdminJogosController : Controller
         await _context.SaveChangesAsync();
 
         return RedirectToAction("SegundaFase");
+    }
+
+    // =====================================================
+    // SALVAR Oitavas
+    // =====================================================
+    [HttpPost("SalvarOitavas")]
+    public async Task<IActionResult> SalvarOitavas(int id, int? selecaoAId, int? selecaoBId)
+    {
+        if (!UsuarioEhAdmin())
+            return Forbid();
+
+        var jogo = await _context.Jogos.FindAsync(id);
+
+        if (jogo == null)
+            return NotFound();
+
+        jogo.SelecaoAId = selecaoAId;
+        jogo.SelecaoBId = selecaoBId;
+
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction("Oitavas");
     }
 
     // =====================================================
