@@ -1,0 +1,175 @@
+﻿@model IEnumerable<BolaoDaCopa2026.ViewModels.JogoAdminVM>
+
+@{
+    var contador = 1;
+}
+
+<header>
+    <h1>Administrador — Quartas de Final</h1>
+</header>
+
+<style>
+    .top-actions {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 30px;
+    }
+
+    .fase-card {
+        background: #1e1e1e;
+        border-radius: 14px;
+        padding: 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
+    }
+
+        .fase-card h2 {
+            margin-bottom: 8px;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+    .admin-info {
+        font-size: 0.85rem;
+        opacity: 0.6;
+        margin-bottom: 18px;
+    }
+
+    .times {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .time {
+        flex: 1;
+        min-width: 200px;
+        display: flex;
+        flex-direction: column;
+    }
+
+        .time label {
+            margin-bottom: 6px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        border-radius: 10px;
+        border: 1px solid #333;
+        background: #2a2a2a;
+        color: white;
+        font-weight: 600;
+    }
+
+        .form-control:focus {
+            outline: none;
+            border-color: rgba(255, 203, 0, 0.95);
+            box-shadow: 0 0 0 2px rgba(255, 203, 0, 0.25);
+        }
+
+    .vs {
+        font-weight: 900;
+        font-size: 1.2rem;
+        opacity: 0.5;
+    }
+
+    .btn-salvar {
+        margin-top: 20px;
+        padding: 10px 18px;
+        border-radius: 10px;
+        border: none;
+        font-weight: 700;
+        cursor: pointer;
+        background: rgba(255, 203, 0, 0.95);
+        transition: 0.2s ease;
+        color: black;
+    }
+
+        .btn-salvar:hover {
+            transform: translateY(-2px);
+            opacity: 0.9;
+        }
+</style>
+
+@foreach (var jogo in Model)
+{
+    <div class="fase-card">
+
+        <h2>
+            Confronto @contador
+            <small style="opacity:0.6; font-weight:400;">
+                (@jogo.DescricaoSelecaoA × @jogo.DescricaoSelecaoB) - @jogo.DataHora.ToString("dd/MM/yyyy HH:mm")
+            </small>
+        </h2>
+
+        <div class="admin-info">
+            Defina manualmente as seleções permitidas para este jogo.
+        </div>
+
+        <form asp-action="SalvarOitavas" method="post">
+
+            <input type="hidden" name="id" value="@jogo.Id" />
+
+            <div class="times">
+
+                <!-- Seleção A -->
+                <div class="time">
+                    <label>
+                        Seleção A
+                        <span style="opacity:0.5;">
+                            (@jogo.DescricaoSelecaoA)
+                        </span>
+                    </label>
+
+                    <select name="selecaoAId" class="form-control">
+                        <option value="">Selecione</option>
+                        @foreach (var selecao in jogo.TodasSelecoes)
+                        {
+                            <option value="@selecao.Id"
+                                    selected="@(selecao.Id == jogo.SelecaoAId)">
+                                @selecao.Nome (@selecao.Grupo)
+                            </option>
+                        }
+                    </select>
+                </div>
+
+                <span class="vs">x</span>
+
+                <!-- Seleção B -->
+                <div class="time">
+                    <label>
+                        Seleção B
+                        <span style="opacity:0.5;">
+                            (@jogo.DescricaoSelecaoB)
+                        </span>
+                    </label>
+
+                    <select name="selecaoBId" class="form-control">
+                        <option value="">Selecione</option>
+                        @foreach (var selecao in jogo.TodasSelecoes)
+                        {
+                            <option value="@selecao.Id"
+                                    selected="@(selecao.Id == jogo.SelecaoBId)">
+                                @selecao.Nome (@selecao.Grupo)
+                            </option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-salvar">
+                Salvar Confronto
+            </button>
+
+        </form>
+
+    </div>
+
+    contador++;
+}

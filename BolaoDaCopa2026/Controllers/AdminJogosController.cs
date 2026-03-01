@@ -115,6 +115,166 @@ public class AdminJogosController : Controller
     }
 
     // =====================================================
+    // TELA Quartas
+    // =====================================================
+    [HttpGet("Quartas")]
+    public IActionResult Quartas()
+    {
+        if (!UsuarioEhAdmin())
+            return Forbid();
+
+        var jogos = _context.Jogos
+            .Where(j => j.Fase == "Quartas")
+            .OrderBy(j => j.Id)
+            .ToList();
+
+        var selecoes = _context.Selecoes.ToList();
+
+        var viewModel = new List<JogoAdminVM>();
+
+        for (int i = 0; i < jogos.Count; i++)
+        {
+            var jogo = jogos[i];
+
+            var vm = new JogoAdminVM
+            {
+                Id = jogo.Id,
+                SelecaoAId = jogo.SelecaoAId,
+                SelecaoBId = jogo.SelecaoBId,
+                DescricaoSelecaoA = jogo.DescricaoSelecaoA,
+                DescricaoSelecaoB = jogo.DescricaoSelecaoB,
+                DataHora = jogo.DataHora
+            };
+
+            vm.TodasSelecoes = selecoes.ToList();
+
+            viewModel.Add(vm);
+        }
+
+        return View(viewModel);
+    }
+
+    // =====================================================
+    // TELA Semifinal
+    // =====================================================
+    [HttpGet("Semifinal")]
+    public IActionResult Semifinal()
+    {
+        if (!UsuarioEhAdmin())
+            return Forbid();
+
+        var jogos = _context.Jogos
+            .Where(j => j.Fase == "Semifinal")
+            .OrderBy(j => j.Id)
+            .ToList();
+
+        var selecoes = _context.Selecoes.ToList();
+
+        var viewModel = new List<JogoAdminVM>();
+
+        for (int i = 0; i < jogos.Count; i++)
+        {
+            var jogo = jogos[i];
+
+            var vm = new JogoAdminVM
+            {
+                Id = jogo.Id,
+                SelecaoAId = jogo.SelecaoAId,
+                SelecaoBId = jogo.SelecaoBId,
+                DescricaoSelecaoA = jogo.DescricaoSelecaoA,
+                DescricaoSelecaoB = jogo.DescricaoSelecaoB,
+                DataHora = jogo.DataHora
+            };
+
+            vm.TodasSelecoes = selecoes.ToList();
+
+            viewModel.Add(vm);
+        }
+
+        return View(viewModel);
+    }
+
+    // =====================================================
+    // TELA Terceiro Lugar
+    // =====================================================
+    [HttpGet("TerceiroLugar")]
+    public IActionResult TerceiroLugar()
+    {
+        if (!UsuarioEhAdmin())
+            return Forbid();
+
+        var jogos = _context.Jogos
+            .Where(j => j.Fase == "Terceiro Lugar")
+            .OrderBy(j => j.Id)
+            .ToList();
+
+        var selecoes = _context.Selecoes.ToList();
+
+        var viewModel = new List<JogoAdminVM>();
+
+        for (int i = 0; i < jogos.Count; i++)
+        {
+            var jogo = jogos[i];
+
+            var vm = new JogoAdminVM
+            {
+                Id = jogo.Id,
+                SelecaoAId = jogo.SelecaoAId,
+                SelecaoBId = jogo.SelecaoBId,
+                DescricaoSelecaoA = jogo.DescricaoSelecaoA,
+                DescricaoSelecaoB = jogo.DescricaoSelecaoB,
+                DataHora = jogo.DataHora
+            };
+
+            vm.TodasSelecoes = selecoes.ToList();
+
+            viewModel.Add(vm);
+        }
+
+        return View(viewModel);
+    }
+
+    // =====================================================
+    // TELA Final
+    // =====================================================
+    [HttpGet("Final")]
+    public IActionResult Final()
+    {
+        if (!UsuarioEhAdmin())
+            return Forbid();
+
+        var jogos = _context.Jogos
+            .Where(j => j.Fase == "Final")
+            .OrderBy(j => j.Id)
+            .ToList();
+
+        var selecoes = _context.Selecoes.ToList();
+
+        var viewModel = new List<JogoAdminVM>();
+
+        for (int i = 0; i < jogos.Count; i++)
+        {
+            var jogo = jogos[i];
+
+            var vm = new JogoAdminVM
+            {
+                Id = jogo.Id,
+                SelecaoAId = jogo.SelecaoAId,
+                SelecaoBId = jogo.SelecaoBId,
+                DescricaoSelecaoA = jogo.DescricaoSelecaoA,
+                DescricaoSelecaoB = jogo.DescricaoSelecaoB,
+                DataHora = jogo.DataHora
+            };
+
+            vm.TodasSelecoes = selecoes.ToList();
+
+            viewModel.Add(vm);
+        }
+
+        return View(viewModel);
+    }
+
+    // =====================================================
     // SALVAR SEGUNDA FASE
     // =====================================================
     [HttpPost("SalvarSegundaFase")]
@@ -156,6 +316,94 @@ public class AdminJogosController : Controller
         await _context.SaveChangesAsync();
 
         return RedirectToAction("Oitavas");
+    }
+
+    // =====================================================
+    // SALVAR Quartas
+    // =====================================================
+    [HttpPost("SalvarQuartas")]
+    public async Task<IActionResult> SalvarQuartas(int id, int? selecaoAId, int? selecaoBId)
+    {
+        if (!UsuarioEhAdmin())
+            return Forbid();
+
+        var jogo = await _context.Jogos.FindAsync(id);
+
+        if (jogo == null)
+            return NotFound();
+
+        jogo.SelecaoAId = selecaoAId;
+        jogo.SelecaoBId = selecaoBId;
+
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction("Quartas");
+    }
+
+    // =====================================================
+    // SALVAR Semifinal
+    // =====================================================
+    [HttpPost("SalvarSemifinal")]
+    public async Task<IActionResult> SalvarSemifinal(int id, int? selecaoAId, int? selecaoBId)
+    {
+        if (!UsuarioEhAdmin())
+            return Forbid();
+
+        var jogo = await _context.Jogos.FindAsync(id);
+
+        if (jogo == null)
+            return NotFound();
+
+        jogo.SelecaoAId = selecaoAId;
+        jogo.SelecaoBId = selecaoBId;
+
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction("Semifinal");
+    }
+
+    // =====================================================
+    // SALVAR Terceiro Lugar
+    // =====================================================
+    [HttpPost("SalvarTerceiroLugar")]
+    public async Task<IActionResult> SalvarTerceiroLugar(int id, int? selecaoAId, int? selecaoBId)
+    {
+        if (!UsuarioEhAdmin())
+            return Forbid();
+
+        var jogo = await _context.Jogos.FindAsync(id);
+
+        if (jogo == null)
+            return NotFound();
+
+        jogo.SelecaoAId = selecaoAId;
+        jogo.SelecaoBId = selecaoBId;
+
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction("TerceiroLugar");
+    }
+
+    // =====================================================
+    // SALVAR Final
+    // =====================================================
+    [HttpPost("SalvarFinal")]
+    public async Task<IActionResult> SalvarFinal(int id, int? selecaoAId, int? selecaoBId)
+    {
+        if (!UsuarioEhAdmin())
+            return Forbid();
+
+        var jogo = await _context.Jogos.FindAsync(id);
+
+        if (jogo == null)
+            return NotFound();
+
+        jogo.SelecaoAId = selecaoAId;
+        jogo.SelecaoBId = selecaoBId;
+
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction("Final");
     }
 
     // =====================================================

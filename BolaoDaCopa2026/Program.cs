@@ -64,7 +64,10 @@ using (var scope = app.Services.CreateScope())
     JogosSeed.Seed(context);
     JogosSegundaFaseSeed.Seed(context);
     JogosOitavasSeed.Seed(context);
-
+    JogosQuartasSeed.Seed(context);
+    JogosSemifinalSeed.Seed(context);
+    JogosTerceiroLugarSeed.Seed(context);
+    JogosFinalSeed.Seed(context);
 }
 
 
