@@ -9,6 +9,15 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - BolaoDaCopa2026</title>
+
+    <!-- FAVICONS -->
+    <link rel="icon" type="image/x-icon" href="~/img/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="~/img/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="~/img/favicon-16x16.png" />
+    <link rel="apple-touch-icon" href="~/img/apple-touch-icon.png" />
+    <link rel="manifest" href="~/img/site.webmanifest" />
+
+    <!-- CSS -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/BolaoDaCopa2026.styles.css" asp-append-version="true" />
@@ -17,10 +26,7 @@
     <link rel="stylesheet" href="~/css/TelaLogin.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/Apostas.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/Regras.css" asp-append-version="true" />
-
-
-
-</head> 
+</head>
 <body>
 
     @if (!isHome && Context.Session.GetString("NomeUsuario") != null)
@@ -47,7 +53,6 @@
             </div>
         </footer>
     }
-
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
