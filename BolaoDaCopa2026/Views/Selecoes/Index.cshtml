@@ -18,18 +18,11 @@
 <header>
     <h1>Classificação</h1>
     <style>
+
         /* Linha de classificação (cabeçalho e times) */
         .classificacao-row {
             display: grid;
-            grid-template-columns: 1fr /* Seleção */
-            40px /* J */
-            40px /* P */
-            40px /* V */
-            40px /* E */
-            40px /* D */
-            50px /* GP */
-            50px /* GC */
-            50px; /* SG */
+            grid-template-columns: 1fr 40px 40px 40px 40px 40px 50px 50px 50px;
             align-items: center;
             column-gap: 8px;
         }
@@ -82,6 +75,70 @@
             color: #0b0f17 !important;
             text-decoration: none !important;
         }
+
+        /* ===== container scroll mobile ===== */
+
+        .tabela-scroll {
+            width: 100%;
+        }
+
+        .nome-abreviado {
+            display: none;
+        }
+
+        @@media (max-width:900px) {
+            /* container com scroll lateral */
+            .tabela-scroll {
+                overflow-x: auto;
+                padding-bottom: 6px;
+            }
+            /* largura mínima da tabela */
+            .classificacao-row {
+                min-width: 520px;
+            }
+            /* esconder nome completo */
+            .nome-completo {
+                display: none;
+            }
+            /* mostrar sigla */
+            .nome-abreviado {
+                display: inline;
+                font-weight: 700;
+                letter-spacing: 1px;
+            }
+            /* linha da classificação */
+            .classificacao-row {
+                grid-template-columns: 90px 32px 32px 32px 32px 32px 38px 38px 38px;
+                column-gap: 4px;
+                font-size: 13px;
+            }
+            /* alinhar seleção */
+            .time {
+                justify-content: flex-start;
+                font-size: 13px;
+                gap: 6px;
+            }
+                /* reduzir bandeira */
+                .time img {
+                    width: 22px;
+                    height: 15px;
+                }
+            /* números menores */
+            .col-num {
+                font-size: 13px;
+            }
+        }
+
+        /* scroll bonito */
+        .tabela-scroll::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .tabela-scroll::-webkit-scrollbar-thumb {
+            background: rgba(255,203,0,0.6);
+            border-radius: 10px;
+        }
+
     </style>
 </header>
 
@@ -90,47 +147,59 @@
     @foreach (var grupo in Model.GroupBy(s => s.Grupo).OrderBy(g => g.Key))
     {
         <div class="fase">
+
             <h2>Grupo @grupo.Key</h2>
 
-            <!-- Cabeçalho -->
-            <div class="jogo classificacao-row classificacao-header">
-                <div>Seleção</div>
-                <div class="col-num">J</div>
-                <div class="col-num">P</div>
-                <div class="col-num">V</div>
-                <div class="col-num">E</div>
-                <div class="col-num">D</div>
-                <div class="col-num">GP</div>
-                <div class="col-num">GC</div>
-                <div class="col-num">SG</div>
-            </div>
+            <div class="tabela-scroll">
 
-            @foreach (var s in grupo
-                    .OrderByDescending(s => s.Pontos)
-                    .ThenByDescending(s => s.GolsPro - s.GolsContra)
-                    .ThenByDescending(s => s.GolsPro))
-            {
-                <div class="jogo aberto classificacao-row">
+                <!-- Cabeçalho -->
+                <div class="jogo classificacao-row classificacao-header">
+                    <div>Seleção</div>
+                    <div class="col-num">J</div>
+                    <div class="col-num">P</div>
+                    <div class="col-num">V</div>
+                    <div class="col-num">E</div>
+                    <div class="col-num">D</div>
+                    <div class="col-num">GP</div>
+                    <div class="col-num">GC</div>
+                    <div class="col-num">SG</div>
+                </div>
 
-                    <!-- Seleção -->
-                    <div class="times">
+                @foreach (var s in grupo
+                            .OrderByDescending(s => s.Pontos)
+                            .ThenByDescending(s => s.GolsPro - s.GolsContra)
+                            .ThenByDescending(s => s.GolsPro))
+                {
+                    <div class="jogo aberto classificacao-row">
+
+                        <!-- Seleção -->
                         <div class="time">
                             <img src="@s.BandeiraUrl" alt="@s.Nome" />
-                            <span>@s.Nome</span>
-                        </div>
-                    </div>
 
-                    <!-- Estatísticas -->
-                    <div class="col-num">@s.Jogos</div>
-                    <div class="col-num">@s.Pontos</div>
-                    <div class="col-num">@s.Vitorias</div>
-                    <div class="col-num">@s.Empates</div>
-                    <div class="col-num">@s.Derrotas</div>
-                    <div class="col-num">@s.GolsPro</div>
-                    <div class="col-num">@s.GolsContra</div>
-                    <div class="col-num">@(@s.GolsPro - s.GolsContra)</div>
-                </div>
-            }
+                            <span class="nome-completo">
+                                @s.Nome
+                            </span>
+
+                            <span class="nome-abreviado">
+                                @(s.Nome.Length >= 3 ? s.Nome.Substring(0, 3).ToUpper() : s.Nome.ToUpper())
+                            </span>
+                        </div>
+
+                        <!-- Estatísticas -->
+                        <div class="col-num">@s.Jogos</div>
+                        <div class="col-num">@s.Pontos</div>
+                        <div class="col-num">@s.Vitorias</div>
+                        <div class="col-num">@s.Empates</div>
+                        <div class="col-num">@s.Derrotas</div>
+                        <div class="col-num">@s.GolsPro</div>
+                        <div class="col-num">@s.GolsContra</div>
+                        <div class="col-num">@(@s.GolsPro - s.GolsContra)</div>
+
+                    </div>
+                }
+
+            </div>
+
         </div>
     }
 

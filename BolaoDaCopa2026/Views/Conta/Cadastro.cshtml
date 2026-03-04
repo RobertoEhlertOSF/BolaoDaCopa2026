@@ -1,26 +1,31 @@
-﻿@page
-@{
+﻿@{
+    ViewData["Title"] = "Cadastro";
 }
 
-<main class="pagina">
-    <section class="card">
-        <div class="card_topo">
+<section class="login-page">
+    <div class="login-card">
+
+        <div class="login-top">
             <div class="tag">Cadastro</div>
-            <h1 class="titulo">Crie sua conta</h1>
-            <p class="subtitulo">Rapidinho — e já seguimos para as apostas 😄</p>
+            <h1>Crie sua conta</h1>
+            <p>Rapidinho — e já seguimos para as apostas 😄</p>
         </div>
 
-        <div class="card_conteudo grid">
-            <div class="painel_imagem" aria-hidden="true">
-                <img class="img_napers" src="~/Img/meganapers.png" alt="Napers" />
+        <div class="login-content">
+
+            <div class="login-image">
+                <img src="~/Img/meganapers.png" alt="Napers" />
             </div>
 
-            <div class="painel_form">
-                <form asp-controller="Conta" asp-action="DadosCadastro" method="post" class="form">
+            <div class="login-form">
+
+                <form asp-controller="Conta"
+                      asp-action="DadosCadastro"
+                      method="post">
+
                     <div class="campo">
-                        <label for="nome">Nome completo</label>
+                        <label>Nome completo</label>
                         <input type="text"
-                               id="nome"
                                name="Nome"
                                placeholder="Digite seu nome completo"
                                autocomplete="name"
@@ -28,17 +33,15 @@
                     </div>
 
                     <div class="campo">
-                        <label for="dataNascimento">Data de Nascimento</label>
+                        <label>Data de nascimento</label>
                         <input type="date"
-                               id="dataNascimento"
                                name="DataNascimento"
                                required />
                     </div>
 
                     <div class="campo">
-                        <label for="email">E-mail</label>
+                        <label>E-mail</label>
                         <input type="email"
-                               id="email"
                                name="Email"
                                placeholder="Digite seu e-mail"
                                autocomplete="email"
@@ -46,22 +49,213 @@
                     </div>
 
                     <div class="campo">
-                        <label for="senha">Escolha sua senha</label>
+                        <label>Escolha sua senha</label>
                         <input type="password"
-                               id="senha"
                                name="Senha"
                                placeholder="Digite sua senha"
                                autocomplete="new-password"
                                required />
                     </div>
 
-                    <button type="submit" class="btn btn_primario">Concluir</button>
 
-                    <div class="acoes">
-                        <a class="btn btn_secundario" asp-page="/Login">Voltar pro login</a>
+                    <!-- CHECKBOX TERMOS -->
+                    <div class="termos">
+                        <input type="checkbox"
+                               id="aceiteTermos"
+                               required>
+
+                        <label for="aceiteTermos">
+                            Eu li e aceito os
+                            <a href="#">Termos de Uso</a>
+                            e a
+                            <a href="#">Política de Privacidade</a>.
+                        </label>
                     </div>
+
+
+                    <button type="submit" class="btn-home btn-home--primary">
+                        Concluir
+                    </button>
+
+                    <a asp-controller="Conta"
+                       asp-action="Login"
+                       class="btn-home btn-home--secondary">
+                        Voltar pro login
+                    </a>
+
                 </form>
+
             </div>
+
         </div>
-    </section>
-</main>
+    </div>
+</section>
+
+
+<style>
+
+    /* ESCONDE FOOTER NESSA TELA */
+    footer {
+        display: none !important;
+    }
+
+    /* ===== LAYOUT BASE ===== */
+
+    .login-page {
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    body {
+        overflow: hidden;
+    }
+
+    /* CARD */
+
+    .login-card {
+        width: 100%;
+        max-width: 900px;
+        padding: 40px;
+        border-radius: 20px;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        backdrop-filter: blur(10px);
+    }
+
+    /* TOPO */
+
+    .login-top h1 {
+        margin-bottom: 8px;
+    }
+
+    .login-top p {
+        opacity: 0.7;
+        margin-bottom: 25px;
+    }
+
+    .tag {
+        display: inline-block;
+        background: #f5c518;
+        color: black;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        margin-bottom: 10px;
+    }
+
+    /* GRID */
+
+    .login-content {
+        display: flex;
+        gap: 40px;
+        align-items: center;
+    }
+
+    /* IMAGEM */
+
+    .login-image img {
+        width: 100%;
+        max-width: 300px;
+        border-radius: 16px;
+    }
+
+    /* FORM */
+
+    .login-form {
+        flex: 1;
+    }
+
+    /* CAMPOS */
+
+    .campo {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 15px;
+    }
+
+        .campo input {
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.05);
+            color: white;
+        }
+
+    /* TERMOS */
+
+    .termos {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        font-size: 13px;
+        margin-bottom: 15px;
+    }
+
+        .termos a {
+            color: #3ea6ff;
+            text-decoration: none;
+        }
+
+        .termos input[type="checkbox"] {
+            accent-color: rgba(255,203,0,0.95);
+        }
+
+    /* BOTÕES (mesmo padrão do login) */
+
+    .btn-home {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        padding: 12px 16px;
+        border-radius: 12px;
+        font-weight: 800;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: .2s;
+        margin-top: 10px;
+    }
+
+    .btn-home--primary {
+        background: rgba(255,203,0,0.95);
+        color: #0b0f17;
+    }
+
+        .btn-home--primary:hover {
+            filter: brightness(1.05);
+            transform: translateX(-2px);
+        }
+
+    .btn-home--secondary {
+        background: rgba(255,255,255,0.08);
+        color: white;
+    }
+
+    /* RESPONSIVO */
+
+    @@media (max-width:768px) {
+        .login-content
+
+    {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .login-image img {
+        max-width: 200px;
+    }
+
+    .login-card {
+        padding: 25px;
+    }
+
+    .login-top h1 {
+        font-size: 22px;
+    }
+
+    }
+</style>

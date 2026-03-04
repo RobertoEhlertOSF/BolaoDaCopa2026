@@ -1,5 +1,5 @@
-﻿@page
-@{
+﻿@{
+    ViewData["Title"] = "Login";
 }
 
 @if (TempData["Erro"] != null)
@@ -9,76 +9,184 @@
     </div>
 }
 
+<section class="login-page">
+    <div class="login-card">
 
+        <div class="login-top">
+            <h1>Sejam bem-vindos ao bolão Napers da copa do mundo de 2026!</h1>
+            <p>Onde seu palpite vale muito!</p>
+        </div>
 
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Login</title>
-    <link rel="stylesheet" href="css/TelaLogin.css">
-</head>
+        <div class="login-content">
 
-<body>
-    <header class="cabecalho">
-        <nav class="cabecalho_menu"></nav>
-    </header>
-
-    <main class="pagina">
-        <section class="card">
-            <div class="card_topo">
-                <h1 class="titulo">Sejam bem-vindos ao bolão Napers da copa do mundo de 2026!</h1>
-                <p class="subtitulo">Onde seu palpite vale muito!</p>
+            <div class="login-image">
+                <img src="~/Img/meganapers.png" alt="Napers" />
             </div>
 
-            <div class="card_conteudo grid">
-                <div class="painel_imagem" aria-hidden="true">
-                    <img class="img_napers" src="~/Img/meganapers.png" alt="Napers" />
-                </div>
+            <div class="login-form">
+                <h2>Para o seu primeiro golaço, acesse sua conta:</h2>
 
-                <div class="painel_form">
-                    <h2 class="form_titulo">Para o seu primeiro golaço, acesse sua conta:</h2>
+                <form asp-controller="Conta"
+                      asp-action="FazerLogin"
+                      method="post">
 
-                    <form asp-controller="Conta" asp-action="FazerLogin" method="post" class="form">
-                        <div class="campo">
-                            <label for="email">Email</label>
-                            <input type="email"
-                                   id="email"
-                                   name="Email"
-                                   placeholder="Digite seu e-mail"
-                                   autocomplete="email"
-                                   required />
-                        </div>
+                    <div class="campo">
+                        <label>Email</label>
+                        <input type="email"
+                               name="Email"
+                               placeholder="Digite seu e-mail"
+                               autocomplete="email"
+                               required />
+                    </div>
 
-                        <div class="campo">
-                            <label for="senha">Senha</label>
-                            <input type="password"
-                                   id="senha"
-                                   name="Senha"
-                                   placeholder="Digite sua senha"
-                                   autocomplete="current-password"
-                                   required />
-                        </div>
+                    <div class="campo">
+                        <label>Senha</label>
+                        <input type="password"
+                               name="Senha"
+                               placeholder="Digite sua senha"
+                               autocomplete="current-password"
+                               required />
+                    </div>
 
-                        <button type="submit" class="btn btn_primario">Entrar</button>
-                    </form>            
-                    
+                    <!-- BOTÃO PADRÃO DO SITE -->
+                    <button type="submit"
+                            class="btn-home btn-home--primary">
+                        Entrar
+                    </button>
+                </form>
 
-
-                    <div class="acoes">
-
-                            <a asp-controller="Conta" asp-action="Cadastro" class="btn btn_secundario">
-                                Novo? Crie uma conta
-                            </a>
-
-                    </div>  
-                </div>
+                <!-- MESMO PADRÃO DO INDEX -->
+                <a asp-controller="Conta"
+                   asp-action="Cadastro"
+                   class="btn-home btn-home--primary"
+                   style="margin-top: 12px;">
+                    Novo? Crie uma conta
+                </a>
             </div>
-        </section>
-    </main>
 
-    <footer class="rodape"></footer>
-</body>
-</html>
+        </div>
+    </div>
+</section>
+
+<style>
+    /* ===== ESCONDER FOOTER SOMENTE NO LOGIN ===== */
+    footer {
+        display: none !important;
+    }
+
+    /* ===== LOGIN PAGE ===== */
+
+    .login-page {
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    body {
+        overflow: hidden;
+    }
+
+    .login-card {
+        width: 100%;
+        max-width: 900px;
+        padding: 40px;
+        border-radius: 20px;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        backdrop-filter: blur(10px);
+    }
+
+    .login-top h1 {
+        margin-bottom: 10px;
+    }
+
+    .login-top p {
+        opacity: 0.7;
+        margin-bottom: 30px;
+    }
+
+    .login-content {
+        display: flex;
+        gap: 40px;
+        align-items: center;
+    }
+
+    .login-image img {
+        width: 100%;
+        max-width: 300px;
+        border-radius: 16px;
+    }
+
+    .login-form {
+        flex: 1;
+    }
+
+    .campo {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 15px;
+    }
+
+        .campo input {
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.05);
+            color: white;
+        }
+
+    .btn-home {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 16px;
+        border-radius: 12px;
+        font-weight: 800;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: .2s;
+    }
+
+    .btn-home--primary {
+        background: rgba(255, 203, 0, 0.95);
+        color: #0b0f17;
+    }
+
+        .btn-home--primary:hover {
+            filter: brightness(1.05);
+            transform: translateX(-2px);
+            color: #0b0f17;
+        }
+
+    /* botão de baixo ocupa largura total */
+    .login-form .btn-home {
+        width: 100%;
+        margin-top: 12px;
+    }
+
+    /* ===== RESPONSIVO ===== */
+
+    @@media (max-width: 768px) {
+        .login-content
+
+    {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .login-image img {
+        max-width: 200px;
+    }
+
+    .login-card {
+        padding: 25px;
+    }
+
+    .login-top h1 {
+        font-size: 22px;
+    }
+
+    }
+</style>
