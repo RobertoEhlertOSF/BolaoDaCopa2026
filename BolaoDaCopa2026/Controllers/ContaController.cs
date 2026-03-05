@@ -41,6 +41,23 @@ public class ContaController : Controller
     [HttpPost("cadastro")]
     public IActionResult DadosCadastro(CadastroFormDto dto)
     {
+
+        var hoje = DateTime.Today;
+        var idade = hoje.Year - dto.DataNascimento.Year;
+
+        if (dto.DataNascimento.Date > hoje.AddYears(-idade))
+        {
+            idade--;
+        }
+
+        if (idade < 18)
+        {
+            return RedirectToAction(nameof(Cadastro), new
+            {
+                erro = "É necessário ter pelo menos 18 anos para participar."
+            });
+        }
+
         if (string.IsNullOrWhiteSpace(dto.Nome) ||
             string.IsNullOrWhiteSpace(dto.Email) ||
             string.IsNullOrWhiteSpace(dto.Senha))
@@ -145,7 +162,16 @@ public class ContaController : Controller
 
         return RedirectToAction("Index", "Home");
     }
+
+    // GET /conta/eula
+    [HttpGet("eula")]
+    public IActionResult Eula()
+    {
+        return View();
+    }
 }
+
+
 
 // =========================
 // DTOs
@@ -157,6 +183,7 @@ public class CadastroFormDto
     public DateTime DataNascimento { get; set; }
     public string Email { get; set; } = "";
     public string Senha { get; set; } = "";
+    public string ConfirmarSenha { get; set; } = "";
 }
 
 public class LoginFormDto
