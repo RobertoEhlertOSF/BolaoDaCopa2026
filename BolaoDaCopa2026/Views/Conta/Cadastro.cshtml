@@ -17,12 +17,12 @@
                 <img src="~/Img/meganapers.png" alt="Napers" />
             </div>
 
-            <div class="login-form">
+            <div class="painel_form">
 
                 <form asp-controller="Conta"
                       asp-action="DadosCadastro"
                       method="post">
-
+                      
                     <div class="campo">
                         <label>Nome completo</label>
                         <input type="text"
@@ -37,6 +37,10 @@
                         <input type="date"
                                name="DataNascimento"
                                required />
+
+                        <small id="erroIdade" style="color: red; display: none;">
+                            Você precisa ter pelo menos 18 anos para participar.
+                        </small>
                     </div>
 
                     <div class="campo">
@@ -57,21 +61,32 @@
                                required />
                     </div>
 
+                    <div class="campo">
+                        <label for="confirmarSenha">Confirme sua senha</label>
+                        <input type="password"
+                               id="confirmarSenha"
+                               name="ConfirmarSenha"
+                               placeholder="Digite novamente sua senha"
+                               autocomplete="new-password"
+                               required />
 
-                    <!-- CHECKBOX TERMOS -->
-                    <div class="termos">
-                        <input type="checkbox"
-                               id="aceiteTermos"
-                               required>
-
-                        <label for="aceiteTermos">
-                            Eu li e aceito os
-                            <a href="#">Termos de Uso</a>
-                            e a
-                            <a href="#">Política de Privacidade</a>.
-                        </label>
+                        <small id="erroSenha" style="color: red; display: none;">
+                            As senhas não coincidem.
+                        </small>
                     </div>
 
+                    <!-- EULA -->
+                    <div class="campo termos">
+                        <label class="checkbox_container">
+                            <input type="checkbox" id="aceiteEula" name="AceitouEula" required />
+                            <span>
+                                Eu aceito os
+                                <a href="javascript:void(0);" id="abrirEula">
+                                    Termos e Condições
+                                </a>
+                            </span>
+                        </label>
+                    </div>
 
                     <button type="submit" class="btn-home btn-home--primary">
                         Concluir
@@ -88,6 +103,181 @@
             </div>
 
         </div>
+    </section>
+</main>
+
+<!-- MODAL EULA -->
+<div id="modalEula" class="modal">
+    <div class="modal_conteudo">
+        <div class="modal_header">
+            <h2>Termos e Condições</h2>
+            <button id="fecharEula" class="btn_fechar">&times;</button>
+        </div>
+
+        <div class="modal_body">
+            <iframe src="/conta/eula" frameborder="0"></iframe>
+        </div>
+
+        <div class="modal_footer">
+            <button id="btnAceitarEula" class="btn btn_primario">
+                Li e Aceito
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+    .modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    .modal_conteudo {
+        background: #fff;
+        width: 80%;
+        max-width: 800px;
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        max-height: 90vh;
+        overflow: hidden;
+    }
+
+    .modal_header,
+    .modal_footer {
+        padding: 16px;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: black;
+    }
+
+    .modal_footer {
+        border-top: 1px solid #eee;
+        border-bottom: none;
+        justify-content: flex-end;
+    }
+
+    .modal_body {
+        flex: 1;
+    }
+
+        .modal_body iframe {
+            width: 100%;
+            height: 60vh;
+        }
+
+    .btn_fechar {
+        background: none;
+        border: none;
+        font-size: 22px;
+        cursor: pointer;
+    }
+
+    .campo.termos {
+        display: flex;
+        align-items: center;
+    }
+
+    .checkbox_container {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+    }
+
+        .checkbox_container span {
+            display: inline;
+        }
+
+        .checkbox_container a {
+            display: inline;
+        }
+</style>
+
+<script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+        const form = document.querySelector(".form");
+        const dataInput = document.getElementById("dataNascimento");
+        const erroIdade = document.getElementById("erroIdade");
+
+        const senhaInput = document.getElementById("senha");
+        const confirmarSenhaInput = document.getElementById("confirmarSenha");
+        const erroSenha = document.getElementById("erroSenha");
+
+        const modal = document.getElementById("modalEula");
+        const abrir = document.getElementById("abrirEula");
+        const fechar = document.getElementById("fecharEula");
+        const aceitar = document.getElementById("btnAceitarEula");
+        const checkbox = document.getElementById("aceiteEula");
+
+        // ===== MODAL =====
+        abrir.addEventListener("click", function (e) {
+            e.preventDefault();
+            modal.style.display = "flex";
+        });
+
+        fechar.addEventListener("click", function () {
+            modal.style.display = "none";
+        });
+
+        aceitar.addEventListener("click", function () {
+            checkbox.checked = true;
+            modal.style.display = "none";
+        });
+
+        window.addEventListener("click", function (e) {
+            if (e.target === modal) {
+                modal.style.display = "none";
+            }
+        });
+
+        // ===== VALIDAÇÕES NO SUBMIT =====
+        form.addEventListener("submit", function (e) {
+
+            let valido = true;
+
+            // ---- IDADE ----
+            const dataNascimento = new Date(dataInput.value);
+            const hoje = new Date();
+
+            let idade = hoje.getFullYear() - dataNascimento.getFullYear();
+            const mes = hoje.getMonth() - dataNascimento.getMonth();
+
+            if (mes < 0 || (mes === 0 && hoje.getDate() < dataNascimento.getDate())) {
+                idade--;
+            }
+
+            if (idade < 18) {
+                erroIdade.style.display = "block";
+                valido = false;
+            } else {
+                erroIdade.style.display = "none";
+            }
+
+            // ---- SENHA ----
+            if (senhaInput.value !== confirmarSenhaInput.value) {
+                erroSenha.style.display = "block";
+                valido = false;
+            } else {
+                erroSenha.style.display = "none";
+            }
+
+            if (!valido) {
+                e.preventDefault();
+            }
+
+        });
+
+    });
+</script>
     </div>
 </section>
 
@@ -182,6 +372,7 @@
             border: 1px solid rgba(255,255,255,0.2);
             background: rgba(255,255,255,0.05);
             color: white;
+            width: auto;
         }
 
     /* TERMOS */
