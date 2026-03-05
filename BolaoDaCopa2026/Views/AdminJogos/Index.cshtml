@@ -10,230 +10,316 @@
 
 <h1 class="mb-4">Painel de Jogos - Admin</h1>
 
-<div class="admin-acoes-topo">
-    <a asp-controller="AdminJogos"
-       asp-action="SegundaFase"
-       class="btn-segunda-fase">
-        ⚔ Configurar Segunda Fase
-    </a>
+
+<!-- PAINEL DE CONFIGURAÇÃO -->
+<div class="admin-config">
+
+    <h3>⚙ Configuração do Mata-mata</h3>
+
+    <div class="admin-buttons">
+
+        <a asp-controller="AdminJogos"
+           asp-action="SegundaFase"
+           class="btn-admin">
+            2ª Fase
+        </a>
+
+        <a asp-controller="AdminJogos"
+           asp-action="Oitavas"
+           class="btn-admin">
+            Oitavas
+        </a>
+
+        <a asp-controller="AdminJogos"
+           asp-action="Quartas"
+           class="btn-admin">
+            Quartas
+        </a>
+
+        <a asp-controller="AdminJogos"
+           asp-action="SemiFinal"
+           class="btn-admin">
+            Semifinal
+        </a>
+
+        <a asp-controller="AdminJogos"
+           asp-action="TerceiroLugar"
+           class="btn-admin">
+            3º Lugar
+        </a>
+
+        <a asp-controller="AdminJogos"
+           asp-action="Final"
+           class="btn-admin">
+            Final
+        </a>
+
+    </div>
+
 </div>
 
-<div class="admin-acoes-topo">
-    <a asp-controller="AdminJogos"
-       asp-action="Oitavas"
-       class="btn-segunda-fase">
-        ⚔ Configurar Oitavas
-    </a>
-</div>
 
-<div class="admin-acoes-topo">
-    <a asp-controller="AdminJogos"
-       asp-action="Quartas"
-       class="btn-segunda-fase">
-        ⚔ Configurar Quartas
-    </a>
-</div>
+<div class="admin-table-wrapper">
 
-<div class="admin-acoes-topo">
-    <a asp-controller="AdminJogos"
-       asp-action="SemiFinal"
-       class="btn-segunda-fase">
-        ⚔ Configurar Semifinal
-    </a>
-</div>
-
-<div class="admin-acoes-topo">
-    <a asp-controller="AdminJogos"
-       asp-action="TerceiroLugar"
-       class="btn-segunda-fase">
-        ⚔ Configurar Disputa 3º Lugar
-    </a>
-</div>
-
-<div class="admin-acoes-topo">
-    <a asp-controller="AdminJogos"
-       asp-action="Final"
-       class="btn-segunda-fase">
-        ⚔ Configurar Final
-    </a>
-</div>
-
-<table class="table table-hover table-bordered align-middle">
-    <thead class="table-dark">
-        <tr>
-            <th>Data/Hora</th>
-            <th>Fase</th>
-            <th>Seleção A</th>
-            <th>Placar</th>
-            <th>Seleção B</th>
-            <th>Status</th>
-            <th>Ação</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var jogo in Model ?? new List<BolaoDaCopa2026.Models.Jogo>())
-        {
-            var statusClass = jogo.Status switch
-            {
-                "Finalizado" => "text-success fw-bold",
-                "EmAndamento" => "text-warning fw-bold",
-                "Aguardando definição" => "text-secondary fw-bold",
-                _ => "text-muted"
-            };
-
+    <table class="table table-hover table-bordered align-middle">
+        <thead class="table-dark">
             <tr>
-                <td>@jogo.DataHora.ToString("dd/MM HH:mm")</td>
-                <td>@jogo.Fase</td>
-
-                <!-- Seleção A -->
-                <td>
-                    @if (jogo.SelecaoA != null)
-                    {
-                        <img src="@jogo.SelecaoA.BandeiraUrl"
-                             alt="@jogo.SelecaoA.Nome"
-                             width="24"
-                             class="me-1" />
-                        @jogo.SelecaoA.Nome
-                    }
-                    else
-                    {
-                        <span class="text-muted">A definir</span>
-                    }
-                </td>
-
-                <!-- Placar -->
-                <td>
-                    @if (jogo.Status == "Finalizado")
-                    {
-                        <span class="badge bg-primary">
-                            @jogo.GolsSelecaoA × @jogo.GolsSelecaoB
-                        </span>
-                    }
-                    else
-                    {
-                        <span class="text-muted">—</span>
-                    }
-                </td>
-
-                <!-- Seleção B -->
-                <td>
-                    @if (jogo.SelecaoB != null)
-                    {
-                        <img src="@jogo.SelecaoB.BandeiraUrl"
-                             alt="@jogo.SelecaoB.Nome"
-                             width="24"
-                             class="me-1" />
-                        @jogo.SelecaoB.Nome
-                    }
-                    else
-                    {
-                        <span class="text-muted">A definir</span>
-                    }
-                </td>
-
-                <td class="@statusClass">@jogo.Status</td>
-
-                <td>
-                    <a asp-action="Editar"
-                       asp-route-id="@jogo.Id"
-                       class="btn btn-sm btn-outline-primary">
-                        ✏ Atualizar
-                    </a>
-                </td>
+                <th>Data/Hora</th>
+                <th>Fase</th>
+                <th>Seleção A</th>
+                <th>Placar</th>
+                <th>Seleção B</th>
+                <th>Status</th>
+                <th>Ação</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
 
+        <tbody>
+            @foreach (var jogo in Model ?? new List<BolaoDaCopa2026.Models.Jogo>())
+            {
+                var statusClass = jogo.Status switch
+                {
+                    "Finalizado" => "text-success fw-bold",
+                    "EmAndamento" => "text-warning fw-bold",
+                    "Aguardando definição" => "text-secondary fw-bold",
+                    _ => "text-muted"
+                };
 
-    <style>
-        /* Hover da tabela */
-        .table-hover tbody tr:hover {
-            background-color: #f1f5f9;
-            transition: color 0.2s ease, background-color 0.2s ease;
-        }
+                <tr>
+                    <td>@jogo.DataHora.ToString("dd/MM HH:mm")</td>
 
-        /* Fonte das células por padrão */
-        .table-hover tbody tr td {
-            color: darkgrey; 
-            transition: color 0.2s ease;
-        }
+                    <td>@jogo.Fase</td>
 
-        /* Cabeçalho */
-        .table-hover thead th {
-            color: #FFF; 
-        }
+                    <!-- Seleção A -->
+                    <td>
+                        @if (jogo.SelecaoA != null)
+                        {
+                            <img src="@jogo.SelecaoA.BandeiraUrl"
+                                 alt="@jogo.SelecaoA.Nome"
+                                 width="24"
+                                 class="me-1" />
 
-        /* Botões */
-        .table-hover .btn {
-            font-size: 0.85rem;
-            padding: 0.35em 0.6em;
-            color: #fff;
-            background-color: #007bff;
-            border: 1px solid #007bff;
-            border-radius: 4px;
-            transition: background-color 0.2s, color 0.2s;
-        }
+                            @jogo.SelecaoA.Nome
+                        }
+                        else
+                        {
+                            <span class="text-muted">A definir</span>
+                        }
+                    </td>
 
-            .table-hover .btn:hover {
-                background-color: #0056b3;
-                color: #fff;
-                border-color: #0056b3;
+                    <!-- Placar -->
+                    <td>
+                        @if (jogo.Status == "Finalizado")
+                        {
+                            <span class="badge bg-primary">
+                                @jogo.GolsSelecaoA × @jogo.GolsSelecaoB
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">—</span>
+                        }
+                    </td>
+
+                    <!-- Seleção B -->
+                    <td>
+                        @if (jogo.SelecaoB != null)
+                        {
+                            <img src="@jogo.SelecaoB.BandeiraUrl"
+                                 alt="@jogo.SelecaoB.Nome"
+                                 width="24"
+                                 class="me-1" />
+
+                            @jogo.SelecaoB.Nome
+                        }
+                        else
+                        {
+                            <span class="text-muted">A definir</span>
+                        }
+                    </td>
+
+                    <td class="@statusClass">
+                        @jogo.Status
+                    </td>
+
+                    <td>
+                        <a asp-action="Editar"
+                           asp-route-id="@jogo.Id"
+                           class="btn-atualizar">
+                            Atualizar
+                        </a>
+                    </td>
+
+                </tr>
             }
+        </tbody>
 
-        /* Badges */
-        .badge {
-            font-size: 1rem;
-            padding: 0.4em 0.7em;
-        }
+    </table>
 
-        /* Bandeiras */
-        img {
-            vertical-align: middle;
-            border-radius: 3px;
-            max-height: 24px;
-            margin-right: 6px;
-        }
+</div>
 
-        .admin-voltar {
-            margin-bottom: 16px;
-        }
 
-        .btn-voltar {
-            display: inline-block;
-            padding: 8px 14px;
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.08);
-            color: #fff;
+
+<style>
+
+    /* ============================= */
+    /* BOTÃO VOLTAR (PADRÃO DO SITE) */
+    /* ============================= */
+
+    .admin-voltar {
+        margin-bottom: 16px;
+    }
+
+    .btn-voltar {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 16px;
+        border-radius: 10px;
+        background: rgba(255,203,0,0.95);
+        color: #0b0f17;
+        text-decoration: none;
+        font-weight: 800;
+        transition: filter .2s ease, transform .1s ease;
+    }
+
+        .btn-voltar:hover {
+            filter: brightness(1.05);
+            transform: translateX(-2px);
+            color: #0b0f17;
             text-decoration: none;
-            font-weight: 600;
-            transition: background 0.2s ease, transform 0.1s ease;
         }
 
-            .btn-voltar:hover {
-                background: rgba(255, 255, 255, 0.16);
-                transform: translateX(-2px);
-            }
 
-        .admin-acoes-topo {
-            margin-bottom: 20px;
+    /* ============================= */
+    /* BOTÕES DO PAINEL ADMIN       */
+    /* ============================= */
+
+    .admin-config {
+        margin: 10px 0 25px;
+    }
+
+        .admin-config h3 {
+            margin-bottom: 10px;
+            font-size: 18px;
+            color: #fff;
+            opacity: .9;
         }
 
-        .btn-segunda-fase {
-            display: inline-block;
-            padding: 8px 14px;
-            border-radius: 10px;
-            background: rgba(255, 203, 0, 0.95);
-            color: #000;
+    .admin-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .btn-admin {
+        padding: 10px 16px;
+        border-radius: 10px;
+        background: rgba(255,203,0,0.95);
+        color: #0b0f17;
+        font-weight: 800;
+        text-decoration: none;
+        transition: filter .2s ease, transform .1s ease;
+    }
+
+        .btn-admin:hover {
+            filter: brightness(1.05);
+            transform: translateY(-2px);
+            color: #0b0f17;
             text-decoration: none;
-            font-weight: 700;
-            transition: 0.2s ease;
         }
 
-            .btn-segunda-fase:hover {
-                transform: translateY(-2px);
-                opacity: 0.9;
-            }
 
-    </style>
+    /* ============================= */
+    /* TABELA                        */
+    /* ============================= */
+
+    .table-hover tbody tr:hover {
+        background-color: #f1f5f9;
+        transition: color 0.2s ease, background-color 0.2s ease;
+    }
+
+    .table-hover tbody tr td {
+        color: darkgrey;
+    }
+
+    .table-hover thead th {
+        color: #FFF;
+    }
+
+    /* botão atualizar */
+
+    .btn-atualizar {
+        background: #1f7cff;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+        .btn-atualizar:hover {
+            background: #1664d9;
+            color: white;
+        }
+
+    /* badges */
+
+    .badge {
+        font-size: 1rem;
+        padding: 0.4em 0.7em;
+    }
+
+    /* bandeiras */
+
+    img {
+        vertical-align: middle;
+        border-radius: 3px;
+        max-height: 24px;
+        margin-right: 6px;
+    }
+
+
+
+    /* ============================= */
+    /* SCROLL MOBILE DA TABELA      */
+    /* ============================= */
+
+    .admin-table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+        .admin-table-wrapper table {
+            min-width: 750px;
+        }
+
+
+
+    /* ============================= */
+    /* Telas menores       */
+    /* ============================= */
+
+    @@media (max-width:768px) {
+
+        h1 {
+            font-size: 28px;
+        }
+
+        .admin-buttons {
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            padding-bottom: 6px;
+        }
+
+        .btn-admin {
+            white-space: nowrap;
+            font-size: 14px;
+            padding: 8px 14px;
+        }
+    }
+
+</style>
 
