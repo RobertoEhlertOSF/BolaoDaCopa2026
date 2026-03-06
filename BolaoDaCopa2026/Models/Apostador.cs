@@ -19,6 +19,11 @@
         public int Pontuacao { get; set; }
         public int PalpitesExatos { get; set; }
 
+
+        public int? SelecaoCampeaId { get; set; }
+        public Selecao? SelecaoCampea { get; set; }
+
+
         public ICollection<Aposta> Apostas { get; set; }
     }
 

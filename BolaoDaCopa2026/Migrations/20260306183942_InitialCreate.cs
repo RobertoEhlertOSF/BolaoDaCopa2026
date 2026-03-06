@@ -25,6 +25,7 @@ namespace BolaoDaCopa2026.Migrations
                     GolsPro = table.Column<int>(type: "INTEGER", nullable: false),
                     GolsContra = table.Column<int>(type: "INTEGER", nullable: false),
                     Jogos = table.Column<int>(type: "INTEGER", nullable: false),
+                    Pontos = table.Column<int>(type: "INTEGER", nullable: false),
                     Vitorias = table.Column<int>(type: "INTEGER", nullable: false),
                     Empates = table.Column<int>(type: "INTEGER", nullable: false),
                     Derrotas = table.Column<int>(type: "INTEGER", nullable: false)
@@ -55,14 +56,18 @@ namespace BolaoDaCopa2026.Migrations
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    SelecaoAId = table.Column<int>(type: "INTEGER", nullable: false),
-                    SelecaoBId = table.Column<int>(type: "INTEGER", nullable: false),
+                    SelecaoAId = table.Column<int>(type: "INTEGER", nullable: true),
+                    SelecaoBId = table.Column<int>(type: "INTEGER", nullable: true),
                     EstaAberto = table.Column<bool>(type: "INTEGER", nullable: false),
                     DataHora = table.Column<DateTime>(type: "TEXT", nullable: false),
                     Fase = table.Column<string>(type: "TEXT", nullable: false),
                     Status = table.Column<string>(type: "TEXT", nullable: false),
                     GolsSelecaoA = table.Column<int>(type: "INTEGER", nullable: true),
-                    GolsSelecaoB = table.Column<int>(type: "INTEGER", nullable: true)
+                    GolsSelecaoB = table.Column<int>(type: "INTEGER", nullable: true),
+                    ApostasProcessadas = table.Column<bool>(type: "INTEGER", nullable: false),
+                    ClassificacaoProcessada = table.Column<bool>(type: "INTEGER", nullable: false),
+                    DescricaoSelecaoA = table.Column<string>(type: "TEXT", nullable: true),
+                    DescricaoSelecaoB = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -116,7 +121,13 @@ namespace BolaoDaCopa2026.Migrations
                     SelecaoBId = table.Column<int>(type: "INTEGER", nullable: false),
                     GolsSelecaoA = table.Column<int>(type: "INTEGER", nullable: false),
                     GolsSelecaoB = table.Column<int>(type: "INTEGER", nullable: false),
-                    ApostadorId = table.Column<int>(type: "INTEGER", nullable: false)
+                    ApostadorId = table.Column<int>(type: "INTEGER", nullable: false),
+                    SelecaoCampeaId = table.Column<int>(type: "INTEGER", nullable: true),
+                    Pontos = table.Column<int>(type: "INTEGER", nullable: false),
+                    HashCommit = table.Column<string>(type: "TEXT", nullable: false),
+                    Salt = table.Column<string>(type: "TEXT", nullable: false),
+                    CriadoEmUtc = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    AtualizadoEmUtc = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -145,61 +156,66 @@ namespace BolaoDaCopa2026.Migrations
                         principalTable: "Selecoes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Apostas_Selecoes_SelecaoCampeaId",
+                        column: x => x.SelecaoCampeaId,
+                        principalTable: "Selecoes",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.InsertData(
                 table: "Selecoes",
-                columns: new[] { "Id", "BandeiraUrl", "Derrotas", "Empates", "GolsContra", "GolsPro", "Grupo", "Jogos", "Nome", "Vitorias" },
+                columns: new[] { "Id", "BandeiraUrl", "Derrotas", "Empates", "GolsContra", "GolsPro", "Grupo", "Jogos", "Nome", "Pontos", "Vitorias" },
                 values: new object[,]
                 {
-                    { 1, "https://flagcdn.com/w40/mx.png", 0, 0, 0, 0, "A", 0, "México", 0 },
-                    { 2, "https://flagcdn.com/w40/za.png", 0, 0, 0, 0, "A", 0, "África do Sul", 0 },
-                    { 3, "https://flagcdn.com/w40/kr.png", 0, 0, 0, 0, "A", 0, "Coreia do Sul", 0 },
-                    { 4, "https://flagcdn.com/w40/eu.png", 0, 0, 0, 0, "A", 0, "Repescagem Europa D", 0 },
-                    { 5, "https://flagcdn.com/w40/ca.png", 0, 0, 0, 0, "B", 0, "Canadá", 0 },
-                    { 6, "https://flagcdn.com/w40/eu.png", 0, 0, 0, 0, "B", 0, "Repescagem Europa A", 0 },
-                    { 7, "https://flagcdn.com/w40/qa.png", 0, 0, 0, 0, "B", 0, "Catar", 0 },
-                    { 8, "https://flagcdn.com/w40/ch.png", 0, 0, 0, 0, "B", 0, "Suíça", 0 },
-                    { 9, "https://flagcdn.com/w40/br.png", 0, 0, 0, 0, "C", 0, "Brasil", 0 },
-                    { 10, "https://flagcdn.com/w40/ma.png", 0, 0, 0, 0, "C", 0, "Marrocos", 0 },
-                    { 11, "https://flagcdn.com/w40/ht.png", 0, 0, 0, 0, "C", 0, "Haiti", 0 },
-                    { 12, "https://flagcdn.com/w40/gb-sct.png", 0, 0, 0, 0, "C", 0, "Escócia", 0 },
-                    { 13, "https://flagcdn.com/w40/us.png", 0, 0, 0, 0, "D", 0, "Estados Unidos", 0 },
-                    { 14, "https://flagcdn.com/w40/py.png", 0, 0, 0, 0, "D", 0, "Paraguai", 0 },
-                    { 15, "https://flagcdn.com/w40/au.png", 0, 0, 0, 0, "D", 0, "Austrália", 0 },
-                    { 16, "https://flagcdn.com/w40/eu.png", 0, 0, 0, 0, "D", 0, "Repescagem Europa C", 0 },
-                    { 17, "https://flagcdn.com/w40/de.png", 0, 0, 0, 0, "E", 0, "Alemanha", 0 },
-                    { 18, "https://flagcdn.com/w40/cw.png", 0, 0, 0, 0, "E", 0, "Curaçao", 0 },
-                    { 19, "https://flagcdn.com/w40/ci.png", 0, 0, 0, 0, "E", 0, "Costa do Marfim", 0 },
-                    { 20, "https://flagcdn.com/w40/ec.png", 0, 0, 0, 0, "E", 0, "Equador", 0 },
-                    { 21, "https://flagcdn.com/w40/nl.png", 0, 0, 0, 0, "F", 0, "Holanda", 0 },
-                    { 22, "https://flagcdn.com/w40/jp.png", 0, 0, 0, 0, "F", 0, "Japão", 0 },
-                    { 23, "https://flagcdn.com/w40/eu.png", 0, 0, 0, 0, "F", 0, "Repescagem Europa B", 0 },
-                    { 24, "https://flagcdn.com/w40/tn.png", 0, 0, 0, 0, "F", 0, "Tunísia", 0 },
-                    { 25, "https://flagcdn.com/w40/be.png", 0, 0, 0, 0, "G", 0, "Bélgica", 0 },
-                    { 26, "https://flagcdn.com/w40/eg.png", 0, 0, 0, 0, "G", 0, "Egito", 0 },
-                    { 27, "https://flagcdn.com/w40/ir.png", 0, 0, 0, 0, "G", 0, "Irã", 0 },
-                    { 28, "https://flagcdn.com/w40/nz.png", 0, 0, 0, 0, "G", 0, "Nova Zelândia", 0 },
-                    { 29, "https://flagcdn.com/w40/es.png", 0, 0, 0, 0, "H", 0, "Espanha", 0 },
-                    { 30, "https://flagcdn.com/w40/cv.png", 0, 0, 0, 0, "H", 0, "Cabo Verde", 0 },
-                    { 31, "https://flagcdn.com/w40/sa.png", 0, 0, 0, 0, "H", 0, "Arábia Saudita", 0 },
-                    { 32, "https://flagcdn.com/w40/uy.png", 0, 0, 0, 0, "H", 0, "Uruguai", 0 },
-                    { 33, "https://flagcdn.com/w40/fr.png", 0, 0, 0, 0, "I", 0, "França", 0 },
-                    { 34, "https://flagcdn.com/w40/sn.png", 0, 0, 0, 0, "I", 0, "Senegal", 0 },
-                    { 35, "https://flagcdn.com/w40/un.png", 0, 0, 0, 0, "I", 0, "Repescagem Intercontinental 2", 0 },
-                    { 36, "https://flagcdn.com/w40/no.png", 0, 0, 0, 0, "I", 0, "Noruega", 0 },
-                    { 37, "https://flagcdn.com/w40/ar.png", 0, 0, 0, 0, "J", 0, "Argentina", 0 },
-                    { 38, "https://flagcdn.com/w40/dz.png", 0, 0, 0, 0, "J", 0, "Argélia", 0 },
-                    { 39, "https://flagcdn.com/w40/at.png", 0, 0, 0, 0, "J", 0, "Áustria", 0 },
-                    { 40, "https://flagcdn.com/w40/jo.png", 0, 0, 0, 0, "J", 0, "Jordânia", 0 },
-                    { 41, "https://flagcdn.com/w40/pt.png", 0, 0, 0, 0, "K", 0, "Portugal", 0 },
-                    { 42, "https://flagcdn.com/w40/un.png", 0, 0, 0, 0, "K", 0, "Repescagem Intercontinental 1", 0 },
-                    { 43, "https://flagcdn.com/w40/uz.png", 0, 0, 0, 0, "K", 0, "Uzbequistão", 0 },
-                    { 44, "https://flagcdn.com/w40/co.png", 0, 0, 0, 0, "K", 0, "Colômbia", 0 },
-                    { 45, "https://flagcdn.com/w40/gb-eng.png", 0, 0, 0, 0, "L", 0, "Inglaterra", 0 },
-                    { 46, "https://flagcdn.com/w40/hr.png", 0, 0, 0, 0, "L", 0, "Croácia", 0 },
-                    { 47, "https://flagcdn.com/w40/gh.png", 0, 0, 0, 0, "L", 0, "Gana", 0 },
-                    { 48, "https://flagcdn.com/w40/pa.png", 0, 0, 0, 0, "L", 0, "Panamá", 0 }
+                    { 1, "https://flagcdn.com/w40/mx.png", 0, 0, 0, 0, "A", 0, "México", 0, 0 },
+                    { 2, "https://flagcdn.com/w40/za.png", 0, 0, 0, 0, "A", 0, "África do Sul", 0, 0 },
+                    { 3, "https://flagcdn.com/w40/kr.png", 0, 0, 0, 0, "A", 0, "Coreia do Sul", 0, 0 },
+                    { 4, "https://flagcdn.com/w40/eu.png", 0, 0, 0, 0, "A", 0, "Repescagem Europa D", 0, 0 },
+                    { 5, "https://flagcdn.com/w40/ca.png", 0, 0, 0, 0, "B", 0, "Canadá", 0, 0 },
+                    { 6, "https://flagcdn.com/w40/eu.png", 0, 0, 0, 0, "B", 0, "Repescagem Europa A", 0, 0 },
+                    { 7, "https://flagcdn.com/w40/qa.png", 0, 0, 0, 0, "B", 0, "Catar", 0, 0 },
+                    { 8, "https://flagcdn.com/w40/ch.png", 0, 0, 0, 0, "B", 0, "Suíça", 0, 0 },
+                    { 9, "https://flagcdn.com/w40/br.png", 0, 0, 0, 0, "C", 0, "Brasil", 0, 0 },
+                    { 10, "https://flagcdn.com/w40/ma.png", 0, 0, 0, 0, "C", 0, "Marrocos", 0, 0 },
+                    { 11, "https://flagcdn.com/w40/ht.png", 0, 0, 0, 0, "C", 0, "Haiti", 0, 0 },
+                    { 12, "https://flagcdn.com/w40/gb-sct.png", 0, 0, 0, 0, "C", 0, "Escócia", 0, 0 },
+                    { 13, "https://flagcdn.com/w40/us.png", 0, 0, 0, 0, "D", 0, "Estados Unidos", 0, 0 },
+                    { 14, "https://flagcdn.com/w40/py.png", 0, 0, 0, 0, "D", 0, "Paraguai", 0, 0 },
+                    { 15, "https://flagcdn.com/w40/au.png", 0, 0, 0, 0, "D", 0, "Austrália", 0, 0 },
+                    { 16, "https://flagcdn.com/w40/eu.png", 0, 0, 0, 0, "D", 0, "Repescagem Europa C", 0, 0 },
+                    { 17, "https://flagcdn.com/w40/de.png", 0, 0, 0, 0, "E", 0, "Alemanha", 0, 0 },
+                    { 18, "https://flagcdn.com/w40/cw.png", 0, 0, 0, 0, "E", 0, "Curaçao", 0, 0 },
+                    { 19, "https://flagcdn.com/w40/ci.png", 0, 0, 0, 0, "E", 0, "Costa do Marfim", 0, 0 },
+                    { 20, "https://flagcdn.com/w40/ec.png", 0, 0, 0, 0, "E", 0, "Equador", 0, 0 },
+                    { 21, "https://flagcdn.com/w40/nl.png", 0, 0, 0, 0, "F", 0, "Holanda", 0, 0 },
+                    { 22, "https://flagcdn.com/w40/jp.png", 0, 0, 0, 0, "F", 0, "Japão", 0, 0 },
+                    { 23, "https://flagcdn.com/w40/eu.png", 0, 0, 0, 0, "F", 0, "Repescagem Europa B", 0, 0 },
+                    { 24, "https://flagcdn.com/w40/tn.png", 0, 0, 0, 0, "F", 0, "Tunísia", 0, 0 },
+                    { 25, "https://flagcdn.com/w40/be.png", 0, 0, 0, 0, "G", 0, "Bélgica", 0, 0 },
+                    { 26, "https://flagcdn.com/w40/eg.png", 0, 0, 0, 0, "G", 0, "Egito", 0, 0 },
+                    { 27, "https://flagcdn.com/w40/ir.png", 0, 0, 0, 0, "G", 0, "Irã", 0, 0 },
+                    { 28, "https://flagcdn.com/w40/nz.png", 0, 0, 0, 0, "G", 0, "Nova Zelândia", 0, 0 },
+                    { 29, "https://flagcdn.com/w40/es.png", 0, 0, 0, 0, "H", 0, "Espanha", 0, 0 },
+                    { 30, "https://flagcdn.com/w40/cv.png", 0, 0, 0, 0, "H", 0, "Cabo Verde", 0, 0 },
+                    { 31, "https://flagcdn.com/w40/sa.png", 0, 0, 0, 0, "H", 0, "Arábia Saudita", 0, 0 },
+                    { 32, "https://flagcdn.com/w40/uy.png", 0, 0, 0, 0, "H", 0, "Uruguai", 0, 0 },
+                    { 33, "https://flagcdn.com/w40/fr.png", 0, 0, 0, 0, "I", 0, "França", 0, 0 },
+                    { 34, "https://flagcdn.com/w40/sn.png", 0, 0, 0, 0, "I", 0, "Senegal", 0, 0 },
+                    { 35, "https://flagcdn.com/w40/un.png", 0, 0, 0, 0, "I", 0, "Repescagem Intercontinental 2", 0, 0 },
+                    { 36, "https://flagcdn.com/w40/no.png", 0, 0, 0, 0, "I", 0, "Noruega", 0, 0 },
+                    { 37, "https://flagcdn.com/w40/ar.png", 0, 0, 0, 0, "J", 0, "Argentina", 0, 0 },
+                    { 38, "https://flagcdn.com/w40/dz.png", 0, 0, 0, 0, "J", 0, "Argélia", 0, 0 },
+                    { 39, "https://flagcdn.com/w40/at.png", 0, 0, 0, 0, "J", 0, "Áustria", 0, 0 },
+                    { 40, "https://flagcdn.com/w40/jo.png", 0, 0, 0, 0, "J", 0, "Jordânia", 0, 0 },
+                    { 41, "https://flagcdn.com/w40/pt.png", 0, 0, 0, 0, "K", 0, "Portugal", 0, 0 },
+                    { 42, "https://flagcdn.com/w40/un.png", 0, 0, 0, 0, "K", 0, "Repescagem Intercontinental 1", 0, 0 },
+                    { 43, "https://flagcdn.com/w40/uz.png", 0, 0, 0, 0, "K", 0, "Uzbequistão", 0, 0 },
+                    { 44, "https://flagcdn.com/w40/co.png", 0, 0, 0, 0, "K", 0, "Colômbia", 0, 0 },
+                    { 45, "https://flagcdn.com/w40/gb-eng.png", 0, 0, 0, 0, "L", 0, "Inglaterra", 0, 0 },
+                    { 46, "https://flagcdn.com/w40/hr.png", 0, 0, 0, 0, "L", 0, "Croácia", 0, 0 },
+                    { 47, "https://flagcdn.com/w40/gh.png", 0, 0, 0, 0, "L", 0, "Gana", 0, 0 },
+                    { 48, "https://flagcdn.com/w40/pa.png", 0, 0, 0, 0, "L", 0, "Panamá", 0, 0 }
                 });
 
             migrationBuilder.CreateIndex(
@@ -227,6 +243,11 @@ namespace BolaoDaCopa2026.Migrations
                 name: "IX_Apostas_SelecaoBId",
                 table: "Apostas",
                 column: "SelecaoBId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Apostas_SelecaoCampeaId",
+                table: "Apostas",
+                column: "SelecaoCampeaId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Jogos_SelecaoAId",
