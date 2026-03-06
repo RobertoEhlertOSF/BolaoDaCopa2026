@@ -32,10 +32,28 @@ namespace BolaoDaCopa2026.Controllers
                 .Take(2)
                 .ToList();
 
+            var apostadorId = HttpContext.Session.GetInt32("ApostadorId");
+
+            if (apostadorId != null)
+            {
+                var apostador = _context.Apostadores
+                    .Include(a => a.SelecaoCampea)
+                    .FirstOrDefault(a => a.Id == apostadorId);
+
+                if (apostador != null && apostador.SelecaoCampeaId == null)
+                {
+                    ViewBag.AvisoCampeao = true;
+                }
+                else
+                {
+                    ViewBag.Campeao = apostador?.SelecaoCampea;
+                }
+            }
+
             return View(proximosJogos);
         }
 
-        [Route("Home/Error")]
+            [Route("Home/Error")]
         public IActionResult Error()
         {
             ViewData["RequestId"] = Activity.Current?.Id ?? HttpContext.TraceIdentifier;

@@ -2,7 +2,6 @@
 @using BolaoDaCopa2026.Models
 
 
-<!-- ====== AÇÕES TOPO (Voltar / Regras) ====== -->
 <div class="top-actions">
     <a asp-controller="Home"
        asp-action="Index"
@@ -10,11 +9,21 @@
         ← Voltar para o início
     </a>
 
-    <a asp-controller="Home"
-       asp-action="Regras"
-       class="btn-regras">
-        Regras do bolão
-    </a>
+    <div class="top-right">
+
+        <a asp-controller="Apostas"
+           asp-action="Campeao"
+           class="btn-campeao">
+            🏆 Meu campeão
+        </a>
+
+        <a asp-controller="Home"
+           asp-action="Regras"
+           class="btn-regras">
+            Regras do bolão
+        </a>
+
+    </div>
 </div>
 
 
