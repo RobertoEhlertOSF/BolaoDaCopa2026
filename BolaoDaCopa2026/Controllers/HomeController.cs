@@ -1,4 +1,6 @@
 ﻿using BolaoDaCopa2026.Data;
+using BolaoDaCopa2026.Models;
+using BolaoDaCopa2026.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
@@ -23,16 +25,56 @@ namespace BolaoDaCopa2026.Controllers
         public async Task<IActionResult> Index()
         {
             var agora = DateTime.Now;
+            var hoje = agora.Date;
 
-            var proximosJogos = _context.Jogos
+            var apostadorId = HttpContext.Session.GetInt32("ApostadorId");
+
+            var jogosHoje = await _context.Jogos
                 .Include(j => j.SelecaoA)
                 .Include(j => j.SelecaoB)
-                .Where(j => j.DataHora > agora)
+                .Where(j => j.DataHora.Date == hoje)
                 .OrderBy(j => j.DataHora)
-                .Take(2)
-                .ToList();
+                .Take(4)
+                .ToListAsync();
 
-            return View(proximosJogos);
+            var jogos = jogosHoje;
+
+            if (jogos.Count < 4)
+            {
+                var proximos = await _context.Jogos
+                    .Include(j => j.SelecaoA)
+                    .Include(j => j.SelecaoB)
+                    .Where(j => j.DataHora > agora)
+                    .OrderBy(j => j.DataHora)
+                    .Take(4 - jogos.Count)
+                    .ToListAsync();
+
+                jogos = jogos.Concat(proximos).ToList();
+            }
+
+            var apostasUsuario = new List<Aposta>();
+
+            if (apostadorId != null)
+            {
+                var jogoIds = jogos.Select(j => j.Id).ToList();
+
+                apostasUsuario = await _context.Apostas
+                    .Where(a => a.ApostadorId == apostadorId && jogoIds.Contains(a.JogoId))
+                    .ToListAsync();
+            }
+
+            var viewModel = new HomeViewModel
+            {
+                TemJogosHoje = jogosHoje.Any(),
+                Jogos = jogos.Select(j => new JogoComApostaViewModel
+                {
+                    Jogo = j,
+                    ApostaUsuario = apostasUsuario
+                        .FirstOrDefault(a => a.JogoId == j.Id)
+                }).ToList()
+            };
+
+            return View(viewModel);
         }
 
         [Route("Home/Error")]
