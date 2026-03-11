@@ -19,6 +19,83 @@ body {
         linear-gradient(180deg, var(--bg), var(--bg2));
 }
 
+.alert-campeao {
+    background: rgba(255, 203, 0, 0.12);
+    border: 1px solid rgba(255, 203, 0, 0.4);
+    padding: 14px 18px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+    .alert-campeao a {
+        color: #ffcb00;
+        font-weight: 800;
+        text-decoration: none;
+        margin-left: 6px;
+    }
+
+/* alerta escolher campeão */
+
+.alerta-campeao {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin: 20px auto;
+    padding: 16px 20px;
+    max-width: 900px;
+    background: rgba(255,203,0,0.15);
+    border: 1px solid rgba(255,203,0,0.4);
+    border-radius: 14px;
+}
+
+    .alerta-campeao .icone {
+        font-size: 20px;
+    }
+
+.btn-escolher {
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-weight: 700;
+    background: rgba(255,203,0,0.95);
+    color: #0b0f17;
+    text-decoration: none;
+}
+
+    .btn-escolher:hover {
+        filter: brightness(1.05);
+    }
+
+
+/* campeão escolhido */
+
+.campeao-escolhido {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin: 20px auto;
+    padding: 12px 18px;
+    max-width: 600px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+    .campeao-escolhido img {
+        width: 28px;
+        height: 20px;
+        object-fit: cover;
+        border-radius: 3px;
+    }
+
+.btn-trocar {
+    margin-left: 10px;
+    font-size: 13px;
+    opacity: 0.7;
+}
+
 /* =========================================================
    LANDING — estrutura geral
    ========================================================= */

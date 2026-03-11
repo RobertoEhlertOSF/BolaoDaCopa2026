@@ -1,4 +1,5 @@
-﻿@model List<BolaoDaCopa2026.Models.Jogo>
+﻿@using BolaoDaCopa2026.Models
+@model List<BolaoDaCopa2026.Models.Jogo>
 
 @{
     ViewData["Title"] = "Home";
@@ -8,6 +9,28 @@
         .Where(j => j.DataHora > agora)
         .OrderBy(j => j.DataHora)
         .FirstOrDefault();
+
+    var campeao = ViewBag.Campeao as Selecao;
+
+    }
+
+@if (campeao != null)
+{
+    <div class="campeao-escolhido">
+
+        <span>Seu campeão:</span>
+
+        <img src="@campeao.BandeiraUrl" />
+
+        <strong>@campeao.Nome</strong>
+
+        <a asp-controller="Apostas"
+           asp-action="Campeao"
+           class="btn-trocar">
+            alterar
+        </a>
+
+    </div>
 }
 
 <section class="landing">
@@ -25,6 +48,14 @@
         }
 
         <h1>Bolão da Copa 2026</h1>
+
+        @if (ViewBag.AvisoCampeao == true)
+        {
+            <div class="alert-campeao">
+            ⚠️ Você ainda não escolheu o campeão da Copa.
+            <a href="/Apostas/Campeao">Escolher agora</a>
+            </div>
+        }
 
         @if (Model != null && Model.Any())
         {
@@ -342,3 +373,4 @@
             font-size: 11px;
         }
     }
+    <style>
