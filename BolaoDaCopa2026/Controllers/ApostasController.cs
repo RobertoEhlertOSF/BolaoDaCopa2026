@@ -130,5 +130,55 @@ namespace BolaoDaCopa2026.Controllers
 
             return RedirectToAction(nameof(Index), new { filtro, grupo });
         }
+        public IActionResult Campeao()
+        {
+            var apostadorId = HttpContext.Session.GetInt32("ApostadorId");
+
+            var apostador = _context.Apostadores
+                .Include(a => a.SelecaoCampea)
+                .First(a => a.Id == apostadorId);
+
+            var selecoes = _context.Selecoes
+                .OrderBy(s => s.Nome)
+                .ToList();
+
+            var primeiroJogo = _context.Jogos
+                .OrderBy(j => j.DataHora)
+                .First();
+
+            var prazoEncerrado = DateTime.Now > primeiroJogo.DataHora;
+
+            ViewBag.Apostador = apostador;
+            ViewBag.PrazoEncerrado = prazoEncerrado;
+
+            return View(selecoes);
+        }
+
+        [HttpPost]
+        public IActionResult SalvarCampeao(int selecaoId)
+        {
+            var primeiroJogo = _context.Jogos
+                .OrderBy(j => j.DataHora)
+                .First();
+
+            if (DateTime.Now > primeiroJogo.DataHora)
+            {
+                TempData["Erro"] = "O prazo para escolher o campeão já terminou.";
+                return RedirectToAction("Campeao");
+            }
+
+            var apostadorId = HttpContext.Session.GetInt32("ApostadorId");
+
+            var apostador = _context.Apostadores
+                .First(a => a.Id == apostadorId);
+
+            apostador.SelecaoCampeaId = selecaoId;
+
+            _context.SaveChanges();
+
+            TempData["Sucesso"] = "Campeão salvo com sucesso! 🏆";
+
+            return RedirectToAction("Campeao");
+        }
     }
 }

@@ -1,0 +1,216 @@
+﻿@using BolaoDaCopa2026.Models
+@model IEnumerable<Selecao>
+
+@{
+    var apostador = ViewBag.Apostador as Apostador;
+}
+
+@if (TempData["Sucesso"] != null)
+{
+    <div class="alert-sucesso">
+        @TempData["Sucesso"]
+    </div>
+}
+
+@if (ViewBag.PrazoEncerrado == true)
+{
+    <div class="alert-encerrado">
+        ⛔ O prazo para escolher o campeão terminou.
+    </div>
+}
+
+<div class="container mt-4">
+
+    <a asp-controller="Home"
+       asp-action="Index"
+       class="btn-voltar">
+        ← Voltar para o início
+    </a>
+
+    <h2 class="text-center mb-4">
+        🏆 Escolha o campeão da Copa
+    </h2>
+
+    @if (apostador?.SelecaoCampea != null)
+    {
+        <div class="campeao-atual">
+            <img src="@apostador.SelecaoCampea.BandeiraUrl" />
+            <span>
+                Seu campeão atual:
+                <strong>@apostador.SelecaoCampea.Nome</strong>
+            </span>
+        </div>
+    }
+
+    @if (ViewBag.PrazoEncerrado != true)
+    {
+        <form asp-action="SalvarCampeao" method="post">
+
+            <div class="row">
+
+                @foreach (var selecao in Model)
+                {
+                    var selecionado = apostador?.SelecaoCampeaId == selecao.Id;
+
+                    <div class="col-6 col-md-3 col-lg-2 mb-4">
+
+                        <label class="card selecao-card text-center p-2 @(selecionado ? "selecionado" : "")">
+
+                            <input type="radio"
+                                   name="selecaoId"
+                                   value="@selecao.Id"
+                                   @(selecionado ? "checked" : "")
+                                   class="d-none" />
+
+                            <img src="@selecao.BandeiraUrl"
+                                 class="img-fluid bandeira mb-2" />
+
+                            <div class="nome-selecao">
+                                @selecao.Nome
+                            </div>
+
+                        </label>
+
+                    </div>
+                }
+
+            </div>
+
+            <div class="text-center mt-4">
+                <button class="btn-confirmar">
+                    Confirmar campeão
+                </button>
+            </div>
+
+        </form>
+    }
+
+</div>
+
+<style>
+
+    .selecao-card {
+        cursor: pointer;
+        border: 2px solid transparent;
+        border-radius: 12px;
+        transition: all .2s;
+    }
+
+        .selecao-card:hover {
+            transform: scale(1.05);
+        }
+
+        .selecao-card.selecionado {
+            border: 3px solid rgba(255,203,0,0.95);
+            box-shadow: 0 0 10px rgba(255,203,0,0.35);
+        }
+
+    .bandeira {
+        height: 60px;
+        object-fit: contain;
+    }
+
+    .nome-selecao {
+        font-weight: 600;
+    }
+
+    .btn-voltar {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 16px;
+        border-radius: 10px;
+        background: rgba(255, 203, 0, 0.95);
+        color: #0b0f17;
+        text-decoration: none;
+        font-weight: 800;
+        border: none;
+        transition: filter 0.2s ease, transform 0.1s ease;
+    }
+
+        .btn-voltar:hover {
+            filter: brightness(1.05);
+            transform: translateX(-2px);
+            color: #0b0f17;
+            text-decoration: none;
+        }
+
+        .btn-voltar:focus,
+        .btn-voltar:active {
+            color: #0b0f17;
+            text-decoration: none;
+        }
+
+    .btn-confirmar {
+        padding: 12px 24px;
+        border-radius: 10px;
+        border: none;
+        background: rgba(255,203,0,0.95);
+        color: #0b0f17;
+        font-weight: 800;
+        font-size: 16px;
+        transition: .2s;
+    }
+
+        .btn-confirmar:hover {
+            transform: scale(1.05);
+        }
+
+    .alert-sucesso {
+        margin: 20px auto;
+        padding: 14px;
+        max-width: 500px;
+        text-align: center;
+        background: rgba(40,167,69,0.2);
+        border: 1px solid rgba(40,167,69,0.5);
+        border-radius: 12px;
+        color: #7CFF9E;
+        font-weight: 600;
+    }
+
+    .alert-encerrado {
+        margin: 20px auto;
+        padding: 16px;
+        max-width: 500px;
+        text-align: center;
+        background: rgba(255,80,80,0.15);
+        border: 1px solid rgba(255,80,80,0.4);
+        border-radius: 12px;
+        font-weight: 600;
+    }
+
+    .campeao-atual {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        margin-bottom: 20px;
+        padding: 12px;
+        border-radius: 12px;
+        background: rgba(255,255,255,0.08);
+    }
+
+        .campeao-atual img {
+            height: 28px;
+        }
+
+</style>
+
+<script>
+
+    document.querySelectorAll(".selecao-card").forEach(card => {
+
+        card.addEventListener("click", function () {
+
+            document.querySelectorAll(".selecao-card")
+                .forEach(c => c.classList.remove("selecionado"));
+
+            this.classList.add("selecionado");
+
+            this.querySelector("input[type=radio]").checked = true;
+
+        });
+
+    });
+
+</script>

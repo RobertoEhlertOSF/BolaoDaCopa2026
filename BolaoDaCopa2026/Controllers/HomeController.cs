@@ -23,61 +23,74 @@ namespace BolaoDaCopa2026.Controllers
         }
 
         public async Task<IActionResult> Index()
+{
+    var agora = DateTime.Now;
+    var hoje = agora.Date;
+
+    var apostadorId = HttpContext.Session.GetInt32("ApostadorId");
+
+    var jogosHoje = await _context.Jogos
+        .Include(j => j.SelecaoA)
+        .Include(j => j.SelecaoB)
+        .Where(j => j.DataHora.Date == hoje)
+        .OrderBy(j => j.DataHora)
+        .Take(4)
+        .ToListAsync();
+
+    var jogos = jogosHoje;
+
+    if (jogos.Count < 4)
+    {
+        var proximos = await _context.Jogos
+            .Include(j => j.SelecaoA)
+            .Include(j => j.SelecaoB)
+            .Where(j => j.DataHora > agora)
+            .OrderBy(j => j.DataHora)
+            .Take(4 - jogos.Count)
+            .ToListAsync();
+
+        jogos = jogos.Concat(proximos).ToList();
+    }
+
+    var apostasUsuario = new List<Aposta>();
+
+    if (apostadorId != null)
+    {
+        var jogoIds = jogos.Select(j => j.Id).ToList();
+
+        apostasUsuario = await _context.Apostas
+            .Where(a => a.ApostadorId == apostadorId && jogoIds.Contains(a.JogoId))
+            .ToListAsync();
+
+        var apostador = await _context.Apostadores
+            .Include(a => a.SelecaoCampea)
+            .FirstOrDefaultAsync(a => a.Id == apostadorId);
+
+        if (apostador != null && apostador.SelecaoCampeaId == null)
         {
-            var agora = DateTime.Now;
-            var hoje = agora.Date;
-
-            var apostadorId = HttpContext.Session.GetInt32("ApostadorId");
-
-            var jogosHoje = await _context.Jogos
-                .Include(j => j.SelecaoA)
-                .Include(j => j.SelecaoB)
-                .Where(j => j.DataHora.Date == hoje)
-                .OrderBy(j => j.DataHora)
-                .Take(4)
-                .ToListAsync();
-
-            var jogos = jogosHoje;
-
-            if (jogos.Count < 4)
-            {
-                var proximos = await _context.Jogos
-                    .Include(j => j.SelecaoA)
-                    .Include(j => j.SelecaoB)
-                    .Where(j => j.DataHora > agora)
-                    .OrderBy(j => j.DataHora)
-                    .Take(4 - jogos.Count)
-                    .ToListAsync();
-
-                jogos = jogos.Concat(proximos).ToList();
-            }
-
-            var apostasUsuario = new List<Aposta>();
-
-            if (apostadorId != null)
-            {
-                var jogoIds = jogos.Select(j => j.Id).ToList();
-
-                apostasUsuario = await _context.Apostas
-                    .Where(a => a.ApostadorId == apostadorId && jogoIds.Contains(a.JogoId))
-                    .ToListAsync();
-            }
-
-            var viewModel = new HomeViewModel
-            {
-                TemJogosHoje = jogosHoje.Any(),
-                Jogos = jogos.Select(j => new JogoComApostaViewModel
-                {
-                    Jogo = j,
-                    ApostaUsuario = apostasUsuario
-                        .FirstOrDefault(a => a.JogoId == j.Id)
-                }).ToList()
-            };
-
-            return View(viewModel);
+            ViewBag.AvisoCampeao = true;
         }
+        else
+        {
+            ViewBag.Campeao = apostador?.SelecaoCampea;
+        }
+    }
 
-        [Route("Home/Error")]
+    var viewModel = new HomeViewModel
+    {
+        TemJogosHoje = jogosHoje.Any(),
+        Jogos = jogos.Select(j => new JogoComApostaViewModel
+        {
+            Jogo = j,
+            ApostaUsuario = apostasUsuario
+                .FirstOrDefault(a => a.JogoId == j.Id)
+        }).ToList()
+    };
+
+    return View(viewModel);
+}
+
+            [Route("Home/Error")]
         public IActionResult Error()
         {
             ViewData["RequestId"] = Activity.Current?.Id ?? HttpContext.TraceIdentifier;

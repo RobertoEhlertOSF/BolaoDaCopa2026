@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BolaoDaCopa2026.Migrations
 {
     [DbContext(typeof(BolaoContext))]
-    [Migration("20260209152058_AddHashAposta")]
-    partial class AddHashAposta
+    [Migration("20260306183942_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -61,6 +61,9 @@ namespace BolaoDaCopa2026.Migrations
                     b.Property<int>("SelecaoBId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int?>("SelecaoCampeaId")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ApostadorId");
@@ -70,6 +73,8 @@ namespace BolaoDaCopa2026.Migrations
                     b.HasIndex("SelecaoAId");
 
                     b.HasIndex("SelecaoBId");
+
+                    b.HasIndex("SelecaoCampeaId");
 
                     b.ToTable("Apostas");
                 });
@@ -122,6 +127,12 @@ namespace BolaoDaCopa2026.Migrations
                     b.Property<DateTime>("DataHora")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("DescricaoSelecaoA")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DescricaoSelecaoB")
+                        .HasColumnType("TEXT");
+
                     b.Property<bool>("EstaAberto")
                         .HasColumnType("INTEGER");
 
@@ -135,10 +146,10 @@ namespace BolaoDaCopa2026.Migrations
                     b.Property<int?>("GolsSelecaoB")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("SelecaoAId")
+                    b.Property<int?>("SelecaoAId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("SelecaoBId")
+                    b.Property<int?>("SelecaoBId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Status")
@@ -923,6 +934,10 @@ namespace BolaoDaCopa2026.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("BolaoDaCopa2026.Models.Selecao", "SelecaoCampea")
+                        .WithMany()
+                        .HasForeignKey("SelecaoCampeaId");
+
                     b.Navigation("Apostador");
 
                     b.Navigation("Jogo");
@@ -930,6 +945,8 @@ namespace BolaoDaCopa2026.Migrations
                     b.Navigation("SelecaoA");
 
                     b.Navigation("SelecaoB");
+
+                    b.Navigation("SelecaoCampea");
                 });
 
             modelBuilder.Entity("BolaoDaCopa2026.Models.Apostador", b =>
@@ -948,14 +965,12 @@ namespace BolaoDaCopa2026.Migrations
                     b.HasOne("BolaoDaCopa2026.Models.Selecao", "SelecaoA")
                         .WithMany()
                         .HasForeignKey("SelecaoAId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("BolaoDaCopa2026.Models.Selecao", "SelecaoB")
                         .WithMany()
                         .HasForeignKey("SelecaoBId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("SelecaoA");
 
