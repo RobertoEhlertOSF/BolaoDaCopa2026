@@ -1,6 +1,6 @@
 ﻿using BolaoDaCopa2026.Data;
 using BolaoDaCopa2026.Models;
-using BolaoDaCopa2026.Services; // <<< NOVO
+using BolaoDaCopa2026.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,66 +15,56 @@ namespace BolaoDaCopa2026.Controllers
             _context = context;
         }
 
-        // GET /Apostas?filtro=todos&grupo=A
-        public IActionResult Index(string filtro = "todos", string? grupo = null)
+        public IActionResult Index(string fase = "Grupo A", string filtro = "todos", string? grupo = null)
         {
             var apostadorId = HttpContext.Session.GetInt32("ApostadorId");
+
             if (apostadorId == null)
                 return RedirectToAction("Login", "Conta");
 
             int id = apostadorId.Value;
 
-            // IDs dos jogos em que o usuário já apostou
-            var apostaJogoIdsQuery = _context.Apostas
-                .AsNoTracking()
-                .Where(a => a.ApostadorId == id)
-                .Select(a => a.JogoId);
-
-            // Base da lista de jogos
+            // Jogos base
             var jogosQuery = _context.Jogos
-                .AsNoTracking()
                 .Include(j => j.SelecaoA)
                 .Include(j => j.SelecaoB)
                 .AsQueryable();
 
-            // ===== FILTRO POR GRUPO =====
-            if (!string.IsNullOrWhiteSpace(grupo))
+            // ===== FILTRO POR FASE =====
+            if (!string.IsNullOrWhiteSpace(fase))
             {
-                var textoGrupo = $"Grupo {grupo.Trim().ToUpper()}";
-                jogosQuery = jogosQuery.Where(j => j.Fase != null && j.Fase.Contains(textoGrupo));
+                jogosQuery = jogosQuery.Where(j => j.Fase == fase);
             }
 
-            // ===== FILTRO POR PALPITE =====
-            switch ((filtro ?? "todos").ToLower())
-            {
-                case "com":
-                    jogosQuery = jogosQuery.Where(j => apostaJogoIdsQuery.Contains(j.Id));
-                    break;
-
-                case "sem":
-                    jogosQuery = jogosQuery.Where(j => !apostaJogoIdsQuery.Contains(j.Id));
-                    break;
-
-                case "todos":
-                default:
-                    break;
-            }
-
-            // ===== ORDEM FIXA =====
-            jogosQuery = jogosQuery.OrderBy(j => j.DataHora);
-
-            // Carrega apostas do usuário
+            // ===== PEGAR APOSTAS DO USUÁRIO =====
             var apostas = _context.Apostas
-                .AsNoTracking()
                 .Where(a => a.ApostadorId == id)
                 .ToList();
 
-            ViewBag.Apostas = apostas;
+            var apostaJogoIds = apostas
+                .Select(a => a.JogoId)
+                .ToList();
 
+            switch ((filtro ?? "todos").ToLower())
+            {
+                case "com":
+                    jogosQuery = jogosQuery.Where(j => apostaJogoIds.Contains(j.Id));
+                    break;
+
+                case "sem":
+                    jogosQuery = jogosQuery.Where(j => !apostaJogoIds.Contains(j.Id));
+                    break;
+            }
+
+            var jogos = jogosQuery
+                .OrderBy(j => j.DataHora)
+                .ToList();
+
+            ViewBag.Apostas = apostas;
             ViewBag.Filtro = filtro;
             ViewBag.Grupo = grupo ?? "";
+            ViewBag.Fase = fase;
 
-            var jogos = jogosQuery.ToList();
             return View(jogos);
         }
 
@@ -87,6 +77,7 @@ namespace BolaoDaCopa2026.Controllers
             string? grupo = null)
         {
             var apostadorId = HttpContext.Session.GetInt32("ApostadorId");
+
             if (apostadorId == null)
                 return RedirectToAction("Login", "Conta");
 
@@ -94,19 +85,16 @@ namespace BolaoDaCopa2026.Controllers
 
             var jogo = _context.Jogos.FirstOrDefault(j => j.Id == jogoId);
 
-            // Se jogo não existe ou já fechou, não permite salvar/editar
             if (jogo == null || !jogo.EstaAberto)
                 return RedirectToAction(nameof(Index), new { filtro, grupo });
 
             var aposta = _context.Apostas
                 .FirstOrDefault(a => a.JogoId == jogoId && a.ApostadorId == id);
 
-            // === NOVO: monta payload uma vez (com os gols atuais) ===
             var payload = ApostaHashService.GerarPayload(jogoId, id, golsSelecaoA, golsSelecaoB);
 
             if (aposta == null)
             {
-                // === NOVO: gera salt e hash ao criar ===
                 var salt = ApostaHashService.GerarSalt();
                 var hash = ApostaHashService.GerarHash(payload, salt);
 
@@ -119,11 +107,9 @@ namespace BolaoDaCopa2026.Controllers
                     GolsSelecaoA = golsSelecaoA,
                     GolsSelecaoB = golsSelecaoB,
 
-                    // 🔐 novos campos
                     Salt = salt,
                     HashCommit = hash,
 
-                    // 🕒 auditoria
                     CriadoEmUtc = DateTime.UtcNow,
                     AtualizadoEmUtc = DateTime.UtcNow
                 };
@@ -132,15 +118,11 @@ namespace BolaoDaCopa2026.Controllers
             }
             else
             {
-                // Atualiza placar
                 aposta.GolsSelecaoA = golsSelecaoA;
                 aposta.GolsSelecaoB = golsSelecaoB;
 
-                // === NOVO: recalcula hash usando o MESMO salt ===
-                // Isso garante que qualquer alteração muda o HashCommit
                 aposta.HashCommit = ApostaHashService.GerarHash(payload, aposta.Salt);
 
-                // 🕒 auditoria
                 aposta.AtualizadoEmUtc = DateTime.UtcNow;
             }
 

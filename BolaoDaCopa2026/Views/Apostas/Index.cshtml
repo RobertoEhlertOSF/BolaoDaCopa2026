@@ -1,7 +1,6 @@
 ﻿@model IEnumerable<BolaoDaCopa2026.Models.Jogo>
 @using BolaoDaCopa2026.Models
 
-
 <div class="top-actions">
     <a asp-controller="Home"
        asp-action="Index"
@@ -26,31 +25,79 @@
     </div>
 </div>
 
-
 @{
     var apostas = ViewBag.Apostas as List<Aposta>;
     var pontuacaoService = new PontuacaoService();
 
-    // Agora só existem 2 "estados": filtro e grupo
     var filtro = (string)(ViewBag.Filtro ?? "todos");
     var grupo = (string)(ViewBag.Grupo ?? "");
+    var fase = (string)(ViewBag.Fase ?? "Grupo A");
+
+    var fases = new List<string>
+    {
+        "Grupo A","Grupo B","Grupo C","Grupo D","Grupo E","Grupo F",
+        "Grupo G","Grupo H","Grupo I","Grupo J","Grupo K","Grupo L",
+        "Segunda Fase","Oitavas","Quartas","Semifinal","Terceiro Lugar", "Final"
+    };
+
+    var indiceAtual = fases.IndexOf(fase);
+
+    var faseAnterior = fases[
+        indiceAtual == 0
+            ? fases.Count - 1
+            : indiceAtual - 1
+    ];
+
+    var proximaFase = fases[
+        indiceAtual == fases.Count - 1
+            ? 0
+            : indiceAtual + 1
+    ];
 }
 
 <header>
     <h1>Meus Palpites</h1>
 </header>
 
-<!-- ====== NAVEGAÇÃO DE FASE (placeholder por enquanto) ====== -->
+<!-- ====== NAVEGAÇÃO DE FASE ====== -->
 <div class="fase-nav">
-    <button type="button" class="fase-btn" disabled aria-label="Fase anterior" title="Em breve">‹</button>
-    <div class="fase-titulo">FASE DE GRUPOS</div>
-    <button type="button" class="fase-btn" disabled aria-label="Próxima fase" title="Em breve">›</button>
+
+    @if (faseAnterior != null)
+    {
+        <a class="fase-btn"
+           asp-action="Index"
+           asp-route-fase="@faseAnterior"
+           asp-route-filtro="@filtro"
+           asp-route-grupo="@grupo">‹</a>
+    }
+    else
+    {
+        <button class="fase-btn" disabled>‹</button>
+    }
+
+    <div class="fase-titulo">@fase</div>
+
+    @if (proximaFase != null)
+    {
+        <a class="fase-btn"
+           asp-action="Index"
+           asp-route-fase="@proximaFase"
+           asp-route-filtro="@filtro"
+           asp-route-grupo="@grupo">›</a>
+    }
+    else
+    {
+        <button class="fase-btn" disabled>›</button>
+    }
+
 </div>
 
 <div class="container">
 
-    <!-- ====== FILTROS (GET) - SOMENTE 2 SELECTS ====== -->
+    <!-- ====== FILTROS ====== -->
     <form method="get" class="filtros">
+
+        <input type="hidden" name="fase" value="@fase" />
 
         <select name="filtro">
             <option value="todos" selected="@(filtro == "todos")">Mostrar todos</option>
@@ -58,135 +105,108 @@
             <option value="sem" selected="@(filtro == "sem")">Somente sem palpite</option>
         </select>
 
-        <select name="grupo">
-            <option value="" selected="@(string.IsNullOrEmpty(grupo))">Todos os grupos</option>
-            <option value="A" selected="@(grupo == "A")">Grupo A</option>
-            <option value="B" selected="@(grupo == "B")">Grupo B</option>
-            <option value="C" selected="@(grupo == "C")">Grupo C</option>
-            <option value="D" selected="@(grupo == "D")">Grupo D</option>
-            <option value="E" selected="@(grupo == "E")">Grupo E</option>
-            <option value="F" selected="@(grupo == "F")">Grupo F</option>
-            <option value="G" selected="@(grupo == "G")">Grupo G</option>
-            <option value="H" selected="@(grupo == "H")">Grupo H</option>
-        </select>
-
         <button type="submit" class="btn-filtro">Aplicar</button>
     </form>
 
-    @{
-        var jogos = Model ?? Enumerable.Empty<Jogo>();
-
-        // Continua agrupando por fase na tela (fica bem legível)
-        var grupos = jogos
-        .GroupBy(j => j.Fase ?? "Outros")
-        .OrderBy(g => g.Key);
-    }
-
-    @foreach (var bloco in grupos)
+    @foreach (var jogo in Model.OrderBy(j => j.DataHora))
     {
-        <div class="fase">
-            <h2>@bloco.Key</h2>
+        var aposta = apostas?.FirstOrDefault(a => a.JogoId == jogo.Id);
 
-            @foreach (var jogo in bloco.OrderBy(j => j.DataHora))
-            {
-                var aposta = apostas?.FirstOrDefault(a => a.JogoId == jogo.Id);
+        int pontos = 0;
+        string classePontos = "pontos-neutro";
 
-                int pontos = 0;
-                string classePontos = "pontos-neutro";
+        if (!jogo.EstaAberto && aposta != null)
+        {
+            pontos = pontuacaoService.CalcularPontuacaoApostador(
+            jogo.GolsSelecaoA ?? 0,
+            jogo.GolsSelecaoB ?? 0,
+            aposta.GolsSelecaoA,
+            aposta.GolsSelecaoB
+            );
 
-                if (!jogo.EstaAberto && aposta != null)
+            if (pontos == 10) classePontos = "pontos-exato";
+            else if (pontos == 7 || pontos == 5) classePontos = "pontos-parcial";
+            else if (pontos == 2) classePontos = "pontos-minimo";
+        }
+
+        <div class="jogo @(jogo.EstaAberto ? "aberto" : "encerrado")">
+
+            <div class="times">
+
+                <div class="time">
+                    <img src="@(jogo.SelecaoA?.BandeiraUrl ?? "https://placehold.co/80x50?text=--")" />
+                    @(jogo.SelecaoA?.Nome ?? "A definir")
+                </div>
+
+                <span class="vs">vs</span>
+
+                <div class="time">
+                    <img src="@(jogo.SelecaoB?.BandeiraUrl ?? "https://placehold.co/80x50?text=--")" />
+                    @(jogo.SelecaoB?.Nome ?? "A definir")
+                </div>
+
+            </div>
+
+            <div class="info">
+                @jogo.DataHora.ToString("dd/MM HH:mm")
+            </div>
+
+            <div class="acao">
+
+                @if (jogo.EstaAberto)
                 {
-                    pontos = pontuacaoService.CalcularPontuacaoApostador(
-                    jogo.GolsSelecaoA ?? 0,
-                    jogo.GolsSelecaoB ?? 0,
-                    aposta.GolsSelecaoA,
-                    aposta.GolsSelecaoB
-                    );
+                    <form asp-action="Salvar" method="post" class="palpite">
 
-                    if (pontos == 10) classePontos = "pontos-exato";
-                    else if (pontos == 7 || pontos == 5) classePontos = "pontos-parcial";
-                    else if (pontos == 2) classePontos = "pontos-minimo";
+                        <input type="hidden" name="fase" value="@fase" />
+                        <input type="hidden" name="filtro" value="@filtro" />
+                        <input type="hidden" name="grupo" value="@grupo" />
+                        <input type="hidden" name="jogoId" value="@jogo.Id" />
+
+                        <div class="placar">
+
+                            <input type="number"
+                                   name="golsSelecaoA"
+                                   min="0"
+                                   value="@aposta?.GolsSelecaoA" />
+
+                            <span class="x">x</span>
+
+                            <input type="number"
+                                   name="golsSelecaoB"
+                                   min="0"
+                                   value="@aposta?.GolsSelecaoB" />
+
+                        </div>
+
+                        <button class="btn btn-salvar">
+                            @(aposta == null ? "Salvar" : "Atualizar")
+                        </button>
+
+                    </form>
+                }
+                else
+                {
+                    <div class="placar">
+                        <strong>@aposta?.GolsSelecaoA</strong>
+                        <span class="x">x</span>
+                        <strong>@aposta?.GolsSelecaoB</strong>
+
+                        @if (aposta != null)
+                        {
+                            <span class="pontos @classePontos">(@pontos pts)</span>
+                        }
+                    </div>
                 }
 
-                <div class="jogo @(jogo.EstaAberto ? "aberto" : "encerrado")">
+            </div>
 
-                    <div class="times">
-                        <div class="time">
-                            <img src="@(jogo.SelecaoA?.BandeiraUrl ?? "https://placehold.co/80x50?text=--")"
-                                 alt="@(jogo.SelecaoA?.Nome ?? "A definir")"
-                                 onerror="this.onerror=null;this.src='https://placehold.co/80x50?text=--';" />
-                            @(jogo.SelecaoA?.Nome ?? "A definir")
-                        </div>
-
-                        <span class="vs">vs</span>
-
-                        <div class="time">
-                            <img src="@(jogo.SelecaoB?.BandeiraUrl ?? "https://placehold.co/80x50?text=--")"
-                                 alt="@(jogo.SelecaoB?.Nome ?? "A definir")"
-                                 onerror="this.onerror=null;this.src='https://placehold.co/80x50?text=--';" />
-                            @(jogo.SelecaoB?.Nome ?? "A definir")
-                        </div>
-                    </div>
-
-
-                    <div class="info">
-                        @jogo.DataHora.ToString("dd/MM HH:mm")
-                    </div>
-
-                    <div class="acao">
-                        @if (jogo.EstaAberto)
-                        {
-                            <!-- manda filtro e grupo via hidden pra manter estado ao salvar -->
-                            <form asp-action="Salvar" method="post" class="palpite">
-                                <input type="hidden" name="filtro" value="@filtro" />
-                                <input type="hidden" name="grupo" value="@grupo" />
-
-                                <input type="hidden" name="jogoId" value="@jogo.Id" />
-
-                                <div class="placar">
-                                    <input type="number"
-                                           name="golsSelecaoA"
-                                           min="0"
-                                           value="@aposta?.GolsSelecaoA" />
-
-                                    <span class="x">x</span>
-
-                                    <input type="number"
-                                           name="golsSelecaoB"
-                                           min="0"
-                                           value="@aposta?.GolsSelecaoB" />
-                                </div>
-
-                                <button class="btn btn-salvar">
-                                    @(aposta == null ? "Salvar" : "Atualizar")
-                                </button>
-                            </form>
-                        }
-                        else
-                        {
-                            <div class="placar">
-                                <strong>@aposta?.GolsSelecaoA</strong>
-                                <span class="x">x</span>
-                                <strong>@aposta?.GolsSelecaoB</strong>
-
-                                @if (aposta != null)
-                                {
-                                    <span class="pontos @classePontos">(@pontos pts)</span>
-                                }
-                            </div>
-                        }
-                    </div>
-
-                </div>
-            }
         </div>
     }
 
 </div>
 
 <style>
-    /* ===== filtros ===== */
-    .filtros {
+    /* ===== filtros ===== */ .filtros {
         margin: 18px 0 26px;
         display: flex;
         gap: 12px;
@@ -224,8 +244,8 @@
             filter: brightness(1.05);
             transform: translateX(-2px);
         }
-
     /* ===== seu CSS original ===== */
+
     .placar {
         font-size: 1.2rem;
         margin-top: 0.5rem;
@@ -265,8 +285,8 @@
     .btn-salvar {
         margin-left: 10px;
     }
-
     /* ===== topo: voltar + regras ===== */
+
     .top-actions {
         max-width: 1100px;
         margin: 10px auto 18px;
@@ -298,8 +318,7 @@
             text-decoration: none;
         }
 
-        .btn-voltar:focus,
-        .btn-voltar:active {
+        .btn-voltar:focus, .btn-voltar:active {
             color: #0b0f17;
             text-decoration: none;
         }
@@ -318,14 +337,12 @@
         text-decoration: none !important;
     }
 
-        .btn-regras:hover,
-        .btn-regras:focus,
-        .btn-regras:active {
+        .btn-regras:hover, .btn-regras:focus, .btn-regras:active {
             color: #0b0f17 !important;
             text-decoration: none !important;
         }
-
     /* ===== navegação de fases (estilo GE) ===== */
+
     .fase-nav {
         max-width: 1100px;
         margin: 8px auto 22px;
@@ -359,13 +376,10 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        cursor: not-allowed;
         opacity: 0.55;
     }
 
     .jogo {
-        display: grid;
-        grid-template-columns: 1fr 140px 140px 110px;
         align-items: center;
         gap: 16px;
         padding: 18px 20px;
@@ -374,7 +388,6 @@
         background: rgba(255,255,255,0.05);
         border: 1px solid rgba(255,255,255,0.08);
     }
-
     /* ===== TIMES ===== */
 
     .times {
@@ -396,7 +409,6 @@
             object-fit: cover;
             border-radius: 3px;
         }
-
     /* ===== VS ===== */
 
     .vs {
@@ -404,14 +416,12 @@
         opacity: 0.6;
         font-weight: 700;
     }
-
     /* ===== DATA ===== */
 
     .info {
         text-align: center;
         opacity: 0.7;
     }
-
     /* ===== ÁREA PLACAR + BOTÃO ===== */
 
     .acao {
@@ -419,7 +429,6 @@
         align-items: center;
         gap: 10px;
     }
-
     /* ===== PLACAR ===== */
 
     .placar {
@@ -437,7 +446,6 @@
             background: rgba(0,0,0,0.45);
             color: white;
         }
-
     /* ===== BOTÃO ===== */
 
     .btn-salvar {
@@ -455,11 +463,9 @@
             background: rgba(255,203,0,0.95);
             color: #0b0f17;
         }
-
-        /* ===== Telas menores ===== */
+    /* ===== Telas menores ===== */
 
     @@media (max-width:900px) {
-
         .jogo {
             grid-template-columns: 1fr;
             gap: 16px;
@@ -474,8 +480,7 @@
             gap: 14px;
         }
 
-            .filtros select,
-            .btn-filtro {
+            .filtros select, .btn-filtro {
                 width: 100%;
                 max-width: 260px;
             }
@@ -531,6 +536,14 @@
             width: 140px;
             margin-left: 0;
         }
-    }
 
+        @@media (max-width:900px) {
+                .jogo {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 16px;
+                text-align: center;
+            }
+        }
+    }
 </style>
