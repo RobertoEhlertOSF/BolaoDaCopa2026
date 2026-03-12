@@ -1,11 +1,9 @@
-﻿using BolaoDaCopa2026.Models;
-
-namespace BolaoDaCopa2026.ViewModels
+﻿namespace BolaoDaCopa2026.Models.ViewModels
 {
     public class HomeViewModel
     {
+        public List<JogoComApostaViewModel> Jogos { get; set; } = new();
 
-        public List<Jogo> ProximosJogos { get; set; } = new();
+        public bool TemJogosHoje { get; set; }
     }
 }
-    
