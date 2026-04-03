@@ -1,0 +1,37 @@
+FROM ubuntu:latest
+
+# Install .NET dependencies and runtime
+RUN apt-get update && apt-get install -y \
+    wget \
+    curl \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Download and install .NET SDK/Runtime
+RUN wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh \
+    && chmod +x dotnet-install.sh \
+    && ./dotnet-install.sh --version latest --install-dir /usr/local/dotnet \
+    && rm dotnet-install.sh
+
+# Set PATH to include dotnet
+ENV PATH="/usr/local/dotnet:${PATH}"
+
+# Verify installation
+RUN dotnet --version
+
+WORKDIR /app
+
+# Copy your .NET application files
+COPY . .
+
+# Restore dependencies
+RUN dotnet restore BolaoDaCopa2026/BolaoDaCopa2026.csproj
+
+# Build the application
+RUN dotnet build -c Release BolaoDaCopa2026/BolaoDaCopa2026.csproj
+
+# Expose port (adjust as needed for your app)
+EXPOSE 80
+
+# Run the .NET application
+CMD ["dotnet", "run", "--no-build", "-c", "Release", "--project", "BolaoDaCopa2026/BolaoDaCopa2026.csproj"]
