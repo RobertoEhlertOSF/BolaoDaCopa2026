@@ -1,208 +1,467 @@
-@model IEnumerable<BolaoDaCopa2026.Models.Jogo>
-@using BolaoDaCopa2026.Models
-@using BolaoDaCopa2026.Services
-
-<div class="top-actions">
-    <a asp-controller="Home"
-       asp-action="Index"
-       class="btn-voltar">
-        ← Voltar para o início
-    </a>
-
-    <div class="top-right">
-
-        <a asp-controller="Apostas"
-           asp-action="Campeao"
-           class="btn-campeao">
-            🏆 Meu campeão
-        </a>
-
-        <a asp-controller="Home"
-           asp-action="Regras"
-           class="btn-regras">
-            Regras do bolão
-        </a>
-
-    </div>
-</div>
+﻿@using BolaoDaCopa2026.Models
+@using BolaoDaCopa2026.Models.ViewModels
+@model HomeViewModel
 
 @{
-    var apostas = ViewBag.Apostas as List<Aposta>;
-    var pontuacaoService = new PontuacaoService();
+    ViewData["Title"] = "Home";
+    var agora = DateTime.Now;
 
-    var filtro = (string)(ViewBag.Filtro ?? "todos");
-    var grupo = (string)(ViewBag.Grupo ?? "");
-    var fase = (string)(ViewBag.Fase ?? "Grupo A");
+    var jogosHoje = Model.Jogos
+        .Where(j => j.Jogo.DataHora.Date == agora.Date)
+        .OrderBy(j => j.Jogo.DataHora)
+        .Take(4)
+        .ToList();
 
-    var fases = new List<string>
-    {
-        "Grupo A","Grupo B","Grupo C","Grupo D","Grupo E","Grupo F",
-        "Grupo G","Grupo H","Grupo I","Grupo J","Grupo K","Grupo L",
-        "Segunda Fase","Oitavas","Quartas","Semifinal","Terceiro Lugar","Final"
-    };
+    var exibirJogos = jogosHoje.Any()
+        ? jogosHoje
+        : Model.Jogos
+            .Where(j => j.Jogo.DataHora > agora)
+            .OrderBy(j => j.Jogo.DataHora)
+            .Take(4)
+            .ToList();
 
-    var indiceAtual = fases.IndexOf(fase);
+    var proximoJogo = Model.Jogos
+        .Where(j => j.Jogo.DataHora > agora)
+        .OrderBy(j => j.Jogo.DataHora)
+        .FirstOrDefault();
 
-    var faseAnterior = fases[
-        indiceAtual == 0
-        ? fases.Count - 1
-        : indiceAtual - 1
-    ];
-
-    var proximaFase = fases[
-        indiceAtual == fases.Count - 1
-        ? 0
-        : indiceAtual + 1
-    ];
+    var campeao = ViewBag.Campeao as Selecao;
 }
 
-<header>
-    <h1>Meus Palpites</h1>
-</header>
-
-<div class="fase-nav">
-
-    <a class="fase-btn"
-       asp-action="Index"
-       asp-route-fase="@faseAnterior"
-       asp-route-filtro="@filtro"
-       asp-route-grupo="@grupo">‹</a>
-
-    <div class="fase-titulo">@fase</div>
-
-    <a class="fase-btn"
-       asp-action="Index"
-       asp-route-fase="@proximaFase"
-       asp-route-filtro="@filtro"
-       asp-route-grupo="@grupo">›</a>
-
-</div>
-
-<div class="container">
-
-<form method="get" class="filtros">
-
-<input type="hidden" name="fase" value="@fase" />
-
-<select name="filtro">
-
-<option value="todos" selected="@(filtro == "todos")">
-Mostrar todos
-</option>
-
-<option value="com" selected="@(filtro == "com")">
-Somente com palpite
-</option>
-
-<option value="sem" selected="@(filtro == "sem")">
-Somente sem palpite
-</option>
-
-</select>
-
-<button type="submit" class="btn-filtro">
-Aplicar
-</button>
-
-</form>
-
-@foreach (var jogo in Model.OrderBy(j => j.DataHora))
+@if (ViewBag.AvisoCampeao == true)
 {
-var aposta = apostas?.FirstOrDefault(a => a.JogoId == jogo.Id);
+    <div class="alert-campeao">
+        ⚠️ Você ainda não escolheu o campeão da Copa.
+        <a href="/Apostas/Campeao">Escolher agora</a>
+    </div>
+}
 
-int pontos = 0;
-string classePontos = "pontos-neutro";
-
-if (!jogo.EstaAberto && aposta != null)
+@if (campeao != null)
 {
-pontos = pontuacaoService.CalcularPontuacaoApostador(
-jogo.GolsSelecaoA ?? 0,
-jogo.GolsSelecaoB ?? 0,
-aposta.GolsSelecaoA,
-aposta.GolsSelecaoB
-);
-
-if (pontos == 10) classePontos = "pontos-exato";
-else if (pontos == 7 || pontos == 5) classePontos = "pontos-parcial";
-else if (pontos == 2) classePontos = "pontos-minimo";
+    <div class="campeao-escolhido">
+        <span>Seu campeão:</span>
+        <img src="@campeao.BandeiraUrl" />
+        <strong>@campeao.Nome</strong>
+        <a asp-controller="Apostas"
+           asp-action="Campeao"
+           class="btn-trocar">
+            alterar
+        </a>
+    </div>
 }
 
-<div class="jogo @(jogo.EstaAberto ? "aberto" : "encerrado")">
+<section class="landing">
 
-<div class="times">
+    <div class="landing_card">
 
-<div class="time">
-<img src="@(jogo.SelecaoA?.BandeiraUrl ?? "https://placehold.co/80x50?text=--")" />
-@(jogo.SelecaoA?.Nome ?? "A definir")
-</div>
+        @if (Context.Session.GetString("IsAdmin")?.Equals("True", StringComparison.OrdinalIgnoreCase) == true)
+        {
+            <div class="admin-link-wrap">
+                <a asp-controller="AdminJogos"
+                   asp-action="Index"
+                   class="admin-link">
+                    Administrador
+                </a>
+            </div>
+        }
 
-<span class="vs">vs</span>
+        <h1>Bolão da Copa 2026</h1>
 
-<div class="time">
-<img src="@(jogo.SelecaoB?.BandeiraUrl ?? "https://placehold.co/80x50?text=--")" />
-@(jogo.SelecaoB?.Nome ?? "A definir")
-</div>
+        <h2 class="games-label">
+            @if (jogosHoje.Any())
+            {
+                <span class="status-hoje">📅 Jogos de Hoje</span>
+            }
+            else
+            {
+                <span class="status-proximos">⏳ Próximos Jogos</span>
+            }
+        </h2>
 
-</div>
+        @if (exibirJogos.Any())
+        {
+            <div class="games-wrapper">
 
-<div class="info">
-@jogo.DataHora.ToString("dd/MM HH:mm")
-</div>
+                @foreach (var item in exibirJogos)
+                {
+                    var jogo = item.Jogo;
+                    var aposta = item.ApostaUsuario;
 
-<div class="acao">
+                    var finalizado = jogo.Status == "Finalizado";
+                    var emAndamento = jogo.Status == "EmAndamento";
 
-@if (jogo.EstaAberto)
-{
-<form asp-action="Salvar" method="post" class="palpite">
+                    <div class="game-card">
 
-<input type="hidden" name="fase" value="@fase" />
-<input type="hidden" name="filtro" value="@filtro" />
-<input type="hidden" name="grupo" value="@grupo" />
-<input type="hidden" name="jogoId" value="@jogo.Id" />
+                        <div class="game-meta">
+                            <span class="fase">@jogo.Fase</span>
+                            <span class="datetime">@jogo.DataHora.ToString("dd/MM • HH:mm")</span>
 
-<div class="placar">
+                            @if (emAndamento)
+                            {
+                                <span class="live">AO VIVO</span>
+                            }
+                        </div>
 
-<input type="number"
-name="golsSelecaoA"
-min="0"
-value="@aposta?.GolsSelecaoA" />
+                        <div class="matchup">
 
-<span class="x">x</span>
+                            <div class="team">
+                                <img src="@jogo.SelecaoA.BandeiraUrl">
+                                <span>@jogo.SelecaoA.Nome</span>
+                            </div>
 
-<input type="number"
-name="golsSelecaoB"
-min="0"
-value="@aposta?.GolsSelecaoB" />
+                            @if (finalizado || emAndamento)
+                            {
+                                <div class="score">
+                                    <span>@jogo.GolsSelecaoA</span>
+                                    <span class="score-divider">–</span>
+                                    <span>@jogo.GolsSelecaoB</span>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="vs">×</div>
+                            }
 
-</div>
+                            <div class="team">
+                                <img src="@jogo.SelecaoB.BandeiraUrl">
+                                <span>@jogo.SelecaoB.Nome</span>
+                            </div>
 
-<button class="btn btn-salvar">
-@(aposta == null ? "Salvar" : "Atualizar")
-</button>
+                        </div>
 
-</form>
+                        <div class="bet-box">
+
+                            @if (aposta != null)
+                            {
+                                <span class="bet-label">Sua aposta</span>
+                                <span class="bet-score">
+                                    @aposta.GolsSelecaoA – @aposta.GolsSelecaoB
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="bet-missing">
+                                    ⚠ Falta sua aposta
+                                </span>
+                            }
+
+                        </div>
+
+                    </div>
+                }
+
+            </div>
+        }
+
+        @if (proximoJogo != null)
+        {
+            <div class="countdown"
+                 data-date="@proximoJogo.Jogo.DataHora.ToString("yyyy-MM-ddTHH:mm:ss")">
+
+                <div class="time-box">
+                    <div class="time-value days">00</div>
+                    <div class="time-label">Dias</div>
+                </div>
+
+                <div class="time-box">
+                    <div class="time-value hours">00</div>
+                    <div class="time-label">Horas</div>
+                </div>
+
+                <div class="time-box">
+                    <div class="time-value minutes">00</div>
+                    <div class="time-label">Min</div>
+                </div>
+
+                <div class="time-box">
+                    <div class="time-value seconds">00</div>
+                    <div class="time-label">Seg</div>
+                </div>
+
+            </div>
+        }
+
+        <div class="actions">
+
+            @if (Context.Session.GetInt32("ApostadorId") == null)
+            {
+                <a class="btn-home btn-home--primary"
+                   asp-controller="Conta"
+                   asp-action="Login">
+                    Entrar no Bolão
+                </a>
+            }
+            else
+            {
+                <a href="/Apostas" class="btn-home btn-home--primary">
+                    Minhas Apostas
+                </a>
+
+                <a asp-controller="Ranking"
+                   asp-action="Index"
+                   class="btn-home btn-home--primary">
+                    Ranking
+                </a>
+            }
+
+            <a href="/Selecoes" class="btn-home btn-home--primary">
+                Tabela da Copa
+            </a>
+
+            <a asp-controller="Home"
+               asp-action="Regras"
+               class="btn-home btn-home--primary">
+                Regras do Bolão
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+<script>
+
+function updateCountdowns() {
+
+    document.querySelectorAll(".countdown").forEach(countdown => {
+
+        const targetDate = new Date(countdown.dataset.date).getTime();
+        const now = Date.now();
+        const diff = targetDate - now;
+
+        const daysEl = countdown.querySelector(".days");
+        const hoursEl = countdown.querySelector(".hours");
+        const minutesEl = countdown.querySelector(".minutes");
+        const secondsEl = countdown.querySelector(".seconds");
+
+        if (diff <= 0) {
+
+            daysEl.textContent =
+            hoursEl.textContent =
+            minutesEl.textContent =
+            secondsEl.textContent = "00";
+
+            return;
+        }
+
+        daysEl.textContent = String(Math.floor(diff / (1000 * 60 * 60 * 24))).padStart(2, "0");
+        hoursEl.textContent = String(Math.floor((diff / (1000 * 60 * 60)) % 24)).padStart(2, "0");
+        minutesEl.textContent = String(Math.floor((diff / (1000 * 60)) % 60)).padStart(2, "0");
+        secondsEl.textContent = String(Math.floor((diff / 1000) % 60)).padStart(2, "0");
+
+    });
+
 }
-else
-{
-<div class="placar">
 
-<strong>@aposta?.GolsSelecaoA</strong>
-<span class="x">x</span>
-<strong>@aposta?.GolsSelecaoB</strong>
+updateCountdowns();
+setInterval(updateCountdowns, 1000);
 
-@if (aposta != null)
-{
-<span class="pontos @classePontos">
-(@pontos pts)
-</span>
+</script>
+
+<style>
+
+.games-wrapper {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 18px;
 }
 
-</div>
+.game-card {
+    padding: 18px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-</div>
-
-</div>
+.game-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    opacity: .7;
+    margin-bottom: 8px;
 }
 
-</div>
+.fase {
+    font-weight: 700;
+    font-size: 12px;
+}
+
+.datetime {
+    font-size: 12px;
+}
+
+.live {
+    color: #ff4d4d;
+    font-weight: 800;
+}
+
+.matchup {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 10px;
+}
+
+.team {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.team img {
+    height: 22px;
+}
+
+.score {
+    display: flex;
+    gap: 6px;
+    font-size: 22px;
+    font-weight: 900;
+    padding: 4px 12px;
+    border-radius: 10px;
+    background: rgba(0, 0, 0, .35);
+}
+
+.score-divider {
+    opacity: .5;
+}
+
+.vs {
+    font-size: 20px;
+    opacity: .5;
+    font-weight: 900;
+}
+
+.bet-box {
+    margin-top: 12px;
+    display: flex;
+    justify-content: center;
+    font-size: 13px;
+}
+
+.bet-label {
+    margin-right: 6px;
+    opacity: .6;
+}
+
+.bet-score {
+    font-weight: 800;
+}
+
+.bet-missing {
+    color: #ffcc00;
+    font-weight: 700;
+}
+
+.countdown {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 24px;
+}
+
+.time-box {
+    width: 70px;
+    text-align: center;
+}
+
+.time-value {
+    font-size: 22px;
+    font-weight: 900;
+}
+
+.time-label {
+    font-size: 11px;
+    opacity: .7;
+}
+
+.actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.btn-home {
+    display: flex;
+    justify-content: center;
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.btn-home--primary {
+    background: #ffcb00;
+    color: #111;
+}
+
+.btn-home--primary:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.05);
+}
+
+@@media (min-width:700px) {
+
+    .games-wrapper {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .actions {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .btn-home {
+        flex: 1;
+    }
+}
+
+@@media (max-width:700px) {
+
+    .matchup {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .team {
+        justify-content: center;
+        width: 100%;
+    }
+
+    .score {
+        font-size: 18px;
+        padding: 2px 12px;
+    }
+
+    .countdown {
+        gap: 10px;
+    }
+
+    .time-box {
+        width: 55px;
+    }
+    .admin-link-wrap {
+        position: absolute;
+        top: -48px;
+        left: 0px;
+        z-index: 999;
+    }
+
+    .admin-link {
+        color: rgba(255,255,255,0.78);
+        text-decoration: none;
+        font-weight: 700;
+        padding: 10px 14px;
+        border-radius: 12px;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.12);
+        backdrop-filter: blur(8px);
+        transition: .2s;
+    }
+
+
+
+</style>
