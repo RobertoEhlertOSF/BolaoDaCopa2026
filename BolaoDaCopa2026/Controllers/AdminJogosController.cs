@@ -274,6 +274,29 @@ public class AdminJogosController : Controller
         return View(viewModel);
     }
 
+    [HttpGet("DefinirCampeao")]
+    public IActionResult DefinirCampeao()
+    {
+        if (!UsuarioEhAdmin())
+            return Forbid();
+
+        var selecoes = _context.Selecoes.ToList();
+
+        return View(selecoes);
+    }
+
+    [HttpPost("SalvarCampeao")]
+    public IActionResult SalvarCampeao(int selecaoId)
+    {
+        if (!UsuarioEhAdmin())
+            return Forbid();
+
+        // chama seu service centralizado
+        _apostaService.RecalcularCampeao(selecaoId);
+
+        return RedirectToAction("Index");
+    }
+
     // =====================================================
     // SALVAR SEGUNDA FASE
     // =====================================================

@@ -1,0 +1,26 @@
+﻿@model List<BolaoDaCopa2026.Models.Selecao>
+
+<h1>Definir Campeão</h1>
+
+<form asp-action="SalvarCampeao" method="post">
+
+    <div class="time">
+        <label>Selecione o Campeão</label>
+
+        <select name="selecaoId" class="form-control">
+            <option value="">Selecione</option>
+
+            @foreach (var selecao in Model)
+            {
+                <option value="@selecao.Id">
+                    @selecao.Nome (@selecao.Grupo)
+                </option>
+            }
+        </select>
+    </div>
+
+    <button type="submit" class="btn-salvar">
+        Salvar Campeão
+    </button>
+
+</form>

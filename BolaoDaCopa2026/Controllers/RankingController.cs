@@ -24,7 +24,7 @@ namespace BolaoDaCopa2026.Controllers
 
             var pontuacaoService = new PontuacaoService();
 
-            // Carrega apostas + jogos "fechados" (finalizados)
+            // Carrega apostas + jogos finalizados
             var apostas = _context.Apostas
                 .AsNoTracking()
                 .Include(a => a.Apostador)
@@ -32,15 +32,20 @@ namespace BolaoDaCopa2026.Controllers
                 .Where(a => a.Jogo != null && a.Jogo.EstaAberto == false)
                 .ToList();
 
-            // Soma por apostador: Pontos + Placares Exatos
+            // 🔥 Soma por apostador (AGORA COM CAMPEÃO)
             var somaPorApostador = apostas
-                .GroupBy(a => new { a.ApostadorId, Nome = a.Apostador.Nome })
+                .GroupBy(a => new
+                {
+                    a.ApostadorId,
+                    Nome = a.Apostador.Nome,
+                    PontosCampeao = a.Apostador.PontosCampeao
+                })
                 .Select(g => new
                 {
                     g.Key.ApostadorId,
                     g.Key.Nome,
 
-                    Pontos = g.Sum(a =>
+                    PontosJogos = g.Sum(a =>
                         pontuacaoService.CalcularPontuacaoApostador(
                             a.Jogo.GolsSelecaoA ?? 0,
                             a.Jogo.GolsSelecaoB ?? 0,
@@ -49,20 +54,30 @@ namespace BolaoDaCopa2026.Controllers
                         )
                     ),
 
+                    PontosTotais = g.Sum(a =>
+                        pontuacaoService.CalcularPontuacaoApostador(
+                            a.Jogo.GolsSelecaoA ?? 0,
+                            a.Jogo.GolsSelecaoB ?? 0,
+                            a.GolsSelecaoA,
+                            a.GolsSelecaoB
+                        )
+                    ) + g.Key.PontosCampeao,
+
                     PlacaresExatos = g.Count(a =>
                         (a.Jogo.GolsSelecaoA ?? 0) == a.GolsSelecaoA &&
                         (a.Jogo.GolsSelecaoB ?? 0) == a.GolsSelecaoB
                     )
                 })
-                .OrderByDescending(x => x.Pontos)
-                .ThenByDescending(x => x.PlacaresExatos) // desempate legal (opcional)
+                .OrderByDescending(x => x.PontosTotais)
+                .ThenByDescending(x => x.PlacaresExatos)
                 .ThenBy(x => x.Nome)
                 .ToList();
 
-            var pontosDoPrimeiro = somaPorApostador.FirstOrDefault()?.Pontos ?? 0;
+            var pontosDoPrimeiro = somaPorApostador.FirstOrDefault()?.PontosTotais ?? 0;
 
             // Monta linhas
             var linhas = new List<RankingLinhaViewModel>();
+
             for (int i = 0; i < somaPorApostador.Count; i++)
             {
                 var item = somaPorApostador[i];
@@ -71,8 +86,8 @@ namespace BolaoDaCopa2026.Controllers
                 {
                     Posicao = i + 1,
                     Nome = item.Nome,
-                    Pontos = item.Pontos,
-                    DistanciaDoPrimeiro = Math.Max(0, pontosDoPrimeiro - item.Pontos),
+                    Pontos = item.PontosTotais,
+                    DistanciaDoPrimeiro = Math.Max(0, pontosDoPrimeiro - item.PontosTotais),
                     PlacaresExatos = item.PlacaresExatos
                 });
             }
