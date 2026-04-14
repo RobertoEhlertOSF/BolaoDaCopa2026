@@ -75,7 +75,6 @@
             </div>
         </div>
 
-
         <!-- EXEMPLOS -->
         <h2 class="section-title">🧮 Exemplos práticos</h2>
 
@@ -145,9 +144,6 @@
             </p>
         </div>
 
-
-
-
         <div class="actions">
             <a href="/" class="btn-voltar-inicio">Voltar para o início</a>
         </div>
@@ -156,8 +152,14 @@
 </section>
 
 <style>
+
+    /* 🔥 REMOÇÃO DO RODAPÉ */
+    footer {
+        display: none !important;
+    }
+
     .actions {
-        margin-top: 40px; /* aumenta o espaçamento do conteúdo acima */
+        margin-top: 40px;
         text-align: center;
     }
 
@@ -175,8 +177,6 @@
         transition: filter .2s ease, transform .1s ease;
     }
 
-        /* efeito hover igual aos outros botões */
-
         .btn-voltar-inicio:hover {
             filter: brightness(1.05);
             transform: translateY(-2px);
@@ -184,11 +184,10 @@
             text-decoration: none;
         }
 
-        /* garantir que clique ou foco não alterem cor */
-
         .btn-voltar-inicio:focus,
         .btn-voltar-inicio:active {
             color: #0b0f17;
             text-decoration: none;
         }
+
 </style>

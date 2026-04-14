@@ -59,7 +59,6 @@
     <h1>Meus Palpites</h1>
 </header>
 
-<!-- ====== NAVEGAÇÃO DE FASE ====== -->
 <div class="fase-nav">
 
     @if (faseAnterior != null)
@@ -92,11 +91,9 @@
 
 </div>
 
-<div class="container">
+<div class="container apostas-container">
 
-    <!-- ====== FILTROS ====== -->
     <form method="get" class="filtros">
-
         <input type="hidden" name="fase" value="@fase" />
 
         <select name="filtro">
@@ -108,105 +105,156 @@
         <button type="submit" class="btn-filtro">Aplicar</button>
     </form>
 
-    @foreach (var jogo in Model.OrderBy(j => j.DataHora))
-    {
-        var aposta = apostas?.FirstOrDefault(a => a.JogoId == jogo.Id);
-
-        int pontos = 0;
-        string classePontos = "pontos-neutro";
-
-        if (!jogo.EstaAberto && aposta != null)
+    <div class="lista-jogos">
+        @foreach (var jogo in Model.OrderBy(j => j.DataHora))
         {
-            pontos = pontuacaoService.CalcularPontuacaoApostador(
-            jogo.GolsSelecaoA ?? 0,
-            jogo.GolsSelecaoB ?? 0,
-            aposta.GolsSelecaoA,
-            aposta.GolsSelecaoB
-            );
+            var aposta = apostas?.FirstOrDefault(a => a.JogoId == jogo.Id);
 
-            if (pontos == 10) classePontos = "pontos-exato";
-            else if (pontos == 7 || pontos == 5) classePontos = "pontos-parcial";
-            else if (pontos == 2) classePontos = "pontos-minimo";
-        }
+            int pontos = 0;
+            string classePontos = "pontos-neutro";
 
-        <div class="jogo @(jogo.EstaAberto ? "aberto" : "encerrado")">
+            if (!jogo.EstaAberto && aposta != null)
+            {
+                pontos = pontuacaoService.CalcularPontuacaoApostador(
+                jogo.GolsSelecaoA ?? 0,
+                jogo.GolsSelecaoB ?? 0,
+                aposta.GolsSelecaoA,
+                aposta.GolsSelecaoB
+                );
 
-            <div class="times">
+                if (pontos == 10) classePontos = "pontos-exato";
+                else if (pontos == 7 || pontos == 5) classePontos = "pontos-parcial";
+                else if (pontos == 2) classePontos = "pontos-minimo";
+            }
 
-                <div class="time">
-                    <img src="@(jogo.SelecaoA?.BandeiraUrl ?? "https://placehold.co/80x50?text=--")" />
-                    @(jogo.SelecaoA?.Nome ?? "A definir")
+            var statusCurto = jogo.EstaAberto ? "ABERTO" : "FT";
+
+            <div class="jogo @(jogo.EstaAberto ? "aberto" : "encerrado")">
+
+                <div class="jogo-meta">
+                    <div class="jogo-data">@jogo.DataHora.ToString("dd/MM/yy")</div>
+                    <div class="jogo-status">@statusCurto</div>
                 </div>
 
-                <span class="vs">vs</span>
-
-                <div class="time">
-                    <img src="@(jogo.SelecaoB?.BandeiraUrl ?? "https://placehold.co/80x50?text=--")" />
-                    @(jogo.SelecaoB?.Nome ?? "A definir")
-                </div>
-
-            </div>
-
-            <div class="info">
-                @jogo.DataHora.ToString("dd/MM HH:mm")
-            </div>
-
-            <div class="acao">
-
-                @if (jogo.EstaAberto)
-                {
-                    <form asp-action="Salvar" method="post" class="palpite">
-
-                        <input type="hidden" name="fase" value="@fase" />
-                        <input type="hidden" name="filtro" value="@filtro" />
-                        <input type="hidden" name="grupo" value="@grupo" />
-                        <input type="hidden" name="jogoId" value="@jogo.Id" />
-
-                        <div class="placar">
-
-                            <input type="number"
-                                   name="golsSelecaoA"
-                                   min="0"
-                                   value="@aposta?.GolsSelecaoA" />
-
-                            <span class="x">x</span>
-
-                            <input type="number"
-                                   name="golsSelecaoB"
-                                   min="0"
-                                   value="@aposta?.GolsSelecaoB" />
-
+                <div class="jogo-times">
+                    <div class="linha-time">
+                        <div class="time">
+                            <img src="@(jogo.SelecaoA?.BandeiraUrl ?? "https://placehold.co/80x50?text=--")"
+                                 alt="@(jogo.SelecaoA?.Nome ?? "A definir")" />
+                            <span class="nome-time">@(jogo.SelecaoA?.Nome ?? "A definir")</span>
                         </div>
 
-                        <button class="btn btn-salvar">
-                            @(aposta == null ? "Salvar" : "Atualizar")
-                        </button>
-
-                    </form>
-                }
-                else
-                {
-                    <div class="placar">
-                        <strong>@aposta?.GolsSelecaoA</strong>
-                        <span class="x">x</span>
-                        <strong>@aposta?.GolsSelecaoB</strong>
-
-                        @if (aposta != null)
+                        @if (!jogo.EstaAberto && aposta != null)
                         {
-                            <span class="pontos @classePontos">(@pontos pts)</span>
+                            <span class="resultado-lateral">@aposta.GolsSelecaoA</span>
                         }
                     </div>
-                }
+
+                    <div class="linha-time">
+                        <div class="time">
+                            <img src="@(jogo.SelecaoB?.BandeiraUrl ?? "https://placehold.co/80x50?text=--")"
+                                 alt="@(jogo.SelecaoB?.Nome ?? "A definir")" />
+                            <span class="nome-time">@(jogo.SelecaoB?.Nome ?? "A definir")</span>
+                        </div>
+
+                        @if (!jogo.EstaAberto && aposta != null)
+                        {
+                            <span class="resultado-lateral">@aposta.GolsSelecaoB</span>
+                        }
+                    </div>
+                </div>
+
+                <div class="jogo-acao">
+                    @if (jogo.EstaAberto)
+                    {
+                        <form asp-action="Salvar" method="post" class="palpite">
+                            <input type="hidden" name="fase" value="@fase" />
+                            <input type="hidden" name="filtro" value="@filtro" />
+                            <input type="hidden" name="grupo" value="@grupo" />
+                            <input type="hidden" name="jogoId" value="@jogo.Id" />
+
+                            <div class="placar">
+                                <input type="number"
+                                       name="golsSelecaoA"
+                                       min="0"
+                                       value="@aposta?.GolsSelecaoA" />
+
+                                <span class="x">x</span>
+
+                                <input type="number"
+                                       name="golsSelecaoB"
+                                       min="0"
+                                       value="@aposta?.GolsSelecaoB" />
+                            </div>
+
+                            <button class="btn btn-salvar" type="submit">
+                                @(aposta == null ? "Salvar" : "Atualizar")
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <div class="resultado-fechado">
+                            @if (aposta != null)
+                            {
+                                <span class="pontos @classePontos">(@pontos pts)</span>
+                            }
+                        </div>
+                    }
+                </div>
 
             </div>
-
-        </div>
-    }
+        }
+    </div>
 
 </div>
 
 <style>
-    /* ===== filtros ===== */ .filtros {
+    /* ============================= */
+    /* DESKTOP: scroll só se precisar */
+    /* ============================= */
+    @@media (min-width: 901px) {
+        html, body {
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        main {
+            flex: 1;
+        }
+    }
+   
+    /* MOBILE: mantém scroll normal  */
+    
+    @@media (max-width: 900px) {
+        html, body {
+            overflow-y: auto;
+        }
+    }
+    
+    footer {
+        display: none !important;
+    }
+
+    .apostas-container {
+        max-width: 1120px;
+        margin-bottom: 24px;
+    }
+
+    .lista-jogos {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 24px;
+    }
+
+    .filtros {
         margin: 18px 0 26px;
         display: flex;
         gap: 12px;
@@ -242,50 +290,8 @@
 
         .btn-filtro:hover {
             filter: brightness(1.05);
-            transform: translateX(-2px);
+            transform: translateY(-2px);
         }
-    /* ===== seu CSS original ===== */
-
-    .placar {
-        font-size: 1.2rem;
-        margin-top: 0.5rem;
-    }
-
-    .x {
-        margin: 0 0.5rem;
-        font-weight: bold;
-    }
-
-    .pontos {
-        margin-left: 1rem;
-        font-weight: bold;
-    }
-
-    .pontos-exato {
-        color: green;
-    }
-
-    .pontos-parcial {
-        color: orange;
-    }
-
-    .pontos-minimo {
-        color: #555;
-    }
-
-    .pontos-neutro {
-        color: #999;
-    }
-
-    .palpite input {
-        width: 50px;
-        text-align: center;
-    }
-
-    .btn-salvar {
-        margin-left: 10px;
-    }
-    /* ===== topo: voltar + regras ===== */
 
     .top-actions {
         max-width: 1100px;
@@ -297,9 +303,16 @@
         gap: 12px;
     }
 
+    .top-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
     .btn-voltar {
         display: inline-flex;
         align-items: center;
+        justify-content: center;
         gap: 8px;
         padding: 10px 16px;
         border-radius: 10px;
@@ -318,8 +331,32 @@
             text-decoration: none;
         }
 
-        .btn-voltar:focus, .btn-voltar:active {
+        .btn-voltar:focus,
+        .btn-voltar:active {
             color: #0b0f17;
+            text-decoration: none;
+        }
+
+    .btn-campeao {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px 16px;
+        border-radius: 10px;
+        font-weight: 800;
+        text-decoration: none;
+        transition: filter 0.2s ease, transform 0.1s ease;
+    }
+
+        .btn-campeao:hover {
+            filter: brightness(1.05);
+            transform: translateY(-2px);
+            text-decoration: none;
+        }
+
+        .btn-campeao:focus,
+        .btn-campeao:active {
             text-decoration: none;
         }
 
@@ -331,17 +368,25 @@
         border-radius: 10px;
         border: none;
         font-weight: 800;
-        background: rgba(255, 203, 0, 0.95);
+        background: rgba(255,203,0,0.95);
         color: #0b0f17 !important;
-        opacity: 0.70;
         text-decoration: none !important;
+        transition: filter 0.2s ease, transform 0.1s ease;
     }
 
-        .btn-regras:hover, .btn-regras:focus, .btn-regras:active {
+        .btn-regras:hover,
+        .btn-regras:focus,
+        .btn-regras:active {
+            filter: brightness(1.05);
+            transform: translateY(-2px);
             color: #0b0f17 !important;
             text-decoration: none !important;
         }
-    /* ===== navegação de fases (estilo GE) ===== */
+
+    header h1 {
+        text-align: center;
+        margin-bottom: 22px;
+    }
 
     .fase-nav {
         max-width: 1100px;
@@ -368,68 +413,132 @@
         width: 46px;
         height: 46px;
         border-radius: 999px;
-        border: 1px solid rgba(255,255,255,0.18);
-        background: rgba(255,255,255,0.08);
-        color: rgba(255,255,255,0.85);
+        border: none;
+        background: rgba(255,203,0,0.95);
+        color: #0b0f17;
         font-size: 28px;
         line-height: 1;
-        display: flex;
+        display: inline-flex;
         align-items: center;
         justify-content: center;
-        opacity: 0.55;
+        text-decoration: none;
+        font-weight: 800;
+        transition: filter 0.2s ease, transform 0.1s ease;
+        opacity: 1;
     }
 
+        .fase-btn:hover {
+            filter: brightness(1.05);
+            transform: translateY(-2px);
+            color: #0b0f17;
+            text-decoration: none;
+        }
+
+        .fase-btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            transform: none;
+            filter: none;
+        }
+
     .jogo {
+        display: grid;
+        grid-template-columns: 90px minmax(0, 1fr) auto;
         align-items: center;
-        gap: 16px;
-        padding: 18px 20px;
-        margin-bottom: 14px;
-        border-radius: 16px;
+        gap: 18px;
+        padding: 14px 18px;
+        border-radius: 14px;
         background: rgba(255,255,255,0.05);
         border: 1px solid rgba(255,255,255,0.08);
     }
-    /* ===== TIMES ===== */
 
-    .times {
+    .jogo-meta {
         display: flex;
+        flex-direction: column;
         align-items: center;
-        gap: 14px;
+        justify-content: center;
+        gap: 4px;
+        padding-right: 12px;
+        border-right: 1px solid rgba(255,255,255,0.12);
+        min-height: 58px;
+    }
+
+    .jogo-data {
+        font-size: 0.95rem;
+        font-weight: 700;
+        opacity: 0.85;
+        white-space: nowrap;
+    }
+
+    .jogo-status {
+        font-size: 0.95rem;
+        font-weight: 700;
+        opacity: 0.75;
+        text-transform: uppercase;
+    }
+
+    .jogo-times {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        min-width: 0;
+    }
+
+    .linha-time {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 24px;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
     }
 
     .time {
         display: flex;
         align-items: center;
         gap: 10px;
+        min-width: 0;
         font-weight: 600;
     }
 
         .time img {
-            width: 26px;
-            height: 18px;
+            width: 24px;
+            height: 17px;
             object-fit: cover;
             border-radius: 3px;
+            flex-shrink: 0;
         }
-    /* ===== VS ===== */
 
-    .vs {
-        text-align: center;
-        opacity: 0.6;
+    .nome-time {
+        display: inline-block;
+        min-width: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .resultado-lateral {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 18px;
+        font-size: 1.1rem;
         font-weight: 700;
+        color: #fff;
+        opacity: 0.9;
     }
-    /* ===== DATA ===== */
 
-    .info {
-        text-align: center;
-        opacity: 0.7;
-    }
-    /* ===== ÁREA PLACAR + BOTÃO ===== */
-
-    .acao {
+    .jogo-acao {
         display: flex;
         align-items: center;
-        gap: 10px;
+        justify-content: flex-end;
+        min-width: 0;
     }
-    /* ===== PLACAR ===== */
+
+    .palpite {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
 
     .placar {
         display: flex;
@@ -438,7 +547,7 @@
     }
 
         .placar input {
-            width: 42px;
+            width: 44px;
             height: 38px;
             text-align: center;
             border-radius: 8px;
@@ -446,9 +555,41 @@
             background: rgba(0,0,0,0.45);
             color: white;
         }
-    /* ===== BOTÃO ===== */
+
+    .x {
+        font-weight: bold;
+        opacity: 0.8;
+    }
+
+    .resultado-fechado {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+    }
+
+    .pontos {
+        font-weight: bold;
+        white-space: nowrap;
+    }
+
+    .pontos-exato {
+        color: green;
+    }
+
+    .pontos-parcial {
+        color: orange;
+    }
+
+    .pontos-minimo {
+        color: #555;
+    }
+
+    .pontos-neutro {
+        color: #999;
+    }
 
     .btn-salvar {
+        margin-left: 0;
         padding: 10px 16px;
         border-radius: 10px;
         border: 2px solid rgba(255,203,0,0.9);
@@ -456,23 +597,39 @@
         color: rgba(255,203,0,0.95);
         font-weight: 800;
         cursor: pointer;
-        transition: .2s;
+        transition: filter 0.2s ease, transform 0.1s ease, background 0.2s ease, color 0.2s ease;
+        min-width: 110px;
     }
 
         .btn-salvar:hover {
             background: rgba(255,203,0,0.95);
             color: #0b0f17;
+            filter: brightness(1.05);
+            transform: translateY(-2px);
         }
-    /* ===== Telas menores ===== */
 
     @@media (max-width:900px) {
-        .jogo {
-            grid-template-columns: 1fr;
-            gap: 16px;
-            text-align: center;
-            padding: 20px;
+        .top-actions {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            align-items: stretch;
         }
-        /* FILTROS MOBILE */
+
+        .top-right {
+            display: contents;
+        }
+
+        .btn-voltar,
+        .btn-campeao,
+        .btn-regras {
+            width: 100%;
+            min-height: 72px;
+            padding: 12px 10px;
+            text-align: center;
+            justify-content: center;
+            line-height: 1.25;
+        }
 
         .filtros {
             flex-direction: column;
@@ -480,49 +637,62 @@
             gap: 14px;
         }
 
-            .filtros select, .btn-filtro {
+            .filtros select,
+            .btn-filtro {
                 width: 100%;
                 max-width: 260px;
             }
-        /* TIMES */
 
-        .times {
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        .jogo {
+            grid-template-columns: 1fr;
+            gap: 16px;
+            padding: 18px;
+        }
+
+        .jogo-meta {
+            border-right: none;
+            border-bottom: 1px solid rgba(255,255,255,0.12);
+            padding-right: 0;
+            padding-bottom: 10px;
+            min-height: auto;
+        }
+
+        .jogo-times {
             gap: 10px;
+        }
+
+        .linha-time {
+            grid-template-columns: 1fr;
+            justify-items: center;
         }
 
         .time {
             justify-content: center;
-        }
-
-        .vs {
-            opacity: 0.6;
-        }
-        /* DATA */
-
-        .info {
             text-align: center;
-            font-size: 14px;
-            opacity: 0.7;
         }
-        /* FORM DO PALPITE */
+
+        .nome-time {
+            white-space: normal;
+            overflow: visible;
+            text-overflow: initial;
+        }
+
+        .resultado-lateral {
+            display: none;
+        }
+
+        .jogo-acao {
+            justify-content: center;
+        }
 
         .palpite {
-            display: flex;
             flex-direction: column;
-            align-items: center;
             gap: 12px;
             width: 100%;
         }
-        /* PLACAR */
 
         .placar {
-            display: flex;
             justify-content: center;
-            align-items: center;
-            gap: 10px;
         }
 
             .placar input {
@@ -530,20 +700,13 @@
                 height: 40px;
                 font-size: 16px;
             }
-        /* BOTÃO */
 
         .btn-salvar {
             width: 140px;
-            margin-left: 0;
         }
 
-        @@media (max-width:900px) {
-                .jogo {
-                display: grid;
-                grid-template-columns: 1fr;
-                gap: 16px;
-                text-align: center;
-            }
+        .resultado-fechado {
+            justify-content: center;
         }
     }
 </style>

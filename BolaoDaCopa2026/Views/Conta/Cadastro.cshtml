@@ -21,8 +21,9 @@
 
                 <form asp-controller="Conta"
                       asp-action="DadosCadastro"
-                      method="post">
-                      
+                      method="post"
+                      class="form">
+
                     <div class="campo">
                         <label>Nome completo</label>
                         <input type="text"
@@ -35,6 +36,7 @@
                     <div class="campo">
                         <label>Data de nascimento</label>
                         <input type="date"
+                               id="dataNascimento"
                                name="DataNascimento"
                                required />
 
@@ -55,6 +57,7 @@
                     <div class="campo">
                         <label>Escolha sua senha</label>
                         <input type="password"
+                               id="senha"
                                name="Senha"
                                placeholder="Digite sua senha"
                                autocomplete="new-password"
@@ -75,7 +78,6 @@
                         </small>
                     </div>
 
-                    <!-- EULA -->
                     <div class="campo termos">
                         <label class="checkbox_container">
                             <input type="checkbox" id="aceiteEula" name="AceitouEula" required />
@@ -103,8 +105,8 @@
             </div>
 
         </div>
-    </section>
-</main>
+    </div>
+</section>
 
 <!-- MODAL EULA -->
 <div id="modalEula" class="modal">
@@ -127,6 +129,10 @@
 </div>
 
 <style>
+    footer {
+        display: none !important;
+    }
+
     .modal {
         display: none;
         position: fixed;
@@ -181,128 +187,64 @@
     }
 
     .campo.termos {
-        display: flex;
+        margin-bottom: 15px;
         align-items: center;
     }
 
     .checkbox_container {
         display: flex;
         align-items: center;
-        gap: 6px;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        text-align: center;
         white-space: nowrap;
     }
 
+        .checkbox_container input[type="checkbox"] {
+            width: auto;
+            padding: 0;
+            margin: 0;
+            border: none;
+            background: transparent;
+            box-shadow: none;
+            accent-color: rgba(255,203,0,0.95);
+            flex-shrink: 0;
+            transform: none;
+        }
+
         .checkbox_container span {
             display: inline;
+            line-height: 1.4;
+            color: white;
         }
 
         .checkbox_container a {
             display: inline;
+            color: #3ea6ff;
+            text-decoration: none;
         }
-</style>
 
-<script>
-        document.addEventListener("DOMContentLoaded", function () {
+    @@media (min-width: 769px) {
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
 
-        const form = document.querySelector(".form");
-        const dataInput = document.getElementById("dataNascimento");
-        const erroIdade = document.getElementById("erroIdade");
-
-        const senhaInput = document.getElementById("senha");
-        const confirmarSenhaInput = document.getElementById("confirmarSenha");
-        const erroSenha = document.getElementById("erroSenha");
-
-        const modal = document.getElementById("modalEula");
-        const abrir = document.getElementById("abrirEula");
-        const fechar = document.getElementById("fecharEula");
-        const aceitar = document.getElementById("btnAceitarEula");
-        const checkbox = document.getElementById("aceiteEula");
-
-        // ===== MODAL =====
-        abrir.addEventListener("click", function (e) {
-            e.preventDefault();
-            modal.style.display = "flex";
-        });
-
-        fechar.addEventListener("click", function () {
-            modal.style.display = "none";
-        });
-
-        aceitar.addEventListener("click", function () {
-            checkbox.checked = true;
-            modal.style.display = "none";
-        });
-
-        window.addEventListener("click", function (e) {
-            if (e.target === modal) {
-                modal.style.display = "none";
-            }
-        });
-
-        // ===== VALIDAÇÕES NO SUBMIT =====
-        form.addEventListener("submit", function (e) {
-
-            let valido = true;
-
-            // ---- IDADE ----
-            const dataNascimento = new Date(dataInput.value);
-            const hoje = new Date();
-
-            let idade = hoje.getFullYear() - dataNascimento.getFullYear();
-            const mes = hoje.getMonth() - dataNascimento.getMonth();
-
-            if (mes < 0 || (mes === 0 && hoje.getDate() < dataNascimento.getDate())) {
-                idade--;
-            }
-
-            if (idade < 18) {
-                erroIdade.style.display = "block";
-                valido = false;
-            } else {
-                erroIdade.style.display = "none";
-            }
-
-            // ---- SENHA ----
-            if (senhaInput.value !== confirmarSenhaInput.value) {
-                erroSenha.style.display = "block";
-                valido = false;
-            } else {
-                erroSenha.style.display = "none";
-            }
-
-            if (!valido) {
-                e.preventDefault();
-            }
-
-        });
-
-    });
-</script>
-    </div>
-</section>
-
-
-<style>
-
-    /* ESCONDE FOOTER NESSA TELA */
-    footer {
-        display: none !important;
+        .login-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            box-sizing: border-box;
+        }
     }
-
-    /* ===== LAYOUT BASE ===== */
 
     .login-page {
-        height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        width: 100%;
+        box-sizing: border-box;
     }
-
-    body {
-        overflow: hidden;
-    }
-
-    /* CARD */
 
     .login-card {
         width: 100%;
@@ -312,9 +254,8 @@
         background: rgba(255,255,255,0.05);
         border: 1px solid rgba(255,255,255,0.1);
         backdrop-filter: blur(10px);
+        box-sizing: border-box;
     }
-
-    /* TOPO */
 
     .login-top h1 {
         margin-bottom: 8px;
@@ -336,29 +277,28 @@
         margin-bottom: 10px;
     }
 
-    /* GRID */
-
     .login-content {
         display: flex;
         gap: 40px;
         align-items: center;
     }
 
-    /* IMAGEM */
-
-    .login-image img {
-        width: 100%;
-        max-width: 300px;
-        border-radius: 16px;
+    .login-image {
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
-    /* FORM */
+        .login-image img {
+            width: 100%;
+            max-width: 300px;
+            border-radius: 16px;
+            display: block;
+        }
 
-    .login-form {
+    .painel_form {
         flex: 1;
     }
-
-    /* CAMPOS */
 
     .campo {
         display: flex;
@@ -372,29 +312,9 @@
             border: 1px solid rgba(255,255,255,0.2);
             background: rgba(255,255,255,0.05);
             color: white;
-            width: auto;
+            width: 100%;
+            box-sizing: border-box;
         }
-
-    /* TERMOS */
-
-    .termos {
-        display: flex;
-        align-items: flex-start;
-        gap: 8px;
-        font-size: 13px;
-        margin-bottom: 15px;
-    }
-
-        .termos a {
-            color: #3ea6ff;
-            text-decoration: none;
-        }
-
-        .termos input[type="checkbox"] {
-            accent-color: rgba(255,203,0,0.95);
-        }
-
-    /* BOTÕES (mesmo padrão do login) */
 
     .btn-home {
         display: inline-flex;
@@ -409,6 +329,7 @@
         cursor: pointer;
         transition: .2s;
         margin-top: 10px;
+        box-sizing: border-box;
     }
 
     .btn-home--primary {
@@ -426,27 +347,121 @@
         color: white;
     }
 
-    /* RESPONSIVO */
-
     @@media (max-width:768px) {
-        .login-content
+        html, body {
+            overflow-y: auto;
+        }
 
-    {
-        flex-direction: column;
-        text-align: center;
-    }
+        .login-page {
+            min-height: 100vh;
+            display: block;
+            padding: 24px 16px;
+        }
 
-    .login-image img {
-        max-width: 200px;
-    }
+        .login-content {
+            flex-direction: column;
+            text-align: center;
+            gap: 24px;
+        }
 
-    .login-card {
-        padding: 25px;
-    }
+        .login-image img {
+            max-width: 200px;
+        }
 
-    .login-top h1 {
-        font-size: 22px;
-    }
+        .login-card {
+            padding: 25px;
+        }
 
+        .login-top h1 {
+            font-size: 22px;
+            line-height: 1.3;
+        }
+
+        .painel_form {
+            width: 100%;
+        }
+
+        .campo {
+            text-align: left;
+        }
+
+        .checkbox_container {
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            white-space: normal;
+        }
     }
 </style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const form = document.querySelector(".form");
+        const dataInput = document.getElementById("dataNascimento");
+        const erroIdade = document.getElementById("erroIdade");
+
+        const senhaInput = document.getElementById("senha");
+        const confirmarSenhaInput = document.getElementById("confirmarSenha");
+        const erroSenha = document.getElementById("erroSenha");
+
+        const modal = document.getElementById("modalEula");
+        const abrir = document.getElementById("abrirEula");
+        const fechar = document.getElementById("fecharEula");
+        const aceitar = document.getElementById("btnAceitarEula");
+        const checkbox = document.getElementById("aceiteEula");
+
+        abrir.addEventListener("click", function (e) {
+            e.preventDefault();
+            modal.style.display = "flex";
+        });
+
+        fechar.addEventListener("click", function () {
+            modal.style.display = "none";
+        });
+
+        aceitar.addEventListener("click", function () {
+            checkbox.checked = true;
+            modal.style.display = "none";
+        });
+
+        window.addEventListener("click", function (e) {
+            if (e.target === modal) {
+                modal.style.display = "none";
+            }
+        });
+
+        form.addEventListener("submit", function (e) {
+
+            let valido = true;
+
+            const dataNascimento = new Date(dataInput.value);
+            const hoje = new Date();
+
+            let idade = hoje.getFullYear() - dataNascimento.getFullYear();
+            const mes = hoje.getMonth() - dataNascimento.getMonth();
+
+            if (mes < 0 || (mes === 0 && hoje.getDate() < dataNascimento.getDate())) {
+                idade--;
+            }
+
+            if (idade < 18) {
+                erroIdade.style.display = "block";
+                valido = false;
+            } else {
+                erroIdade.style.display = "none";
+            }
+
+            if (senhaInput.value !== confirmarSenhaInput.value) {
+                erroSenha.style.display = "block";
+                valido = false;
+            } else {
+                erroSenha.style.display = "none";
+            }
+
+            if (!valido) {
+                e.preventDefault();
+            }
+        });
+    });
+</script>
