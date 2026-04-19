@@ -1,0 +1,177 @@
+@model BolaoDaCopa2026.Models.ViewModels.ApostasDoJogoViewModel
+
+@{
+    ViewData["Title"] = "Apostas do Jogo";
+}
+
+<div class="top-actions">
+    <a asp-controller="Home"
+       asp-action="Index"
+       class="btn-voltar">
+        ← Voltar para o início
+    </a>
+</div>
+
+<header>
+    <h1>Apostas do jogo</h1>
+</header>
+
+<div class="jogo-head">
+    <span class="fase">@Model.Jogo.Fase</span>
+    <strong>@Model.Jogo.SelecaoA.Nome</strong>
+    <span class="placar-oficial">@(Model.Jogo.GolsSelecaoA?.ToString() ?? "-") - @(Model.Jogo.GolsSelecaoB?.ToString() ?? "-")</span>
+    <strong>@Model.Jogo.SelecaoB.Nome</strong>
+    <span class="data">@Model.Jogo.DataHora.ToString("dd/MM/yyyy HH:mm")</span>
+</div>
+
+<div class="container apostas-jogo-container">
+    <div class="apostas-tabela">
+        <div class="apostas-header">
+            <span>Usuário</span>
+            <span>@Model.Jogo.SelecaoA.Nome</span>
+            <span>Palpite @Model.Jogo.SelecaoA.Nome</span>
+            <span>Palpite @Model.Jogo.SelecaoB.Nome</span>
+            <span>@Model.Jogo.SelecaoB.Nome</span>
+        </div>
+
+        @foreach (var item in Model.ApostasPorJogador)
+        {
+            <div class="apostas-linha">
+                <span class="usuario">@item.NomeUsuario</span>
+                <span class="selecao">@Model.Jogo.SelecaoA.Nome</span>
+
+                @if (!item.EsqueceuApostar)
+                {
+                    <span class="palpite">@item.GolsSelecaoA</span>
+                    <span class="palpite">@item.GolsSelecaoB</span>
+                }
+                else
+                {
+                    <span class="esqueceu">⚠️ Esqueceu de apostar</span>
+                    <span class="esqueceu-mobile">⚠️ Esqueceu de apostar</span>
+                }
+
+                <span class="selecao">@Model.Jogo.SelecaoB.Nome</span>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .apostas-jogo-container {
+        max-width: 1160px;
+        margin-top: 20px;
+        margin-bottom: 30px;
+    }
+
+    .jogo-head {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin: 14px 0 10px;
+    }
+
+    .jogo-head .fase {
+        padding: 3px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        border: 1px solid rgba(255,255,255,.2);
+    }
+
+    .placar-oficial {
+        background: rgba(255,255,255,.08);
+        padding: 4px 10px;
+        border-radius: 8px;
+        font-weight: 800;
+    }
+
+    .jogo-head .data {
+        opacity: .7;
+        font-size: 13px;
+    }
+
+    .apostas-tabela {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .apostas-header,
+    .apostas-linha {
+        display: grid;
+        grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .apostas-header {
+        font-size: 12px;
+        text-transform: uppercase;
+        opacity: .7;
+        font-weight: 700;
+        padding: 0 6px;
+    }
+
+    .apostas-linha {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 12px;
+        padding: 12px;
+    }
+
+    .usuario {
+        font-weight: 700;
+    }
+
+    .palpite {
+        background: rgba(255, 203, 0, 0.16);
+        color: #ffcb00;
+        border-radius: 8px;
+        text-align: center;
+        font-weight: 800;
+        padding: 6px;
+    }
+
+    .esqueceu {
+        grid-column: 3 / 5;
+        text-align: center;
+        color: #ffcc00;
+        font-weight: 700;
+    }
+
+    .esqueceu-mobile {
+        display: none;
+    }
+
+    @media (max-width: 900px) {
+        .apostas-header {
+            display: none;
+        }
+
+        .apostas-linha {
+            grid-template-columns: 1fr 1fr;
+            gap: 10px 8px;
+        }
+
+        .selecao {
+            display: none;
+        }
+
+        .esqueceu {
+            display: none;
+        }
+
+        .esqueceu-mobile {
+            display: block;
+            grid-column: 1 / -1;
+            color: #ffcc00;
+            font-weight: 700;
+            text-align: center;
+            background: rgba(255, 203, 0, 0.08);
+            border-radius: 8px;
+            padding: 8px;
+        }
+    }
+</style>
