@@ -26,22 +26,56 @@ public class ApostaService
 
         foreach (var aposta in apostas)
         {
-            // calcula pontos usando seu service
+            aposta.Apostador.PontosJogos -= aposta.Pontos;
+            aposta.Pontos = 0; 
+        }
+
+        foreach (var aposta in apostas)
+        {
             int pontos = _pontuacaoService.CalcularPontuacaoApostador(
                 jogo.GolsSelecaoA.Value,
                 jogo.GolsSelecaoB.Value,
                 aposta.GolsSelecaoA,
                 aposta.GolsSelecaoB);
 
-            aposta.Pontos = pontos; // armazenar pontos na aposta
-            aposta.Apostador.Pontuacao += pontos;
+            aposta.Pontos = pontos;
+            aposta.Apostador.PontosJogos += pontos;
+        }
 
-            if (aposta.GolsSelecaoA == jogo.GolsSelecaoA && aposta.GolsSelecaoB == jogo.GolsSelecaoB)
-            {
-                aposta.Apostador.PalpitesExatos++;
-            }
+        var apostadores = apostas
+            .Select(a => a.Apostador)
+            .Distinct()
+            .ToList();
+
+        foreach (var apostador in apostadores)
+        {
+            int exatos = _context.Apostas
+                .Count(a =>
+                    a.ApostadorId == apostador.Id &&
+                    a.GolsSelecaoA == jogo.GolsSelecaoA &&
+                    a.GolsSelecaoB == jogo.GolsSelecaoB);
+
+            apostador.PalpitesExatos = exatos;
+        }
+
+        _context.SaveChanges();
+    }
+
+    public void RecalcularCampeao(int campeaoId)
+    {
+        const int PONTOS_CAMPEAO = 10;
+
+        var apostadores = _context.Apostadores.ToList();
+
+        foreach (var apostador in apostadores)
+        {
+            apostador.PontosCampeao =
+                apostador.SelecaoCampeaId == campeaoId
+                ? PONTOS_CAMPEAO
+                : 0;
         }
 
         _context.SaveChanges();
     }
 }
+

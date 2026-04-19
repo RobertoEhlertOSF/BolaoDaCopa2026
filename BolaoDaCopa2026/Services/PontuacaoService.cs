@@ -3,8 +3,8 @@
 public class PontuacaoService
 {
     public int CalcularPontuacaoApostador(
-    int golsRealA, int golsRealB,
-    int golsPalpiteA, int golsPalpiteB)
+        int golsRealA, int golsRealB,
+        int golsPalpiteA, int golsPalpiteB)
     {
         // Placar exato
         if (golsPalpiteA == golsRealA && golsPalpiteB == golsRealB)
@@ -13,36 +13,53 @@ public class PontuacaoService
         bool realEmpate = golsRealA == golsRealB;
         bool palpiteEmpate = golsPalpiteA == golsPalpiteB;
 
-        // Empate correto (placar errado)
-        if (realEmpate && palpiteEmpate)
-            return 5;
+        bool acertouA = golsPalpiteA == golsRealA;
+        bool acertouB = golsPalpiteB == golsRealB;
+        bool acertouUmLado = acertouA || acertouB;
 
-        // Vitória correta (ambos NÃO empate)
-        if (!realEmpate && !palpiteEmpate)
+        // =========================
+        // CASO: JOGO FOI EMPATE
+        // =========================
+        if (realEmpate)
+        {
+            // Acertou empate (mesmo com placar errado)
+            if (palpiteEmpate)
+                return 5;
+
+            // Acertou gols de um lado
+            if (acertouUmLado)
+                return 2;
+
+            return 0;
+        }
+
+        // =========================
+        // CASO: JOGO NÃO FOI EMPATE
+        // =========================
+        bool acertouVencedor = false;
+
+        if (!palpiteEmpate)
         {
             bool realAVenceu = golsRealA > golsRealB;
             bool palpiteAVenceu = golsPalpiteA > golsPalpiteB;
 
-            if (realAVenceu == palpiteAVenceu)
-                return 7;
+            acertouVencedor = realAVenceu == palpiteAVenceu;
         }
 
-        // Errou resultado → pode pontuar só por gols individuais
-        int pontos = 0;
+        // Vencedor + um lado
+        if (acertouVencedor && acertouUmLado)
+            return 7;
 
-        if (golsPalpiteA == golsRealA)
-            pontos += 2;
+        // Só vencedor
+        if (acertouVencedor)
+            return 5;
 
-        if (golsPalpiteB == golsRealB)
-            pontos += 2;
+        // Só gols
+        if (acertouUmLado)
+            return 2;
 
-        return pontos;
+        return 0;
     }
-
-
-
-
-
     public void AtualizarPontuacaoSelecao(Selecao selecao, int golsMarcados, int golsSofridos)
     {
         selecao.GolsPro += golsMarcados;
@@ -63,6 +80,6 @@ public class PontuacaoService
             selecao.Derrotas++;
         }
     }
-   }
+}
 
 
