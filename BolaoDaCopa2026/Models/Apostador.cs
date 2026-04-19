@@ -16,7 +16,10 @@
 
         public bool IsPago { get; set; }
 
-        public int Pontuacao { get; set; }
+        public int PontosJogos { get; set; }
+        public int PontosCampeao { get; set; }
+        public int Pontuacao => PontosJogos + PontosCampeao;
+        
         public int PalpitesExatos { get; set; }
 
 

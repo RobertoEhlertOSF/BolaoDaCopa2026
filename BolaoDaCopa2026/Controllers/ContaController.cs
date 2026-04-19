@@ -92,7 +92,6 @@ public class ContaController : Controller
             Nome = dto.Nome.Trim(),
             DataNascimento = dto.DataNascimento,
             IsPago = false,
-            Pontuacao = 0,
             PalpitesExatos = 0,
             Usuario = usuario
         };
