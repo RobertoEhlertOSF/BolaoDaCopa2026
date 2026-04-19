@@ -78,6 +78,26 @@
 
 <style>
 
+    /* desktop: scroll só se precisar */
+    @@media (min-width:701px) {
+        html, body {
+            height: 100%;
+            overflow-y: auto;
+        }
+    }
+
+    /* mobile: mantém scroll normal */
+    @@media (max-width:700px) {
+        html, body {
+            overflow-y: auto;
+        }
+    }
+
+    /* remove o rodapé só nesta página */
+    footer {
+        display: none !important;
+    }
+
     .top-actions {
         display: flex;
         justify-content: space-between;
@@ -241,13 +261,15 @@
         font-weight: 800;
         background: rgba(255,203,0,0.95);
         color: #0b0f17 !important;
-        opacity: .70;
         text-decoration: none !important;
+        transition: filter .2s ease, transform .1s ease;
     }
 
         .btn-regras:hover,
         .btn-regras:focus,
         .btn-regras:active {
+            filter: brightness(1.05);
+            transform: translateY(-2px);
             color: #0b0f17 !important;
             text-decoration: none !important;
         }

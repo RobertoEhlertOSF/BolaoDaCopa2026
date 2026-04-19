@@ -36,9 +36,9 @@ namespace BolaoDaCopa2026.Data.Seeds
             new Selecao
             {
                 Id = 4,
-                Nome = "Repescagem Europa D",
+                Nome = "República Tcheca",
                 Grupo = "A",
-                BandeiraUrl = "https://flagcdn.com/w40/eu.png"
+                BandeiraUrl = "https://flagcdn.com/w40/cz.png"
             },
 
             // =====================
@@ -54,9 +54,9 @@ namespace BolaoDaCopa2026.Data.Seeds
             new Selecao
             {
                 Id = 6,
-                Nome = "Repescagem Europa A",
+                Nome = "Bósnia e Herzegovina",
                 Grupo = "B",
-                BandeiraUrl = "https://flagcdn.com/w40/eu.png"
+                BandeiraUrl = "https://flagcdn.com/w40/ba.png"
             },
             new Selecao
             {
@@ -131,9 +131,9 @@ namespace BolaoDaCopa2026.Data.Seeds
             new Selecao
             {
                 Id = 16,
-                Nome = "Repescagem Europa C",
+                Nome = "Turquia",
                 Grupo = "D",
-                BandeiraUrl = "https://flagcdn.com/w40/eu.png"
+                BandeiraUrl = "https://flagcdn.com/w40/tr.png"
             },
 
             // =====================
@@ -188,9 +188,9 @@ namespace BolaoDaCopa2026.Data.Seeds
             new Selecao
             {
                 Id = 23,
-                Nome = "Repescagem Europa B",
+                Nome = "Suécia",
                 Grupo = "F",
-                BandeiraUrl = "https://flagcdn.com/w40/eu.png"
+                BandeiraUrl = "https://flagcdn.com/w40/se.png"
             },
             new Selecao
             {
@@ -283,9 +283,9 @@ namespace BolaoDaCopa2026.Data.Seeds
             new Selecao
             {
                 Id = 35,
-                Nome = "Repescagem Intercontinental 2",
+                Nome = "Iraque",
                 Grupo = "I",
-                BandeiraUrl = "https://flagcdn.com/w40/un.png"
+                BandeiraUrl = "https://flagcdn.com/w40/iq.png"
             },
             new Selecao
             {
@@ -340,9 +340,9 @@ namespace BolaoDaCopa2026.Data.Seeds
             new Selecao
             {
                 Id = 42,
-                Nome = "Repescagem Intercontinental 1",
+                Nome = "RD Congo",
                 Grupo = "K",
-                BandeiraUrl = "https://flagcdn.com/w40/un.png"
+                BandeiraUrl = "https://flagcdn.com/w40/cd.png"
             },
             new Selecao
             {

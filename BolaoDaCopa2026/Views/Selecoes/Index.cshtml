@@ -19,6 +19,10 @@
     <h1>Classificação</h1>
     <style>
 
+        footer {
+            display: none !important;
+        }
+
         /* Linha de classificação (cabeçalho e times) */
         .classificacao-row {
             display: grid;
@@ -61,7 +65,21 @@
             text-decoration: none;
             font-weight: 800;
             border: none;
+            transition: filter .2s ease, transform .1s ease;
         }
+
+            .btn-voltar:hover {
+                filter: brightness(1.05);
+                transform: translateX(-2px);
+                color: #0b0f17;
+                text-decoration: none;
+            }
+
+            .btn-voltar:focus,
+            .btn-voltar:active {
+                color: #0b0f17;
+                text-decoration: none;
+            }
 
         .btn-regras {
             display: inline-flex;
@@ -74,7 +92,17 @@
             background: rgba(255, 203, 0, 0.95);
             color: #0b0f17 !important;
             text-decoration: none !important;
+            transition: filter .2s ease, transform .1s ease;
         }
+
+            .btn-regras:hover,
+            .btn-regras:focus,
+            .btn-regras:active {
+                filter: brightness(1.05);
+                transform: translateY(-2px);
+                color: #0b0f17 !important;
+                text-decoration: none !important;
+            }
 
         /* ===== container scroll mobile ===== */
 

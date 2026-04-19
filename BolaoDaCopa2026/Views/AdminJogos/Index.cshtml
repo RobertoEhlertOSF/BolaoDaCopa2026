@@ -1,5 +1,19 @@
 ﻿@model List<BolaoDaCopa2026.Models.Jogo>
 
+@functions {
+    public string SiglaSelecao(string nome)
+    {
+        if (string.IsNullOrWhiteSpace(nome))
+            return "";
+
+        nome = nome.Trim().ToUpper();
+
+        return nome.Length >= 3
+            ? nome.Substring(0, 3)
+            : nome;
+    }
+}
+
 <div class="admin-voltar">
     <a asp-controller="Home"
        asp-action="Index"
@@ -25,6 +39,7 @@
         </a>
 
         <a asp-controller="AdminJogos"
+           asp-action="Oitavas"
            asp-action="Oitavas"
            class="btn-admin">
             Oitavas
@@ -67,10 +82,10 @@
 
 <div class="admin-table-wrapper">
 
-    <table class="table table-hover table-bordered align-middle">
-        <thead class="table-dark">
+    <table class="table table-hover table-bordered align-middle admin-table">
+        <thead>
             <tr>
-                <th>Data/Hora</th>
+                <th class="col-datahora">Data/Hora</th>
                 <th>Fase</th>
                 <th>Seleção A</th>
                 <th>Placar</th>
@@ -92,7 +107,7 @@
                 };
 
                 <tr>
-                    <td>@jogo.DataHora.ToString("dd/MM HH:mm")</td>
+                    <td class="col-datahora">@jogo.DataHora.ToString("dd/MM HH:mm")</td>
 
                     <td>@jogo.Fase</td>
 
@@ -105,7 +120,7 @@
                                  width="24"
                                  class="me-1" />
 
-                            @jogo.SelecaoA.Nome
+                            @SiglaSelecao(jogo.SelecaoA.Nome)
                         }
                         else
                         {
@@ -136,7 +151,7 @@
                                  width="24"
                                  class="me-1" />
 
-                            @jogo.SelecaoB.Nome
+                            @SiglaSelecao(jogo.SelecaoB.Nome)
                         }
                         else
                         {
@@ -167,6 +182,10 @@
 
 
 <style>
+
+    footer {
+        display: none !important;
+    }
 
     /* ============================= */
     /* BOTÃO VOLTAR (PADRÃO DO SITE) */
@@ -240,35 +259,89 @@
     /* TABELA                        */
     /* ============================= */
 
-    .table-hover tbody tr:hover {
-        background-color: #f1f5f9;
-        transition: color 0.2s ease, background-color 0.2s ease;
+    .admin-table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 18px;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.10);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.18);
     }
 
-    .table-hover tbody tr td {
-        color: darkgrey;
+        .admin-table-wrapper table {
+            min-width: 750px;
+            margin-bottom: 0;
+        }
+
+    .admin-table {
+        border-collapse: separate !important;
+        border-spacing: 0;
+        overflow: hidden;
+        background: transparent;
     }
 
-    .table-hover thead th {
-        color: #FFF;
+        .admin-table thead th {
+            color: rgba(255,255,255,0.95);
+            background: rgba(255,255,255,0.06);
+            border-bottom: 1px solid rgba(255,255,255,0.10);
+            border-right: 1px solid rgba(255,255,255,0.08);
+            padding: 16px 14px;
+            font-size: 0.95rem;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+            .admin-table thead th:last-child {
+                border-right: none;
+            }
+
+        .admin-table tbody td {
+            color: rgba(255,255,255,0.82);
+            background: transparent;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            border-right: 1px solid rgba(255,255,255,0.06);
+            padding: 14px;
+            vertical-align: middle;
+        }
+
+            .admin-table tbody td:last-child {
+                border-right: none;
+            }
+
+        .admin-table tbody tr:first-child td {
+            border-top: none;
+        }
+
+        .admin-table tbody tr:hover td {
+            background: rgba(255,255,255,0.04);
+            transition: background-color 0.2s ease;
+        }
+
+    .col-datahora {
+        white-space: nowrap;
     }
 
     /* botão atualizar */
 
     .btn-atualizar {
-        background: #1f7cff;
-        color: white;
-        border: none;
-        padding: 6px 12px;
-        border-radius: 6px;
-        font-size: 14px;
-        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 16px;
+        border-radius: 10px;
+        background: rgba(255,203,0,0.95);
+        color: #0b0f17;
+        font-weight: 800;
         text-decoration: none;
+        transition: filter .2s ease, transform .1s ease;
+        border: none;
     }
 
         .btn-atualizar:hover {
-            background: #1664d9;
-            color: white;
+            filter: brightness(1.05);
+            transform: translateY(-2px);
+            color: #0b0f17;
+            text-decoration: none;
         }
 
     /* badges */
@@ -288,24 +361,8 @@
     }
 
 
-
     /* ============================= */
-    /* SCROLL MOBILE DA TABELA      */
-    /* ============================= */
-
-    .admin-table-wrapper {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-
-        .admin-table-wrapper table {
-            min-width: 750px;
-        }
-
-
-
-    /* ============================= */
-    /* Telas menores       */
+    /* Telas menores                */
     /* ============================= */
 
     @@media (max-width:768px) {
@@ -328,4 +385,3 @@
     }
 
 </style>
-
