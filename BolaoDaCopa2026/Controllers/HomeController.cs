@@ -93,6 +93,13 @@ namespace BolaoDaCopa2026.Controllers
         [HttpGet]
         public async Task<IActionResult> ApostasJogo(int id)
         {
+            var apostadorId = HttpContext.Session.GetInt32("ApostadorId");
+
+            if (apostadorId == null)
+            {
+                return RedirectToAction("Login", "Conta");
+            }
+
             var jogo = await _context.Jogos
                 .Include(j => j.SelecaoA)
                 .Include(j => j.SelecaoB)

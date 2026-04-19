@@ -103,7 +103,8 @@
 
                     var finalizado = jogo.Status == "Finalizado";
                     var emAndamento = jogo.Status == "EmAndamento";
-                    var podeAbrirApostas = finalizado || emAndamento;
+                    var usuarioLogado = Context.Session.GetInt32("ApostadorId") != null;
+                    var podeAbrirApostas = usuarioLogado && (finalizado || emAndamento);
 
                     <div class="game-card @(podeAbrirApostas ? "game-card--clickable" : "")">
 
