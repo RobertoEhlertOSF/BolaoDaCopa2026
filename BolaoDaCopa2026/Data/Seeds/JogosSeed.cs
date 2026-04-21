@@ -39,7 +39,7 @@ namespace BolaoDaCopa2026.Data.Seeds
             new Jogo
             {
                 SelecaoAId = S("Coreia do Sul").Id,
-                SelecaoBId = S("Repescagem Europa D").Id,
+                SelecaoBId = S("República Tcheca").Id,
                 DataHora = new DateTime(2026, 6, 11, 23, 0, 0),
                 Fase = "Grupo A",
                 Status = "Agendado",
@@ -49,7 +49,7 @@ namespace BolaoDaCopa2026.Data.Seeds
             // ===== 2ª Rodada =====
             new Jogo
             {
-                SelecaoAId = S("Repescagem Europa D").Id,
+                SelecaoAId = S("República Tcheca").Id,
                 SelecaoBId = S("África do Sul").Id,
                 DataHora = new DateTime(2026, 6, 18, 13, 0, 0),
                 Fase = "Grupo A",
@@ -69,7 +69,7 @@ namespace BolaoDaCopa2026.Data.Seeds
             // ===== 3ª Rodada =====
             new Jogo
             {
-                SelecaoAId = S("Repescagem Europa D").Id,
+                SelecaoAId = S("República Tcheca").Id,
                 SelecaoBId = S("México").Id,
                 DataHora = new DateTime(2026, 6, 24, 22, 0, 0),
                 Fase = "Grupo A",
@@ -91,7 +91,7 @@ namespace BolaoDaCopa2026.Data.Seeds
             new Jogo
             {
                 SelecaoAId = S("Canadá").Id,
-                SelecaoBId = S("Repescagem Europa A").Id,
+                SelecaoBId = S("Bósnia").Id,
                 DataHora = new DateTime(2026, 6, 12, 16, 0, 0),
                 Fase = "Grupo B",
                 Status = "Agendado",
@@ -111,7 +111,7 @@ namespace BolaoDaCopa2026.Data.Seeds
             new Jogo
             {
                 SelecaoAId = S("Suíça").Id,
-                SelecaoBId = S("Repescagem Europa A").Id,
+                SelecaoBId = S("Bósnia").Id,
                 DataHora = new DateTime(2026, 6, 18, 16, 0, 0),
                 Fase = "Grupo B",
                 Status = "Agendado",
@@ -139,7 +139,7 @@ namespace BolaoDaCopa2026.Data.Seeds
             },
             new Jogo
             {
-                SelecaoAId = S("Repescagem Europa A").Id,
+                SelecaoAId = S("Bósnia").Id,
                 SelecaoBId = S("Catar").Id,
                 DataHora = new DateTime(2026, 6, 24, 16, 0, 0),
                 Fase = "Grupo B",
@@ -222,7 +222,7 @@ namespace BolaoDaCopa2026.Data.Seeds
             new Jogo
             {
                 SelecaoAId = S("Austrália").Id,
-                SelecaoBId = S("Repescagem Europa C").Id,
+                SelecaoBId = S("Turquia").Id,
                 DataHora = new DateTime(2026, 6, 13, 1, 0, 0),
                 Fase = "Grupo D",
                 Status = "Agendado",
@@ -232,7 +232,7 @@ namespace BolaoDaCopa2026.Data.Seeds
             // ===== 2ª Rodada =====
             new Jogo
             {
-                SelecaoAId = S("Repescagem Europa C").Id,
+                SelecaoAId = S("Turquia").Id,
                 SelecaoBId = S("Paraguai").Id,
                 DataHora = new DateTime(2026, 6, 19, 1, 0, 0),
                 Fase = "Grupo D",
@@ -252,7 +252,7 @@ namespace BolaoDaCopa2026.Data.Seeds
             // ===== 3ª Rodada =====
             new Jogo
             {
-                SelecaoAId = S("Repescagem Europa C").Id,
+                SelecaoAId = S("Turquia").Id,
                 SelecaoBId = S("Estados Unidos").Id,
                 DataHora = new DateTime(2026, 6, 25, 23, 0, 0),
                 Fase = "Grupo D",
@@ -343,7 +343,7 @@ namespace BolaoDaCopa2026.Data.Seeds
             },
             new Jogo
             {
-                SelecaoAId = S("Repescagem Europa B").Id,
+                SelecaoAId = S("Suécia").Id,
                 SelecaoBId = S("Tunísia").Id,
                 DataHora = new DateTime(2026, 6, 14, 23, 0, 0),
                 Fase = "Grupo F",
@@ -355,7 +355,7 @@ namespace BolaoDaCopa2026.Data.Seeds
             new Jogo
             {
                 SelecaoAId = S("Holanda").Id,
-                SelecaoBId = S("Repescagem Europa B").Id,
+                SelecaoBId = S("Suécia").Id,
                 DataHora = new DateTime(2026, 6, 20, 14, 0, 0),
                 Fase = "Grupo F",
                 Status = "Agendado",
@@ -384,7 +384,7 @@ namespace BolaoDaCopa2026.Data.Seeds
             new Jogo
             {
                 SelecaoAId = S("Japão").Id,
-                SelecaoBId = S("Repescagem Europa B").Id,
+                SelecaoBId = S("Suécia").Id,
                 DataHora = new DateTime(2026, 6, 25, 20, 0, 0),
                 Fase = "Grupo F",
                 Status = "Agendado",
@@ -526,7 +526,7 @@ namespace BolaoDaCopa2026.Data.Seeds
             },
             new Jogo
             {
-                SelecaoAId = S("Repescagem Intercontinental 2").Id,
+                SelecaoAId = S("Iraque").Id,
                 SelecaoBId = S("Noruega").Id,
                 DataHora = new DateTime(2026, 6, 16, 19, 0, 0),
                 Fase = "Grupo I",
@@ -538,7 +538,7 @@ namespace BolaoDaCopa2026.Data.Seeds
             new Jogo
             {
                 SelecaoAId = S("França").Id,
-                SelecaoBId = S("Repescagem Intercontinental 2").Id,
+                SelecaoBId = S("Iraque").Id,
                 DataHora = new DateTime(2026, 6, 22, 18, 0, 0),
                 Fase = "Grupo I",
                 Status = "Agendado",
@@ -567,7 +567,7 @@ namespace BolaoDaCopa2026.Data.Seeds
             new Jogo
             {
                 SelecaoAId = S("Senegal").Id,
-                SelecaoBId = S("Repescagem Intercontinental 2").Id,
+                SelecaoBId = S("Iraque").Id,
                 DataHora = new DateTime(2026, 6, 26, 16, 0, 0),
                 Fase = "Grupo I",
                 Status = "Agendado",
@@ -640,7 +640,7 @@ namespace BolaoDaCopa2026.Data.Seeds
             new Jogo
             {
                 SelecaoAId = S("Portugal").Id,
-                SelecaoBId = S("Repescagem Intercontinental 1").Id,
+                SelecaoBId = S("RD Congo").Id,
                 DataHora = new DateTime(2026, 6, 16, 22, 0, 0),
                 Fase = "Grupo K",
                 Status = "Agendado",
@@ -669,7 +669,7 @@ namespace BolaoDaCopa2026.Data.Seeds
             new Jogo
             {
                 SelecaoAId = S("Colômbia").Id,
-                SelecaoBId = S("Repescagem Intercontinental 1").Id,
+                SelecaoBId = S("RD Congo").Id,
                 DataHora = new DateTime(2026, 6, 23, 23, 0, 0),
                 Fase = "Grupo K",
                 Status = "Agendado",
@@ -688,7 +688,7 @@ namespace BolaoDaCopa2026.Data.Seeds
             },
             new Jogo
             {
-                SelecaoAId = S("Repescagem Intercontinental 1").Id,
+                SelecaoAId = S("RD Congo").Id,
                 SelecaoBId = S("Uzbequistão").Id,
                 DataHora = new DateTime(2026, 6, 27, 20, 30, 0),
                 Fase = "Grupo K",
