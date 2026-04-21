@@ -17,7 +17,10 @@ namespace BolaoDaCopa2026.Data.Seeds
                     .FirstOrDefault(s => s.Nome == nome);
 
                 if (selecao == null)
-                    throw new Exception($"Seleção não encontrada: '{nome}'");
+                {
+                    Console.WriteLine($"[JogosSeed] Seleção não encontrada, jogo será ignorado: '{nome}'");
+                    return new Selecao { Id = 0, Nome = nome };
+                }
 
                 return selecao;
             }
@@ -758,10 +761,13 @@ namespace BolaoDaCopa2026.Data.Seeds
             },
         };
 
-                context.Jogos.AddRange(jogos);
+                var jogosValidos = jogos
+                    .Where(j => j.SelecaoAId > 0 && j.SelecaoBId > 0)
+                    .ToList();
+
+                context.Jogos.AddRange(jogosValidos);
                 context.SaveChanges();
             }
         }
 
     }
-
