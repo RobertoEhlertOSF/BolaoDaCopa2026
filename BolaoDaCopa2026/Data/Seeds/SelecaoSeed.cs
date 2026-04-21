@@ -1,4 +1,5 @@
-﻿using BolaoDaCopa2026.Models;
+﻿using BolaoDaCopa2026.Data;
+using BolaoDaCopa2026.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace BolaoDaCopa2026.Data.Seeds
@@ -7,8 +8,41 @@ namespace BolaoDaCopa2026.Data.Seeds
     {
         public static void Seed(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Selecao>().HasData(
+            modelBuilder.Entity<Selecao>().HasData(GetSelecoes());
+        }
 
+        public static void Sync(BolaoContext context)
+        {
+            var selecoesSeed = GetSelecoes();
+
+            foreach (var selecao in selecoesSeed)
+            {
+                var atual = context.Selecoes.FirstOrDefault(s => s.Id == selecao.Id);
+
+                if (atual is null)
+                {
+                    context.Selecoes.Add(new Selecao
+                    {
+                        Id = selecao.Id,
+                        Nome = selecao.Nome,
+                        Grupo = selecao.Grupo,
+                        BandeiraUrl = selecao.BandeiraUrl
+                    });
+                    continue;
+                }
+
+                atual.Nome = selecao.Nome;
+                atual.Grupo = selecao.Grupo;
+                atual.BandeiraUrl = selecao.BandeiraUrl;
+            }
+
+            context.SaveChanges();
+        }
+
+        private static Selecao[] GetSelecoes()
+        {
+            return
+            [
             // =====================
             // GRUPO A
             // =====================
@@ -199,10 +233,6 @@ namespace BolaoDaCopa2026.Data.Seeds
                 Grupo = "F",
                 BandeiraUrl = "https://flagcdn.com/w40/tn.png"
             },
-
-            // =====================
-            // GRUPO G
-            // =====================
             new Selecao
             {
                 Id = 25,
@@ -389,7 +419,7 @@ namespace BolaoDaCopa2026.Data.Seeds
                 Nome = "Panamá",
                 Grupo = "L",
                 BandeiraUrl = "https://flagcdn.com/w40/pa.png"
-            });
+            }];
         }
     }
 }
