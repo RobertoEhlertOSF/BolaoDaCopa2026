@@ -75,7 +75,7 @@ using (var scope = app.Services.CreateScope())
 static void PromoverAdminsPorEmail(BolaoContext context, params string[] emails)
 {
     var emailsNormalizados = emails
-        .Select(e => e.Trim().ToLowerInvariant())
+        .Select(e => e.Trim().ToLower())
         .Where(e => !string.IsNullOrWhiteSpace(e))
         .ToHashSet();
 
@@ -85,7 +85,7 @@ static void PromoverAdminsPorEmail(BolaoContext context, params string[] emails)
     }
 
     var usuarios = context.Usuarios
-        .Where(u => !string.IsNullOrWhiteSpace(u.Email) && emailsNormalizados.Contains(u.Email.ToLowerInvariant()))
+        .Where(u => !string.IsNullOrWhiteSpace(u.Email) && emailsNormalizados.Contains(u.Email.ToLower()))
         .ToList();
 
     foreach (var usuario in usuarios)
