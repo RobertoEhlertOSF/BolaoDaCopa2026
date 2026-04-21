@@ -90,6 +90,53 @@ namespace BolaoDaCopa2026.Controllers
     return View(viewModel);
 }
 
+        [HttpGet]
+        public async Task<IActionResult> ApostasJogo(int id)
+        {
+            var apostadorId = HttpContext.Session.GetInt32("ApostadorId");
+
+            if (apostadorId == null)
+            {
+                return RedirectToAction("Login", "Conta");
+            }
+
+            var jogo = await _context.Jogos
+                .Include(j => j.SelecaoA)
+                .Include(j => j.SelecaoB)
+                .FirstOrDefaultAsync(j => j.Id == id);
+
+            if (jogo == null)
+            {
+                return NotFound();
+            }
+
+            var apostaPorApostador = await _context.Apostas
+                .Where(a => a.JogoId == id)
+                .ToDictionaryAsync(a => a.ApostadorId);
+
+            var apostadores = await _context.Apostadores
+                .OrderBy(a => a.Nome)
+                .ToListAsync();
+
+            var viewModel = new ApostasDoJogoViewModel
+            {
+                Jogo = jogo,
+                ApostasPorJogador = apostadores.Select(apostador =>
+                {
+                    apostaPorApostador.TryGetValue(apostador.Id, out var aposta);
+
+                    return new ApostaJogadorItemViewModel
+                    {
+                        NomeUsuario = apostador.Nome,
+                        GolsSelecaoA = aposta?.GolsSelecaoA,
+                        GolsSelecaoB = aposta?.GolsSelecaoB
+                    };
+                }).ToList()
+            };
+
+            return View(viewModel);
+        }
+
             [Route("Home/Error")]
         public IActionResult Error()
         {

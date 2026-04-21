@@ -103,8 +103,10 @@
 
                     var finalizado = jogo.Status == "Finalizado";
                     var emAndamento = jogo.Status == "EmAndamento";
+                    var usuarioLogado = Context.Session.GetInt32("ApostadorId") != null;
+                    var podeAbrirApostas = usuarioLogado && (finalizado || emAndamento);
 
-                    <div class="game-card">
+                    <div class="game-card @(podeAbrirApostas ? "game-card--clickable" : "")">
 
                         <div class="game-meta">
                             <span class="fase">@jogo.Fase</span>
@@ -160,6 +162,15 @@
                             }
 
                         </div>
+
+                        @if (podeAbrirApostas)
+                        {
+                            <a asp-controller="Home"
+                               asp-action="ApostasJogo"
+                               asp-route-id="@jogo.Id"
+                               class="game-link-overlay"
+                               aria-label="Ver apostas deste jogo"></a>
+                        }
 
                     </div>
                 }
@@ -346,10 +357,27 @@
     }
 
     .game-card {
+        position: relative;
         padding: 18px;
         border-radius: 16px;
         background: rgba(255, 255, 255, 0.05);
         border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .game-card--clickable {
+        transition: transform .2s ease, border-color .2s ease;
+    }
+
+        .game-card--clickable:hover {
+            transform: translateY(-3px);
+            border-color: rgba(255, 203, 0, .5);
+        }
+
+    .game-link-overlay {
+        position: absolute;
+        inset: 0;
+        border-radius: 16px;
+        z-index: 2;
     }
 
     .game-meta {
