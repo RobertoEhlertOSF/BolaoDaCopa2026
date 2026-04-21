@@ -6,10 +6,10 @@ namespace BolaoDaCopa2026.Data.Seeds
     public class JogosSeed
     {
 
-            public static void Seed(BolaoContext context)
-            {
-                if (context.Jogos.Any())
-                    return;
+        public static void Seed(BolaoContext context)
+        {
+            if (context.Jogos.Any())
+                return;
 
             Selecao S(string nome)
             {
@@ -17,10 +17,7 @@ namespace BolaoDaCopa2026.Data.Seeds
                     .FirstOrDefault(s => s.Nome == nome);
 
                 if (selecao == null)
-                {
-                    Console.WriteLine($"[JogosSeed] Seleção não encontrada, jogo será ignorado: '{nome}'");
-                    return new Selecao { Id = 0, Nome = nome };
-                }
+                    throw new Exception($"Seleção não encontrada: '{nome}'");
 
                 return selecao;
             }
@@ -761,13 +758,9 @@ namespace BolaoDaCopa2026.Data.Seeds
             },
         };
 
-                var jogosValidos = jogos
-                    .Where(j => j.SelecaoAId > 0 && j.SelecaoBId > 0)
-                    .ToList();
-
-                context.Jogos.AddRange(jogosValidos);
-                context.SaveChanges();
-            }
+            context.Jogos.AddRange(jogos);
+            context.SaveChanges();
         }
-
     }
+
+}
