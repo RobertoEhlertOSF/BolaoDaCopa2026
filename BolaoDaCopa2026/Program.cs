@@ -9,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
-builder.Services.AddDistributedMemoryCache(); // para usar session em memória
+builder.Services.AddDistributedMemoryCache(); // para usar session em memÃ³ria
 
 builder.Services.AddScoped<JogoService>();
 builder.Services.AddScoped<SelecaoService>();
@@ -60,6 +60,8 @@ using (var scope = app.Services.CreateScope())
     var context = scope.ServiceProvider.GetRequiredService<BolaoContext>();
 
     context.Database.Migrate();
+    SelecaoSeed.Sync(context);
+    PromoverAdminsPorEmail(context, "roberto.ehlert@hotmail.com", "fernando.villalongo@sopratestar.com");
 
     JogosSeed.Seed(context);
     JogosSegundaFaseSeed.Seed(context);
@@ -68,6 +70,33 @@ using (var scope = app.Services.CreateScope())
     JogosSemifinalSeed.Seed(context);
     JogosTerceiroLugarSeed.Seed(context);
     JogosFinalSeed.Seed(context);
+}
+
+static void PromoverAdminsPorEmail(BolaoContext context, params string[] emails)
+{
+    var emailsNormalizados = emails
+        .Select(e => e.Trim().ToLower())
+        .Where(e => !string.IsNullOrWhiteSpace(e))
+        .ToHashSet();
+
+    if (!emailsNormalizados.Any())
+    {
+        return;
+    }
+
+    var usuarios = context.Usuarios
+        .Where(u => !string.IsNullOrWhiteSpace(u.Email) && emailsNormalizados.Contains(u.Email.ToLower()))
+        .ToList();
+
+    foreach (var usuario in usuarios)
+    {
+        usuario.IsAdmin = true;
+    }
+
+    if (usuarios.Count > 0)
+    {
+        context.SaveChanges();
+    }
 }
 
 
