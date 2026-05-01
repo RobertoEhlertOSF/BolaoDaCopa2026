@@ -54,7 +54,7 @@ namespace BolaoDaCopa2026.Data.Seeds
             new Selecao
             {
                 Id = 6,
-                Nome = "Bósnia e Herzegovina",
+                Nome = "Bósnia",
                 Grupo = "B",
                 BandeiraUrl = "https://flagcdn.com/w40/ba.png"
             },
