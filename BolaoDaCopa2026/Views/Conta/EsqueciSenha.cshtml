@@ -1,0 +1,32 @@
+﻿@{
+    ViewData["Title"] = "Esqueci minha senha";
+}
+
+<h2>Esqueci minha senha</h2>
+
+@if (ViewBag.Erro != null)
+{
+    <div class="alert alert-danger">@ViewBag.Erro</div>
+}
+
+@if (ViewBag.Msg != null)
+{
+    <div class="alert alert-success">@ViewBag.Msg</div>
+}
+
+<form method="post" action="/conta/esqueci-senha">
+    @Html.AntiForgeryToken()
+
+    <div class="mb-3">
+        <label for="Email" class="form-label">E-mail</label>
+        <input type="email" name="Email" id="Email" class="form-control" required />
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        Enviar link
+    </button>
+
+    <a href="/conta/login" class="btn btn-secondary">
+        Voltar
+    </a>
+</form>
