@@ -30,7 +30,12 @@ public class AdminJogosController : Controller
     private bool UsuarioEhAdmin()
     {
         var usuarioId = HttpContext.Session.GetInt32("UsuarioId");
-        var usuario = _context.Usuarios.Find(usuarioId);
+
+        if (usuarioId == null)
+            return false;
+
+        var usuario = _context.Usuarios
+            .FirstOrDefault(u => u.Id == usuarioId.Value);
 
         return usuario != null && usuario.IsAdmin;
     }
@@ -476,11 +481,25 @@ public class AdminJogosController : Controller
         if (!UsuarioEhAdmin())
             return Forbid();
 
-        var jogo = _jogoService.FinalizarJogo(id, golsA, golsB);
+        using var transaction = _context.Database.BeginTransaction();
 
-        _selecaoService.AtualizarClassificacao(jogo);
-        _apostaService.RecalcularApostasPorJogo(jogo);
+        try
+        {
+            var jogo = _jogoService.FinalizarJogo(id, golsA, golsB);
 
-        return RedirectToAction("Index");
+            _selecaoService.AtualizarClassificacao(jogo);
+            _apostaService.RecalcularApostasPorJogo(jogo);
+
+            _context.SaveChanges();
+
+            transaction.Commit();
+
+            return RedirectToAction("Index");
+        }
+        catch
+        {
+            transaction.Rollback();
+            throw;
+        }
     }
 }
