@@ -58,9 +58,9 @@ namespace BolaoDaCopa2026.Controllers
 
             var jogos = jogosQuery
                 .OrderBy(j => j.DataHora)
-                .ToList();
+                .ToList();            
 
-            ViewBag.Apostas = apostas;
+            ViewBag.Apostas = apostas;            
             ViewBag.Filtro = filtro;
             ViewBag.Grupo = grupo ?? "";
             ViewBag.Fase = fase;
@@ -136,9 +136,15 @@ namespace BolaoDaCopa2026.Controllers
         {
             var apostadorId = HttpContext.Session.GetInt32("ApostadorId");
 
+            if (apostadorId == null)
+                return RedirectToAction("Login", "Conta");
+
             var apostador = _context.Apostadores
                 .Include(a => a.SelecaoCampea)
-                .First(a => a.Id == apostadorId);
+                .FirstOrDefault(a => a.Id == apostadorId.Value);
+
+            if (apostador == null)
+                return Unauthorized();
 
             var selecoes = _context.Selecoes
                 .OrderBy(s => s.Nome)
@@ -146,9 +152,12 @@ namespace BolaoDaCopa2026.Controllers
 
             var primeiroJogo = _context.Jogos
                 .OrderBy(j => j.DataHora)
-                .First();
+                .FirstOrDefault();
 
-            var prazoEncerrado = DateTime.Now > primeiroJogo.DataHora;
+            if (primeiroJogo == null)
+                return NotFound();
+
+            var prazoEncerrado = DateTime.UtcNow > primeiroJogo.DataHora;
 
             ViewBag.Apostador = apostador;
             ViewBag.PrazoEncerrado = prazoEncerrado;
@@ -159,20 +168,29 @@ namespace BolaoDaCopa2026.Controllers
         [HttpPost]
         public IActionResult SalvarCampeao(int selecaoId)
         {
+            var apostadorId = HttpContext.Session.GetInt32("ApostadorId");
+
+            if (apostadorId == null)
+                return RedirectToAction("Login", "Conta");
+
+            var apostador = _context.Apostadores
+                .FirstOrDefault(a => a.Id == apostadorId.Value);
+
+            if (apostador == null)
+                return Unauthorized();
+
             var primeiroJogo = _context.Jogos
                 .OrderBy(j => j.DataHora)
-                .First();
+                .FirstOrDefault();
 
-            if (DateTime.Now > primeiroJogo.DataHora)
+            if (primeiroJogo == null)
+                return NotFound();
+
+            if (DateTime.UtcNow > primeiroJogo.DataHora)
             {
                 TempData["Erro"] = "O prazo para escolher o campeão já terminou.";
                 return RedirectToAction("Campeao");
             }
-
-            var apostadorId = HttpContext.Session.GetInt32("ApostadorId");
-
-            var apostador = _context.Apostadores
-                .First(a => a.Id == apostadorId);
 
             apostador.SelecaoCampeaId = selecaoId;
 

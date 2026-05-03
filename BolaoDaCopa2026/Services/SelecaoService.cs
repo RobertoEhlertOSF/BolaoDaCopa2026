@@ -37,7 +37,6 @@ public class SelecaoService
             b.Pontos += 1;
         }
 
-        jogo.ClassificacaoProcessada = true;
-        _context.SaveChanges();
+        jogo.ClassificacaoProcessada = true;       
     }
 }
