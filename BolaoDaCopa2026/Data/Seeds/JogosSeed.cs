@@ -97,7 +97,7 @@ namespace BolaoDaCopa2026.Data.Seeds
             new Jogo
             {
                 SelecaoAId = S("Canadá").Id,
-                SelecaoBId = S("Bósnia e Herzegovina").Id,
+                SelecaoBId = S("Bósnia").Id,
                 DataHora = new DateTime(2026, 6, 12, 16, 0, 0),
                 Fase = "Grupo B",
                 Status = "Agendado",
@@ -117,7 +117,7 @@ namespace BolaoDaCopa2026.Data.Seeds
             new Jogo
             {
                 SelecaoAId = S("Suíça").Id,
-                SelecaoBId = S("Bósnia e Herzegovina").Id,
+                SelecaoBId = S("Bósnia").Id,
                 DataHora = new DateTime(2026, 6, 18, 16, 0, 0),
                 Fase = "Grupo B",
                 Status = "Agendado",
@@ -145,7 +145,7 @@ namespace BolaoDaCopa2026.Data.Seeds
             },
             new Jogo
             {
-                SelecaoAId = S("Bósnia e Herzegovina").Id,
+                SelecaoAId = S("Bósnia").Id,
                 SelecaoBId = S("Catar").Id,
                 DataHora = new DateTime(2026, 6, 24, 16, 0, 0),
                 Fase = "Grupo B",
