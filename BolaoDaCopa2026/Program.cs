@@ -1,6 +1,7 @@
 using BolaoDaCopa2026.Data;
 using BolaoDaCopa2026.Data.Seeds;
 using BolaoDaCopa2026.Models;
+using BolaoDaCopa2026.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -16,7 +17,12 @@ builder.Services.AddScoped<SelecaoService>();
 builder.Services.AddScoped<ApostaService>();
 builder.Services.AddScoped<PontuacaoService>();
 
+builder.Services.Configure<EmailSettings>(
+    builder.Configuration.GetSection("EmailSettings")
+);
 
+builder.Services.AddScoped<IEmailService, SmtpEmailService>();
+builder.Services.AddScoped<SmtpEmailService>();
 
 builder.Services.AddSession(options =>
 {
