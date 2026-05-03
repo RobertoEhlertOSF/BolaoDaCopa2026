@@ -24,7 +24,7 @@ namespace BolaoDaCopa2026.Controllers
 
         public async Task<IActionResult> Index()
 {
-    var agora = DateTime.Now;
+    var agora = DateTime.UtcNow;
     var hoje = agora.Date;
 
     var apostadorId = HttpContext.Session.GetInt32("ApostadorId");

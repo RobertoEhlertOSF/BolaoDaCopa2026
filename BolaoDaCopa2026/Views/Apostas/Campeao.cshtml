@@ -19,42 +19,45 @@
     </div>
 }
 
-<div class="container mt-4">
+<section class="campeao-page">
 
-    <a asp-controller="Home"
-       asp-action="Index"
-       class="btn-voltar">
-        ← Voltar para o início
-    </a>
+    <div class="campeao-card">
 
-    <h2 class="text-center mb-4">
-        🏆 Escolha o campeão da Copa
-    </h2>
-
-    @if (apostador?.SelecaoCampea != null)
-    {
-        <div class="campeao-atual">
-            <img src="@apostador.SelecaoCampea.BandeiraUrl" />
-            <span>
-                Seu campeão atual:
-                <strong>@apostador.SelecaoCampea.Nome</strong>
-            </span>
+        <div class="top-actions">
+            <a asp-controller="Home"
+               asp-action="Index"
+               class="btn-voltar">
+                ← Voltar para o início
+            </a>
         </div>
-    }
 
-    @if (ViewBag.PrazoEncerrado != true)
-    {
-        <form asp-action="SalvarCampeao" method="post">
+        <header class="campeao-header">
+            <h1>🏆 Escolha o campeão da Copa</h1>
+            <p>Selecione sua aposta de campeão antes do início da Copa.</p>
+        </header>
 
-            <div class="row">
+        @if (apostador?.SelecaoCampea != null)
+        {
+            <div class="campeao-atual">
+                <img src="@apostador.SelecaoCampea.BandeiraUrl" />
+                <span>
+                    Seu campeão atual:
+                    <strong>@apostador.SelecaoCampea.Nome</strong>
+                </span>
+            </div>
+        }
 
-                @foreach (var selecao in Model)
-                {
-                    var selecionado = apostador?.SelecaoCampeaId == selecao.Id;
+        @if (ViewBag.PrazoEncerrado != true)
+        {
+            <form asp-action="SalvarCampeao" method="post">
 
-                    <div class="col-6 col-md-3 col-lg-2 mb-4">
+                <div class="selecoes-grid">
 
-                        <label class="card selecao-card text-center p-2 @(selecionado ? "selecionado" : "")">
+                    @foreach (var selecao in Model)
+                    {
+                        var selecionado = apostador?.SelecaoCampeaId == selecao.Id;
+
+                        <label class="selecao-card @(selecionado ? "selecionado" : "")">
 
                             <input type="radio"
                                    name="selecaoId"
@@ -63,55 +66,56 @@
                                    class="d-none" />
 
                             <img src="@selecao.BandeiraUrl"
-                                 class="img-fluid bandeira mb-2" />
+                                 class="bandeira"
+                                 alt="@selecao.Nome" />
 
                             <div class="nome-selecao">
                                 @selecao.Nome
                             </div>
 
                         </label>
+                    }
 
-                    </div>
-                }
+                </div>
 
-            </div>
+                <div class="confirmar-wrap">
+                    <button class="btn-confirmar">
+                        Confirmar campeão
+                    </button>
+                </div>
 
-            <div class="text-center mt-4">
-                <button class="btn-confirmar">
-                    Confirmar campeão
-                </button>
-            </div>
+            </form>
+        }
 
-        </form>
-    }
+    </div>
 
-</div>
+</section>
 
 <style>
-
-    .selecao-card {
-        cursor: pointer;
-        border: 2px solid transparent;
-        border-radius: 12px;
-        transition: all .2s;
+    footer {
+        display: none !important;
     }
 
-        .selecao-card:hover {
-            transform: scale(1.05);
-        }
-
-        .selecao-card.selecionado {
-            border: 3px solid rgba(255,203,0,0.95);
-            box-shadow: 0 0 10px rgba(255,203,0,0.35);
-        }
-
-    .bandeira {
-        height: 60px;
-        object-fit: contain;
+    .campeao-page {
+        min-height: 100vh;
+        padding: 32px 16px;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
     }
 
-    .nome-selecao {
-        font-weight: 600;
+    .campeao-card {
+        width: 100%;
+        max-width: 900px;
+        padding: 32px;
+        border-radius: 22px;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.10);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+    }
+
+    .top-actions {
+        margin-bottom: 24px;
     }
 
     .btn-voltar {
@@ -120,28 +124,122 @@
         gap: 8px;
         padding: 10px 16px;
         border-radius: 10px;
-        background: rgba(255, 203, 0, 0.95);
-        color: #0b0f17;
-        text-decoration: none;
+        background: rgba(255,203,0,0.95);
+        color: #0b0f17 !important;
+        text-decoration: none !important;
         font-weight: 800;
         border: none;
-        transition: filter 0.2s ease, transform 0.1s ease;
+        transition: filter .2s ease, transform .1s ease;
     }
 
-        .btn-voltar:hover {
+        .btn-voltar:hover,
+        .btn-voltar:focus,
+        .btn-voltar:active,
+        .btn-voltar:visited {
             filter: brightness(1.05);
             transform: translateX(-2px);
-            color: #0b0f17;
-            text-decoration: none;
+            color: #0b0f17 !important;
+            text-decoration: none !important;
         }
 
-        .btn-voltar:focus,
-        .btn-voltar:active {
-            color: #0b0f17;
-            text-decoration: none;
+    .campeao-header {
+        text-align: center;
+        margin-bottom: 24px;
+    }
+
+        .campeao-header h1 {
+            margin: 0;
+            color: #fff;
+            font-size: 2rem;
+            letter-spacing: .02em;
         }
+
+        .campeao-header p {
+            margin: 10px 0 0;
+            color: rgba(255,255,255,0.65);
+            font-weight: 500;
+        }
+
+    .campeao-atual {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        margin: 0 auto 24px;
+        padding: 12px 16px;
+        max-width: 520px;
+        border-radius: 14px;
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.10);
+    }
+
+        .campeao-atual img {
+            height: 28px;
+            border-radius: 3px;
+        }
+
+        .campeao-atual strong {
+            color: #fff;
+        }
+
+    .selecoes-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(115px, 1fr));
+        gap: 16px;
+    }
+
+    .selecao-card {
+        min-height: 120px;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 14px 10px;
+        border-radius: 16px;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.10);
+        color: rgba(255,255,255,0.90);
+        text-align: center;
+        transition: filter .2s ease, transform .1s ease, border-color .2s ease, box-shadow .2s ease, background .2s ease;
+    }
+
+        .selecao-card:hover {
+            filter: brightness(1.05);
+            transform: translateY(-2px);
+            background: rgba(255,255,255,0.09);
+            border-color: rgba(255,203,0,0.55);
+        }
+
+        .selecao-card.selecionado {
+            border: 2px solid rgba(255,203,0,0.95);
+            box-shadow: 0 0 14px rgba(255,203,0,0.35);
+            background: rgba(255,203,0,0.08);
+        }
+
+    .bandeira {
+        width: 72px;
+        height: 48px;
+        object-fit: cover;
+        border-radius: 4px;
+        margin-bottom: 10px;
+    }
+
+    .nome-selecao {
+        font-weight: 800;
+        font-size: .95rem;
+        line-height: 1.25;
+    }
+
+    .confirmar-wrap {
+        text-align: center;
+        margin-top: 28px;
+    }
 
     .btn-confirmar {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
         padding: 12px 24px;
         border-radius: 10px;
         border: none;
@@ -149,11 +247,16 @@
         color: #0b0f17;
         font-weight: 800;
         font-size: 16px;
-        transition: .2s;
+        cursor: pointer;
+        transition: filter .2s ease, transform .1s ease;
     }
 
-        .btn-confirmar:hover {
-            transform: scale(1.05);
+        .btn-confirmar:hover,
+        .btn-confirmar:focus,
+        .btn-confirmar:active {
+            filter: brightness(1.05);
+            transform: translateY(-2px);
+            color: #0b0f17;
         }
 
     .alert-sucesso {
@@ -179,25 +282,47 @@
         font-weight: 600;
     }
 
-    .campeao-atual {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 12px;
-        margin-bottom: 20px;
-        padding: 12px;
-        border-radius: 12px;
-        background: rgba(255,255,255,0.08);
-    }
-
-        .campeao-atual img {
-            height: 28px;
+    @@media (max-width: 700px) {
+        .campeao-page {
+            padding: 24px 14px;
         }
 
+        .campeao-card {
+            padding: 24px 16px;
+        }
+
+        .campeao-header h1 {
+            font-size: 1.6rem;
+            line-height: 1.3;
+        }
+
+        .selecoes-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .selecao-card {
+            min-height: 112px;
+        }
+
+        .bandeira {
+            width: 64px;
+            height: 42px;
+        }
+
+        .campeao-atual {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .btn-voltar,
+        .btn-confirmar {
+            width: 100%;
+        }
+    }
 </style>
 
 <script>
-
     document.querySelectorAll(".selecao-card").forEach(card => {
 
         card.addEventListener("click", function () {
@@ -212,5 +337,4 @@
         });
 
     });
-
 </script>

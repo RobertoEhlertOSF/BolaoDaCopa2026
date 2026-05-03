@@ -56,9 +56,7 @@ public class ApostaService
                     a.GolsSelecaoB == jogo.GolsSelecaoB);
 
             apostador.PalpitesExatos = exatos;
-        }
-
-        _context.SaveChanges();
+        }        
     }
 
     public void RecalcularCampeao(int campeaoId)
