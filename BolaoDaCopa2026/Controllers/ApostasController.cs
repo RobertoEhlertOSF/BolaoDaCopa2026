@@ -69,10 +69,12 @@ namespace BolaoDaCopa2026.Controllers
         }
 
         [HttpPost]
+        [HttpPost]
         public IActionResult Salvar(
             int jogoId,
             int golsSelecaoA,
             int golsSelecaoB,
+            string fase = "Grupo A",
             string filtro = "todos",
             string? grupo = null)
         {
@@ -86,7 +88,7 @@ namespace BolaoDaCopa2026.Controllers
             var jogo = _context.Jogos.FirstOrDefault(j => j.Id == jogoId);
 
             if (jogo == null || !jogo.EstaAberto)
-                return RedirectToAction(nameof(Index), new { filtro, grupo });
+                return RedirectToAction(nameof(Index), new { fase, filtro, grupo });
 
             var aposta = _context.Apostas
                 .FirstOrDefault(a => a.JogoId == jogoId && a.ApostadorId == id);
@@ -128,7 +130,7 @@ namespace BolaoDaCopa2026.Controllers
 
             _context.SaveChanges();
 
-            return RedirectToAction(nameof(Index), new { filtro, grupo });
+            return RedirectToAction(nameof(Index), new { fase, filtro, grupo });
         }
         public IActionResult Campeao()
         {
