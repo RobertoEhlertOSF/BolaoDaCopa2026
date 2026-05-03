@@ -69,6 +69,7 @@ namespace BolaoDaCopa2026.Controllers
         }
 
         [HttpPost]
+        [HttpPost]
         public IActionResult Salvar(
             int jogoId,
             int golsSelecaoA,

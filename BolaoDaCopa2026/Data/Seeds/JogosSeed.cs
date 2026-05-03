@@ -11,15 +11,21 @@ namespace BolaoDaCopa2026.Data.Seeds
             if (context.Jogos.Any())
                 return;
 
+            var selecoesPorNome = context.Selecoes
+            .AsNoTracking()
+            .ToDictionary(s => s.Nome, s => s);
+
             Selecao S(string nome)
             {
-                var selecao = context.Selecoes
-                    .FirstOrDefault(s => s.Nome == nome);
+                if (selecoesPorNome.TryGetValue(nome, out var selecao))
+                    return selecao;
 
-                if (selecao == null)
-                    throw new Exception($"Seleção não encontrada: '{nome}'");
+                var nomesDisponiveis = string.Join(", ", selecoesPorNome.Keys.OrderBy(n => n));
 
-                return selecao;
+                throw new Exception(
+                    $"Seleção não encontrada no JogosSeed: '{nome}'. " +
+                    $"Nomes disponíveis: {nomesDisponiveis}"
+                );
             }
 
 
@@ -91,7 +97,7 @@ namespace BolaoDaCopa2026.Data.Seeds
             new Jogo
             {
                 SelecaoAId = S("Canadá").Id,
-                SelecaoBId = S("Bósnia").Id,
+                SelecaoBId = S("Bósnia e Herzegovina").Id,
                 DataHora = new DateTime(2026, 6, 12, 16, 0, 0),
                 Fase = "Grupo B",
                 Status = "Agendado",
@@ -111,7 +117,7 @@ namespace BolaoDaCopa2026.Data.Seeds
             new Jogo
             {
                 SelecaoAId = S("Suíça").Id,
-                SelecaoBId = S("Bósnia").Id,
+                SelecaoBId = S("Bósnia e Herzegovina").Id,
                 DataHora = new DateTime(2026, 6, 18, 16, 0, 0),
                 Fase = "Grupo B",
                 Status = "Agendado",
@@ -139,7 +145,7 @@ namespace BolaoDaCopa2026.Data.Seeds
             },
             new Jogo
             {
-                SelecaoAId = S("Bósnia").Id,
+                SelecaoAId = S("Bósnia e Herzegovina").Id,
                 SelecaoBId = S("Catar").Id,
                 DataHora = new DateTime(2026, 6, 24, 16, 0, 0),
                 Fase = "Grupo B",

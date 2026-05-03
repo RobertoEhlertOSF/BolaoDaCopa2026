@@ -1,5 +1,4 @@
 ﻿using BolaoDaCopa2026.Data;
-using BolaoDaCopa2026.Services;
 using BolaoDaCopa2026.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -22,65 +21,31 @@ namespace BolaoDaCopa2026.Controllers
             if (apostadorId == null)
                 return RedirectToAction("Login", "Conta");
 
-            var pontuacaoService = new PontuacaoService();
-
-            // Carrega apostas + jogos finalizados
-            var apostas = _context.Apostas
+            // Ranking deve ser baseado em Apostadores, não em Apostas.
+            // Assim, todos os participantes aparecem, mesmo que ainda não tenham apostas pontuadas.
+            var ranking = _context.Apostadores
                 .AsNoTracking()
-                .Include(a => a.Apostador)
-                .Include(a => a.Jogo)
-                .Where(a => a.Jogo != null && a.Jogo.EstaAberto == false)
+                .Select(a => new
+                {
+                    a.Id,
+                    a.Nome,
+                    PontosJogos = a.PontosJogos,
+                    PontosCampeao = a.PontosCampeao,
+                    PontosTotais = a.PontosJogos + a.PontosCampeao,
+                    PlacaresExatos = a.PalpitesExatos
+                })
+                .OrderByDescending(a => a.PontosTotais)
+                .ThenByDescending(a => a.PlacaresExatos)
+                .ThenBy(a => a.Nome)
                 .ToList();
 
-            // 🔥 Soma por apostador (AGORA COM CAMPEÃO)
-            var somaPorApostador = apostas
-                .GroupBy(a => new
-                {
-                    a.ApostadorId,
-                    Nome = a.Apostador.Nome,
-                    PontosCampeao = a.Apostador.PontosCampeao
-                })
-                .Select(g => new
-                {
-                    g.Key.ApostadorId,
-                    g.Key.Nome,
+            var pontosDoPrimeiro = ranking.FirstOrDefault()?.PontosTotais ?? 0;
 
-                    PontosJogos = g.Sum(a =>
-                        pontuacaoService.CalcularPontuacaoApostador(
-                            a.Jogo.GolsSelecaoA ?? 0,
-                            a.Jogo.GolsSelecaoB ?? 0,
-                            a.GolsSelecaoA,
-                            a.GolsSelecaoB
-                        )
-                    ),
-
-                    PontosTotais = g.Sum(a =>
-                        pontuacaoService.CalcularPontuacaoApostador(
-                            a.Jogo.GolsSelecaoA ?? 0,
-                            a.Jogo.GolsSelecaoB ?? 0,
-                            a.GolsSelecaoA,
-                            a.GolsSelecaoB
-                        )
-                    ) + g.Key.PontosCampeao,
-
-                    PlacaresExatos = g.Count(a =>
-                        (a.Jogo.GolsSelecaoA ?? 0) == a.GolsSelecaoA &&
-                        (a.Jogo.GolsSelecaoB ?? 0) == a.GolsSelecaoB
-                    )
-                })
-                .OrderByDescending(x => x.PontosTotais)
-                .ThenByDescending(x => x.PlacaresExatos)
-                .ThenBy(x => x.Nome)
-                .ToList();
-
-            var pontosDoPrimeiro = somaPorApostador.FirstOrDefault()?.PontosTotais ?? 0;
-
-            // Monta linhas
             var linhas = new List<RankingLinhaViewModel>();
 
-            for (int i = 0; i < somaPorApostador.Count; i++)
+            for (int i = 0; i < ranking.Count; i++)
             {
-                var item = somaPorApostador[i];
+                var item = ranking[i];
 
                 linhas.Add(new RankingLinhaViewModel
                 {

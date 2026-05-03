@@ -17,6 +17,8 @@ namespace BolaoDaCopa2026.Data
         public DbSet<Aposta> Apostas { get; set; }
         public DbSet<Jogo> Jogos { get; set; }
 
+        public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -102,6 +104,16 @@ namespace BolaoDaCopa2026.Data
                 .WithMany()
                 .HasForeignKey(j => j.SelecaoBId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<PasswordResetToken>()
+                .HasOne(t => t.Usuario)
+                .WithMany()
+                .HasForeignKey(t => t.UsuarioId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<PasswordResetToken>()
+                .HasIndex(t => t.TokenHash)
+                .IsUnique();
 
         }
     }

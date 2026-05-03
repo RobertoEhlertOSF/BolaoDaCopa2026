@@ -1,0 +1,32 @@
+﻿@model BolaoDaCopa2026.Controllers.RedefinirSenhaFormDto
+
+@{
+    ViewData["Title"] = "Redefinir senha";
+}
+
+<h2>Redefinir senha</h2>
+
+@if (ViewBag.Erro != null)
+{
+    <div class="alert alert-danger">@ViewBag.Erro</div>
+}
+
+<form method="post" action="/conta/redefinir-senha">
+    @Html.AntiForgeryToken()
+
+    <input type="hidden" name="Token" value="@Model.Token" />
+
+    <div class="mb-3">
+        <label for="NovaSenha" class="form-label">Nova senha</label>
+        <input type="password" name="NovaSenha" id="NovaSenha" class="form-control" required />
+    </div>
+
+    <div class="mb-3">
+        <label for="ConfirmarSenha" class="form-label">Confirmar senha</label>
+        <input type="password" name="ConfirmarSenha" id="ConfirmarSenha" class="form-control" required />
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        Redefinir senha
+    </button>
+</form>
