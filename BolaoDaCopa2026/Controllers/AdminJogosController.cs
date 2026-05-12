@@ -291,6 +291,7 @@ public class AdminJogosController : Controller
     }
 
     [HttpPost("SalvarCampeao")]
+    [ValidateAntiForgeryToken]
     public IActionResult SalvarCampeao(int selecaoId)
     {
         if (!UsuarioEhAdmin())
@@ -306,6 +307,7 @@ public class AdminJogosController : Controller
     // SALVAR SEGUNDA FASE
     // =====================================================
     [HttpPost("SalvarSegundaFase")]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> SalvarSegundaFase(int id, int? selecaoAId, int? selecaoBId)
     {
         if (!UsuarioEhAdmin())
@@ -328,6 +330,7 @@ public class AdminJogosController : Controller
     // SALVAR Oitavas
     // =====================================================
     [HttpPost("SalvarOitavas")]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> SalvarOitavas(int id, int? selecaoAId, int? selecaoBId)
     {
         if (!UsuarioEhAdmin())
@@ -350,6 +353,7 @@ public class AdminJogosController : Controller
     // SALVAR Quartas
     // =====================================================
     [HttpPost("SalvarQuartas")]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> SalvarQuartas(int id, int? selecaoAId, int? selecaoBId)
     {
         if (!UsuarioEhAdmin())
@@ -372,6 +376,7 @@ public class AdminJogosController : Controller
     // SALVAR Semifinal
     // =====================================================
     [HttpPost("SalvarSemifinal")]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> SalvarSemifinal(int id, int? selecaoAId, int? selecaoBId)
     {
         if (!UsuarioEhAdmin())
@@ -394,6 +399,7 @@ public class AdminJogosController : Controller
     // SALVAR Terceiro Lugar
     // =====================================================
     [HttpPost("SalvarTerceiroLugar")]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> SalvarTerceiroLugar(int id, int? selecaoAId, int? selecaoBId)
     {
         if (!UsuarioEhAdmin())
@@ -416,6 +422,7 @@ public class AdminJogosController : Controller
     // SALVAR Final
     // =====================================================
     [HttpPost("SalvarFinal")]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> SalvarFinal(int id, int? selecaoAId, int? selecaoBId)
     {
         if (!UsuarioEhAdmin())
@@ -476,10 +483,14 @@ public class AdminJogosController : Controller
     // FINALIZAR JOGO
     // =====================================================
     [HttpPost("Finalizar/{id}")]
+    [ValidateAntiForgeryToken]
     public IActionResult Finalizar(int id, int golsA, int golsB)
     {
         if (!UsuarioEhAdmin())
             return Forbid();
+
+        if (golsA < 0 || golsB < 0)
+            return BadRequest();
 
         using var transaction = _context.Database.BeginTransaction();
 

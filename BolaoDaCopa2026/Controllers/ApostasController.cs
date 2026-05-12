@@ -69,7 +69,7 @@ namespace BolaoDaCopa2026.Controllers
         }
 
         [HttpPost]
-        [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Salvar(
             int jogoId,
             int golsSelecaoA,
@@ -82,6 +82,9 @@ namespace BolaoDaCopa2026.Controllers
 
             if (apostadorId == null)
                 return RedirectToAction("Login", "Conta");
+
+            if (golsSelecaoA < 0 || golsSelecaoB < 0)
+                return BadRequest();
 
             int id = apostadorId.Value;
 
@@ -166,6 +169,7 @@ namespace BolaoDaCopa2026.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult SalvarCampeao(int selecaoId)
         {
             var apostadorId = HttpContext.Session.GetInt32("ApostadorId");

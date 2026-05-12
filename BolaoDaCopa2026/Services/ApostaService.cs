@@ -47,16 +47,25 @@ public class ApostaService
             .Distinct()
             .ToList();
 
+        var palpitesExatosPorApostador = _context.Apostas
+            .Where(a =>
+                a.GolsSelecaoA == jogo.GolsSelecaoA &&
+                a.GolsSelecaoB == jogo.GolsSelecaoB)
+            .GroupBy(a => a.ApostadorId)
+            .Select(g => new
+            {
+                ApostadorId = g.Key,
+                TotalExatos = g.Count()
+            })
+            .ToList();
+
         foreach (var apostador in apostadores)
         {
-            int exatos = _context.Apostas
-                .Count(a =>
-                    a.ApostadorId == apostador.Id &&
-                    a.GolsSelecaoA == jogo.GolsSelecaoA &&
-                    a.GolsSelecaoB == jogo.GolsSelecaoB);
+            var totalExatos = palpitesExatosPorApostador
+                .FirstOrDefault(p => p.ApostadorId == apostador.Id);
 
-            apostador.PalpitesExatos = exatos;
-        }        
+            apostador.PalpitesExatos = totalExatos?.TotalExatos ?? 0;
+        }
     }
 
     public void RecalcularCampeao(int campeaoId)
