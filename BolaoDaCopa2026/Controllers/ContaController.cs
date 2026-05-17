@@ -49,6 +49,7 @@ public class ContaController : Controller
 
     // POST /conta/cadastro
     [HttpPost("cadastro")]
+    [ValidateAntiForgeryToken]
     public IActionResult DadosCadastro(CadastroFormDto dto)
     {
 
@@ -117,6 +118,7 @@ public class ContaController : Controller
 
     // POST /conta/login
     [HttpPost("login")]
+    [ValidateAntiForgeryToken]
     public IActionResult FazerLogin(LoginFormDto dto)
     {
         String erro;
@@ -190,6 +192,7 @@ public class ContaController : Controller
 
     // POST /conta/esqueci-senha
     [HttpPost("esqueci-senha")]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> EnviarLinkRedefinicao(EsqueciSenhaFormDto dto)
     {
         if (string.IsNullOrWhiteSpace(dto.Email))
@@ -336,6 +339,7 @@ public class ContaController : Controller
 
     // POST /conta/redefinir-senha
     [HttpPost("redefinir-senha")]
+    [ValidateAntiForgeryToken]
     public IActionResult SalvarNovaSenha(RedefinirSenhaFormDto dto)
     {
         if (string.IsNullOrWhiteSpace(dto.Token))
