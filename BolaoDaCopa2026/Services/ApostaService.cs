@@ -42,29 +42,101 @@ public class ApostaService
             aposta.Apostador.PontosJogos += pontos;
         }
 
-        var apostadores = apostas
-            .Select(a => a.Apostador)
+        var apostadorIds = apostas
+            .Select(a => a.ApostadorId)
             .Distinct()
             .ToList();
 
-        var palpitesExatosPorApostador = _context.Apostas
+        AtualizarPalpitesExatosDosApostadores(apostadorIds);
+    }
+
+    public void RecalcularTudo()
+    {
+        var jogosFinalizados = _context.Jogos
+            .Where(j => j.Status == "Finalizado" && j.GolsSelecaoA.HasValue && j.GolsSelecaoB.HasValue)
+            .Select(j => new
+            {
+                j.Id,
+                GolsA = j.GolsSelecaoA!.Value,
+                GolsB = j.GolsSelecaoB!.Value
+            })
+            .ToList();
+
+        var resultadoPorJogo = jogosFinalizados.ToDictionary(
+            j => j.Id,
+            j => (j.GolsA, j.GolsB));
+
+        var pontosJogosPorApostador = new Dictionary<int, int>();
+        var exatosPorApostador = new Dictionary<int, int>();
+
+        var apostas = _context.Apostas.ToList();
+
+        foreach (var aposta in apostas)
+        {
+            var pontos = 0;
+
+            if (resultadoPorJogo.TryGetValue(aposta.JogoId, out var resultado))
+            {
+                pontos = _pontuacaoService.CalcularPontuacaoApostador(
+                    resultado.GolsA,
+                    resultado.GolsB,
+                    aposta.GolsSelecaoA,
+                    aposta.GolsSelecaoB);
+            }
+
+            aposta.Pontos = pontos;
+
+            if (!pontosJogosPorApostador.ContainsKey(aposta.ApostadorId))
+                pontosJogosPorApostador[aposta.ApostadorId] = 0;
+
+            pontosJogosPorApostador[aposta.ApostadorId] += pontos;
+
+            if (pontos == 10)
+            {
+                if (!exatosPorApostador.ContainsKey(aposta.ApostadorId))
+                    exatosPorApostador[aposta.ApostadorId] = 0;
+
+                exatosPorApostador[aposta.ApostadorId] += 1;
+            }
+        }
+
+        var apostadores = _context.Apostadores.ToList();
+
+        foreach (var apostador in apostadores)
+        {
+            apostador.PontosJogos = pontosJogosPorApostador.GetValueOrDefault(apostador.Id, 0);
+            apostador.PalpitesExatos = exatosPorApostador.GetValueOrDefault(apostador.Id, 0);
+        }
+    }
+
+    private void AtualizarPalpitesExatosDosApostadores(List<int> apostadorIds)
+    {
+        if (apostadorIds == null || apostadorIds.Count == 0)
+            return;
+
+        var exatosPorApostador = _context.Apostas
+            .Where(a => apostadorIds.Contains(a.ApostadorId))
             .Where(a =>
-                a.GolsSelecaoA == jogo.GolsSelecaoA &&
-                a.GolsSelecaoB == jogo.GolsSelecaoB)
+                a.Jogo.Status == "Finalizado" &&
+                a.Jogo.GolsSelecaoA.HasValue &&
+                a.Jogo.GolsSelecaoB.HasValue &&
+                a.GolsSelecaoA == a.Jogo.GolsSelecaoA.Value &&
+                a.GolsSelecaoB == a.Jogo.GolsSelecaoB.Value)
             .GroupBy(a => a.ApostadorId)
             .Select(g => new
             {
                 ApostadorId = g.Key,
                 TotalExatos = g.Count()
             })
+            .ToDictionary(x => x.ApostadorId, x => x.TotalExatos);
+
+        var apostadores = _context.Apostadores
+            .Where(a => apostadorIds.Contains(a.Id))
             .ToList();
 
         foreach (var apostador in apostadores)
         {
-            var totalExatos = palpitesExatosPorApostador
-                .FirstOrDefault(p => p.ApostadorId == apostador.Id);
-
-            apostador.PalpitesExatos = totalExatos?.TotalExatos ?? 0;
+            apostador.PalpitesExatos = exatosPorApostador.GetValueOrDefault(apostador.Id, 0);
         }
     }
 

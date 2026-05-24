@@ -24,6 +24,21 @@
 
 <h1 class="mb-4">Painel de Jogos - Admin</h1>
 
+@{
+    var mensagemSucesso = TempData["Sucesso"] as string;
+    var mensagemErro = TempData["Erro"] as string;
+}
+
+@if (!string.IsNullOrWhiteSpace(mensagemSucesso))
+{
+    <div class="admin-feedback admin-feedback-sucesso">@mensagemSucesso</div>
+}
+
+@if (!string.IsNullOrWhiteSpace(mensagemErro))
+{
+    <div class="admin-feedback admin-feedback-erro">@mensagemErro</div>
+}
+
 
 <!-- PAINEL DE CONFIGURAÇÃO -->
 <div class="admin-config">
@@ -74,6 +89,16 @@
            class="btn-admin">
             🏆 Definir Campeão
         </a>
+
+        <form asp-controller="AdminJogos"
+              asp-action="RecalcularPontuacoes"
+              method="post"
+              class="admin-form-inline">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn-admin btn-admin-recalcular">
+                Recalcular pontuações
+            </button>
+        </form>
 
     </div>
 
@@ -224,6 +249,25 @@
         margin: 10px 0 25px;
     }
 
+    .admin-feedback {
+        margin: 10px 0 18px;
+        padding: 10px 12px;
+        border-radius: 10px;
+        font-weight: 700;
+    }
+
+    .admin-feedback-sucesso {
+        color: #d8ffe1;
+        background: rgba(29, 127, 62, 0.35);
+        border: 1px solid rgba(29, 127, 62, 0.7);
+    }
+
+    .admin-feedback-erro {
+        color: #ffd8d8;
+        background: rgba(165, 42, 42, 0.35);
+        border: 1px solid rgba(165, 42, 42, 0.7);
+    }
+
         .admin-config h3 {
             margin-bottom: 10px;
             font-size: 18px;
@@ -253,6 +297,15 @@
             color: #0b0f17;
             text-decoration: none;
         }
+
+    .admin-form-inline {
+        margin: 0;
+    }
+
+    .btn-admin-recalcular {
+        border: none;
+        cursor: pointer;
+    }
 
 
     /* ============================= */

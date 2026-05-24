@@ -106,15 +106,19 @@
                     var usuarioLogado = Context.Session.GetInt32("ApostadorId") != null;
                     var podeAbrirApostas = usuarioLogado && (finalizado || emAndamento);
 
-                    <div class="game-card @(podeAbrirApostas ? "game-card--clickable" : "")">
+                    <div class="game-card @(podeAbrirApostas ? "game-card--clickable" : "") @(emAndamento ? "game-card--live" : "") @(finalizado ? "game-card--finished" : "")">
 
                         <div class="game-meta">
                             <span class="fase">@jogo.Fase</span>
                             <span class="datetime">@jogo.DataHora.ToString("dd/MM • HH:mm")</span>
 
-                            @if (emAndamento)
+                            @if (finalizado)
                             {
-                                <span class="live">AO VIVO</span>
+                                <span class="live live-finalizado">Jogo finalizado</span>
+                            }
+                            else if (emAndamento)
+                            {
+                                <span class="live live-bola-rolando">Bola Rolando</span>
                             }
                         </div>
 
@@ -364,6 +368,16 @@
         border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
+    .game-card--live {
+        border-color: rgba(255, 203, 0, 0.55);
+        box-shadow: 0 0 0 1px rgba(255, 203, 0, 0.24), 0 0 22px rgba(255, 203, 0, 0.16);
+    }
+
+    .game-card--finished {
+        border-color: rgba(255, 88, 88, 0.62);
+        box-shadow: 0 0 0 1px rgba(255, 88, 88, 0.26), 0 0 22px rgba(255, 88, 88, 0.18);
+    }
+
     .game-card--clickable {
         transition: transform .2s ease, border-color .2s ease;
     }
@@ -372,6 +386,10 @@
             transform: translateY(-3px);
             border-color: rgba(255, 203, 0, .5);
         }
+
+    .game-card--finished.game-card--clickable:hover {
+        border-color: rgba(255, 88, 88, 0.78);
+    }
 
     .game-link-overlay {
         position: absolute;
@@ -400,6 +418,26 @@
     .live {
         color: #ff4d4d;
         font-weight: 800;
+    }
+
+    .live-bola-rolando {
+        color: #ffcb00;
+        background: rgba(255, 203, 0, 0.14);
+        border: 1px solid rgba(255, 203, 0, 0.34);
+        border-radius: 999px;
+        padding: 2px 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    .live-finalizado {
+        color: #ff8a8a;
+        background: rgba(255, 88, 88, 0.16);
+        border: 1px solid rgba(255, 88, 88, 0.40);
+        border-radius: 999px;
+        padding: 2px 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
     }
 
     .matchup {

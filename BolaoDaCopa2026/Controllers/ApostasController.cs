@@ -9,14 +9,20 @@ namespace BolaoDaCopa2026.Controllers
     public class ApostasController : Controller
     {
         private readonly BolaoContext _context;
+        private readonly ApostaPrazoService _apostaPrazoService;
+        private readonly JogoService _jogoService;
 
-        public ApostasController(BolaoContext context)
+        public ApostasController(BolaoContext context, ApostaPrazoService apostaPrazoService, JogoService jogoService)
         {
             _context = context;
+            _apostaPrazoService = apostaPrazoService;
+            _jogoService = jogoService;
         }
 
         public IActionResult Index(string fase = "Grupo A", string filtro = "todos", string? grupo = null)
         {
+            _jogoService.AtualizarJogosAgendadosParaEmAndamento();
+
             var apostadorId = HttpContext.Session.GetInt32("ApostadorId");
 
             if (apostadorId == null)
@@ -58,9 +64,19 @@ namespace BolaoDaCopa2026.Controllers
 
             var jogos = jogosQuery
                 .OrderBy(j => j.DataHora)
-                .ToList();            
+                .ToList();
 
-            ViewBag.Apostas = apostas;            
+            var agora = _apostaPrazoService.ObterAgora();
+            var podeApostarPorJogo = jogos.ToDictionary(
+                j => j.Id,
+                j => _apostaPrazoService.PodeApostar(j, agora));
+            var statusPorJogo = jogos.ToDictionary(
+                j => j.Id,
+                j => _apostaPrazoService.ObterStatusCronologico(j, agora));
+
+            ViewBag.Apostas = apostas;
+            ViewBag.PodeApostarPorJogo = podeApostarPorJogo;
+            ViewBag.StatusPorJogo = statusPorJogo;
             ViewBag.Filtro = filtro;
             ViewBag.Grupo = grupo ?? "";
             ViewBag.Fase = fase;
@@ -90,8 +106,17 @@ namespace BolaoDaCopa2026.Controllers
 
             var jogo = _context.Jogos.FirstOrDefault(j => j.Id == jogoId);
 
-            if (jogo == null || !jogo.EstaAberto)
+            if (jogo == null)
+            {
+                TempData["Erro"] = "Jogo não encontrado.";
                 return RedirectToAction(nameof(Index), new { fase, filtro, grupo });
+            }
+
+            if (!_apostaPrazoService.PodeApostar(jogo))
+            {
+                TempData["Erro"] = "As apostas para este jogo já foram encerradas.";
+                return RedirectToAction(nameof(Index), new { fase, filtro, grupo });
+            }
 
             var aposta = _context.Apostas
                 .FirstOrDefault(a => a.JogoId == jogoId && a.ApostadorId == id);
@@ -136,36 +161,62 @@ namespace BolaoDaCopa2026.Controllers
                 .Distinct()
                 .ToList();
 
-            var jogosAbertos = _context.Jogos
-                .Where(j => jogoIds.Contains(j.Id) && j.EstaAberto)
+            var jogos = _context.Jogos
+                .Where(j => jogoIds.Contains(j.Id))
                 .ToDictionary(j => j.Id);
 
             var apostasExistentes = _context.Apostas
                 .Where(a => a.ApostadorId == id && jogoIds.Contains(a.JogoId))
                 .ToDictionary(a => a.JogoId);
 
+            var agora = _apostaPrazoService.ObterAgora();
             var totalSalvas = 0;
+            var totalEncerradas = 0;
+            var totalInvalidas = 0;
 
             foreach (var entrada in apostasValidas)
             {
-                if (!jogosAbertos.TryGetValue(entrada.JogoId, out var jogo))
+                if (!jogos.TryGetValue(entrada.JogoId, out var jogo))
                     continue;
 
                 var golsSelecaoAEntrada = entrada.GolsSelecaoA!.Value;
                 var golsSelecaoBEntrada = entrada.GolsSelecaoB!.Value;
 
                 if (golsSelecaoAEntrada < 0 || golsSelecaoBEntrada < 0)
+                {
+                    totalInvalidas++;
                     continue;
+                }
+
+                if (!_apostaPrazoService.PodeApostar(jogo, agora))
+                {
+                    totalEncerradas++;
+                    continue;
+                }
 
                 apostasExistentes.TryGetValue(entrada.JogoId, out var apostaExistente);
                 UpsertAposta(jogo, id, golsSelecaoAEntrada, golsSelecaoBEntrada, apostaExistente);
                 totalSalvas++;
             }
 
-            _context.SaveChanges();
+            if (totalSalvas > 0)
+                _context.SaveChanges();
 
             if (totalSalvas > 0)
                 TempData["Sucesso"] = "Apostas salvas com sucesso.";
+
+            if (totalEncerradas > 0 && totalInvalidas > 0)
+            {
+                TempData["Erro"] = $"Algumas apostas não foram salvas: {totalEncerradas} jogo(s) já iniciado(s) e {totalInvalidas} palpite(s) inválido(s).";
+            }
+            else if (totalEncerradas > 0)
+            {
+                TempData["Erro"] = $"As apostas para {totalEncerradas} jogo(s) já foram encerradas.";
+            }
+            else if (totalInvalidas > 0)
+            {
+                TempData["Erro"] = $"Foram ignorados {totalInvalidas} palpite(s) com placar inválido.";
+            }
 
             return RedirectToAction(nameof(Index), new { fase, filtro, grupo });
         }
@@ -237,7 +288,7 @@ namespace BolaoDaCopa2026.Controllers
             if (primeiroJogo == null)
                 return NotFound();
 
-            var prazoEncerrado = DateTime.UtcNow > primeiroJogo.DataHora;
+            var prazoEncerrado = !_apostaPrazoService.PodeApostar(primeiroJogo);
 
             ViewBag.Apostador = apostador;
             ViewBag.PrazoEncerrado = prazoEncerrado;
@@ -267,7 +318,7 @@ namespace BolaoDaCopa2026.Controllers
             if (primeiroJogo == null)
                 return NotFound();
 
-            if (DateTime.UtcNow > primeiroJogo.DataHora)
+            if (!_apostaPrazoService.PodeApostar(primeiroJogo))
             {
                 TempData["Erro"] = "O prazo para escolher o campeão já terminou.";
                 return RedirectToAction("Campeao");
