@@ -479,6 +479,25 @@ public class AdminJogosController : Controller
         return View(jogo);
     }
 
+    [HttpPost("AtualizarDataHora/{id}")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AtualizarDataHora(int id, DateTime dataHora)
+    {
+        if (!UsuarioEhAdmin())
+            return Forbid();
+
+        var jogo = await _context.Jogos.FindAsync(id);
+
+        if (jogo == null)
+            return NotFound();
+
+        jogo.DataHora = dataHora;
+        await _context.SaveChangesAsync();
+
+        TempData["Sucesso"] = "Dia e horario atualizados com sucesso.";
+        return RedirectToAction(nameof(Editar), new { id });
+    }
+
     // =====================================================
     // FINALIZAR JOGO
     // =====================================================
