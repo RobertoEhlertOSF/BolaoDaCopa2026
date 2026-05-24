@@ -1,6 +1,27 @@
-﻿@model BolaoDaCopa2026.Models.Jogo
+@model BolaoDaCopa2026.Models.Jogo
 
-<h2>Atualizar Resultado: @Model.SelecaoA.Nome × @Model.SelecaoB.Nome</h2>
+<h2>Editar Jogo: @Model.SelecaoA.Nome x @Model.SelecaoB.Nome</h2>
+
+@if (TempData["Sucesso"] != null)
+{
+    <div class="alert alert-success mt-2">@TempData["Sucesso"]</div>
+}
+
+<form asp-action="AtualizarDataHora" asp-route-id="@Model.Id" method="post" class="mb-4">
+    <div>
+        <label>Dia e horario</label>
+        <input type="datetime-local"
+               name="dataHora"
+               value="@Model.DataHora.ToString("yyyy-MM-ddTHH:mm")"
+               required />
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-2">Salvar Dia/Horario</button>
+</form>
+
+<hr />
+
+<h4>Atualizar Resultado</h4>
 
 <form asp-action="Finalizar" asp-route-id="@Model.Id" method="post">
     <div>
