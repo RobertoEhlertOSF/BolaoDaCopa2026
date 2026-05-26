@@ -1,4 +1,5 @@
 ﻿using BolaoDaCopa2026.Data;
+using BolaoDaCopa2026.Services;
 using BolaoDaCopa2026.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -8,10 +9,12 @@ namespace BolaoDaCopa2026.Controllers
     public class RankingController : Controller
     {
         private readonly BolaoContext _context;
+        private readonly ApostaPrazoService _apostaPrazoService;
 
-        public RankingController(BolaoContext context)
+        public RankingController(BolaoContext context, ApostaPrazoService apostaPrazoService)
         {
             _context = context;
+            _apostaPrazoService = apostaPrazoService;
         }
 
         public IActionResult Index()
@@ -20,6 +23,14 @@ namespace BolaoDaCopa2026.Controllers
             var apostadorId = HttpContext.Session.GetInt32("ApostadorId");
             if (apostadorId == null)
                 return RedirectToAction("Login", "Conta");
+
+            var primeiroJogo = _context.Jogos
+                .AsNoTracking()
+                .OrderBy(j => j.DataHora)
+                .FirstOrDefault();
+
+            var mostrarColunaCampeao =
+                primeiroJogo != null && !_apostaPrazoService.PodeApostar(primeiroJogo);
 
             // Ranking deve ser baseado em Apostadores, não em Apostas.
             // Assim, todos os participantes aparecem, mesmo que ainda não tenham apostas pontuadas.
@@ -32,7 +43,9 @@ namespace BolaoDaCopa2026.Controllers
                     PontosJogos = a.PontosJogos,
                     PontosCampeao = a.PontosCampeao,
                     PontosTotais = a.PontosJogos + a.PontosCampeao,
-                    PlacaresExatos = a.PalpitesExatos
+                    PlacaresExatos = a.PalpitesExatos,
+                    CampeaoNome = a.SelecaoCampea != null ? a.SelecaoCampea.Nome : null,
+                    CampeaoBandeiraUrl = a.SelecaoCampea != null ? a.SelecaoCampea.BandeiraUrl : null
                 })
                 .OrderByDescending(a => a.PontosTotais)
                 .ThenByDescending(a => a.PlacaresExatos)
@@ -52,6 +65,8 @@ namespace BolaoDaCopa2026.Controllers
                     Posicao = i + 1,
                     Nome = item.Nome,
                     Pontos = item.PontosTotais,
+                    CampeaoNome = item.CampeaoNome,
+                    CampeaoBandeiraUrl = item.CampeaoBandeiraUrl,
                     DistanciaDoPrimeiro = Math.Max(0, pontosDoPrimeiro - item.PontosTotais),
                     PlacaresExatos = item.PlacaresExatos
                 });
@@ -61,6 +76,7 @@ namespace BolaoDaCopa2026.Controllers
             {
                 AtualizadoEmUtc = DateTime.UtcNow,
                 TotalPremioTexto = "Em definição",
+                MostrarColunaCampeao = mostrarColunaCampeao,
                 Linhas = linhas
             };
 
