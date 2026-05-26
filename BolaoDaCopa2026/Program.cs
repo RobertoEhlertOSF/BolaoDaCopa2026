@@ -15,6 +15,7 @@ builder.Services.AddDistributedMemoryCache(); // para usar session em memória
 builder.Services.AddScoped<JogoService>();
 builder.Services.AddScoped<SelecaoService>();
 builder.Services.AddScoped<ApostaService>();
+builder.Services.AddScoped<ApostaPrazoService>();
 builder.Services.AddScoped<PontuacaoService>();
 
 builder.Services.Configure<EmailSettings>(
@@ -74,6 +75,7 @@ using (var scope = app.Services.CreateScope())
     JogosSemifinalSeed.Seed(context);
     JogosTerceiroLugarSeed.Seed(context);
     JogosFinalSeed.Seed(context);
+    TesteFuncionalSeed.Seed(context);
 }
 
 

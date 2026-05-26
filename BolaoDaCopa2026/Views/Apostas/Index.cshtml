@@ -27,8 +27,11 @@
 
 @{
     var apostas = ViewBag.Apostas as List<Aposta>;
+    var podeApostarPorJogo = ViewBag.PodeApostarPorJogo as Dictionary<int, bool> ?? new Dictionary<int, bool>();
+    var statusPorJogo = ViewBag.StatusPorJogo as Dictionary<int, string> ?? new Dictionary<int, string>();
     var pontuacaoService = new PontuacaoService();
     var mensagemSucesso = TempData["Sucesso"] as string;
+    var mensagemErro = TempData["Erro"] as string;
 
     var filtro = (string)(ViewBag.Filtro ?? "todos");
     var grupo = (string)(ViewBag.Grupo ?? "");
@@ -96,7 +99,12 @@
 
     @if (!string.IsNullOrWhiteSpace(mensagemSucesso))
     {
-        <div id="toast-sucesso" class="toast-sucesso">@mensagemSucesso</div>
+        <div class="toast-feedback toast-sucesso">@mensagemSucesso</div>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(mensagemErro))
+    {
+        <div class="toast-feedback toast-erro">@mensagemErro</div>
     }
 
     <form method="get" class="filtros">
@@ -123,15 +131,30 @@
         @foreach (var jogo in Model.OrderBy(j => j.DataHora))
         {
             var aposta = apostas?.FirstOrDefault(a => a.JogoId == jogo.Id);
+            var podeApostar = podeApostarPorJogo.TryGetValue(jogo.Id, out var valorPodeApostar)
+                ? valorPodeApostar
+                : false;
+            var statusJogo = statusPorJogo.TryGetValue(jogo.Id, out var valorStatus)
+                ? valorStatus
+                : "Em andamento";
+            var jogoFinalizado =
+                string.Equals(statusJogo, "Finalizado", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(jogo.Status, "Finalizado", StringComparison.OrdinalIgnoreCase);
+            var jogoEmAndamento =
+                string.Equals(statusJogo, "Em andamento", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(jogo.Status, "EmAndamento", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(jogo.Status, "Em andamento", StringComparison.OrdinalIgnoreCase);
+            var podeVerApostasDoJogo = jogoFinalizado || jogoEmAndamento;
+            var urlDetalheApostas = Url.Action("ApostasJogo", "Home", new { id = jogo.Id });
 
             int pontos = 0;
             string classePontos = "pontos-neutro";
 
-            if (!jogo.EstaAberto && aposta != null)
+            if (jogoFinalizado && aposta != null && jogo.GolsSelecaoA.HasValue && jogo.GolsSelecaoB.HasValue)
             {
                 pontos = pontuacaoService.CalcularPontuacaoApostador(
-                jogo.GolsSelecaoA ?? 0,
-                jogo.GolsSelecaoB ?? 0,
+                jogo.GolsSelecaoA.Value,
+                jogo.GolsSelecaoB.Value,
                 aposta.GolsSelecaoA,
                 aposta.GolsSelecaoB
                 );
@@ -141,9 +164,10 @@
                 else if (pontos == 2) classePontos = "pontos-minimo";
             }
 
-            var statusCurto = jogo.EstaAberto ? "ABERTO" : "FT";
+            var statusCurto = statusJogo;
 
-            <div class="jogo @(jogo.EstaAberto ? "aberto" : "encerrado")">
+            <div class="jogo @(podeApostar ? "aberto" : "encerrado") @(podeVerApostasDoJogo ? "jogo-clickable" : "")"
+                 data-detalhe-url="@(podeVerApostasDoJogo ? urlDetalheApostas : "")">
 
                 <div class="jogo-meta">
                     <div class="jogo-data">@jogo.DataHora.ToString("dd/MM/yy")</div>
@@ -158,7 +182,7 @@
                             <span class="nome-time">@(jogo.SelecaoA?.Nome ?? "A definir")</span>
                         </div>
 
-                        @if (!jogo.EstaAberto && aposta != null)
+                        @if (!podeApostar && aposta != null)
                         {
                             <span class="resultado-lateral">@aposta.GolsSelecaoA</span>
                         }
@@ -171,7 +195,7 @@
                             <span class="nome-time">@(jogo.SelecaoB?.Nome ?? "A definir")</span>
                         </div>
 
-                        @if (!jogo.EstaAberto && aposta != null)
+                        @if (!podeApostar && aposta != null)
                         {
                             <span class="resultado-lateral">@aposta.GolsSelecaoB</span>
                         }
@@ -179,7 +203,7 @@
                 </div>
 
                 <div class="jogo-acao">
-                    @if (jogo.EstaAberto)
+                    @if (podeApostar)
                     {
                         <form asp-action="Salvar" method="post" class="palpite">
                             <input type="hidden" name="fase" value="@fase" />
@@ -211,9 +235,13 @@
                     else
                     {
                         <div class="resultado-fechado">
-                            @if (aposta != null)
+                            @if (jogoFinalizado && aposta != null)
                             {
                                 <span class="pontos @classePontos">(@pontos pts)</span>
+                            }
+                            else
+                            {
+                                <span class="aposta-encerrada">Apostas encerradas</span>
                             }
                         </div>
                     }
@@ -264,16 +292,38 @@
     })();
 
     (function () {
-        const toast = document.getElementById("toast-sucesso");
-        if (!toast) return;
+        const toasts = document.querySelectorAll(".toast-feedback");
+        if (!toasts.length) return;
 
-        setTimeout(function () {
-            toast.classList.add("sumindo");
-        }, 2600);
+        toasts.forEach(function (toast) {
+            setTimeout(function () {
+                toast.classList.add("sumindo");
+            }, 2600);
 
-        setTimeout(function () {
-            toast.remove();
-        }, 3200);
+            setTimeout(function () {
+                toast.remove();
+            }, 3200);
+        });
+    })();
+
+    (function () {
+        const cards = document.querySelectorAll(".jogo.jogo-clickable[data-detalhe-url]");
+        if (!cards.length) return;
+
+        cards.forEach(function (card) {
+            const destino = card.getAttribute("data-detalhe-url");
+            if (!destino) return;
+
+            card.addEventListener("click", function (event) {
+                const alvo = event.target;
+                if (!(alvo instanceof Element)) return;
+
+                // Mantém o fluxo normal para elementos interativos dentro do card.
+                if (alvo.closest("input, button, select, textarea, label, form, a")) return;
+
+                window.location.href = destino;
+            });
+        });
     })();
 </script>
 
@@ -315,22 +365,30 @@
         margin-bottom: 24px;
     }
 
-    .toast-sucesso {
+    .toast-feedback {
         position: fixed;
         top: 18px;
         right: 18px;
         z-index: 1055;
         padding: 12px 16px;
-        border-radius: 10px;
-        background: #1d7f3e;
-        color: #fff;
         font-weight: 700;
+        border-radius: 10px;
+        color: #fff;
         box-shadow: 0 10px 24px rgba(0,0,0,0.25);
         opacity: 1;
         transition: opacity 0.4s ease, transform 0.4s ease;
     }
 
-        .toast-sucesso.sumindo {
+    .toast-sucesso {
+        background: #1d7f3e;
+    }
+
+    .toast-erro {
+        top: 72px;
+        background: #a52a2a;
+    }
+
+        .toast-feedback.sumindo {
             opacity: 0;
             transform: translateY(-8px);
         }
@@ -530,6 +588,7 @@
         }
 
     .jogo {
+        position: relative;
         display: grid;
         grid-template-columns: 90px minmax(0, 1fr) auto;
         align-items: center;
@@ -539,6 +598,17 @@
         background: rgba(255,255,255,0.05);
         border: 1px solid rgba(255,255,255,0.08);
     }
+
+    .jogo.jogo-clickable {
+        cursor: pointer;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.12s ease;
+    }
+
+        .jogo.jogo-clickable:hover {
+            border-color: rgba(255, 203, 0, 0.55);
+            box-shadow: 0 8px 22px rgba(0,0,0,0.22);
+            transform: translateY(-1px);
+        }
 
     .jogo-meta {
         display: flex;
@@ -676,6 +746,14 @@
         color: #999;
     }
 
+    .aposta-encerrada {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: rgba(255,255,255,0.72);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
     .btn-salvar {
         margin-left: 0;
         padding: 10px 16px;
@@ -697,11 +775,15 @@
         }
 
     @@media (max-width:900px) {
-        .toast-sucesso {
+        .toast-feedback {
             right: 12px;
             left: 12px;
             top: 12px;
             text-align: center;
+        }
+
+        .toast-erro {
+            top: 76px;
         }
 
         .top-actions {

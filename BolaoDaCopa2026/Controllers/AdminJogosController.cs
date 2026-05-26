@@ -450,6 +450,8 @@ public class AdminJogosController : Controller
         if (!UsuarioEhAdmin())
             return Forbid();
 
+        _jogoService.AtualizarJogosAgendadosParaEmAndamento();
+
         var jogos = _context.Jogos
             .Include(j => j.SelecaoA)
             .Include(j => j.SelecaoB)
@@ -457,6 +459,32 @@ public class AdminJogosController : Controller
             .ToList();
 
         return View(jogos);
+    }
+
+    [HttpPost("RecalcularPontuacoes")]
+    [ValidateAntiForgeryToken]
+    public IActionResult RecalcularPontuacoes()
+    {
+        if (!UsuarioEhAdmin())
+            return Forbid();
+
+        using var transaction = _context.Database.BeginTransaction();
+
+        try
+        {
+            _apostaService.RecalcularTudo();
+            _context.SaveChanges();
+            transaction.Commit();
+
+            TempData["Sucesso"] = "Pontuações e placares exatos recalculados com sucesso.";
+        }
+        catch
+        {
+            transaction.Rollback();
+            TempData["Erro"] = "Não foi possível recalcular as pontuações.";
+        }
+
+        return RedirectToAction(nameof(Index));
     }
 
     // =====================================================

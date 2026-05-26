@@ -10,6 +10,7 @@ namespace BolaoDaCopa2026.Controllers
     public class HomeController : Controller
     {
         private readonly BolaoContext _context;
+        private readonly JogoService _jogoService;
 
         public IActionResult Regras()
         {
@@ -17,13 +18,16 @@ namespace BolaoDaCopa2026.Controllers
         }
 
 
-        public HomeController(BolaoContext context)
+        public HomeController(BolaoContext context, JogoService jogoService)
         {
             _context = context;
+            _jogoService = jogoService;
         }
 
         public async Task<IActionResult> Index()
 {
+    _jogoService.AtualizarJogosAgendadosParaEmAndamento();
+
     var agora = DateTime.UtcNow;
     var hoje = agora.Date;
 

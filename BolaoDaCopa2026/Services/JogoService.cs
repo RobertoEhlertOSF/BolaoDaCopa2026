@@ -5,10 +5,33 @@ using Microsoft.EntityFrameworkCore;
 public class JogoService
 {
     private readonly BolaoContext _context;
+    private const string StatusAgendado = "Agendado";
+    private const string StatusEmAndamento = "EmAndamento";
 
     public JogoService(BolaoContext context)
     {
         _context = context;
+    }
+
+    public int AtualizarJogosAgendadosParaEmAndamento(DateTime? agora = null)
+    {
+        var referencia = agora ?? DateTime.Now;
+
+        var jogosAgendadosIniciados = _context.Jogos
+            .Where(j => j.Status == StatusAgendado && j.DataHora <= referencia)
+            .ToList();
+
+        if (jogosAgendadosIniciados.Count == 0)
+            return 0;
+
+        foreach (var jogo in jogosAgendadosIniciados)
+        {
+            jogo.Status = StatusEmAndamento;
+            jogo.EstaAberto = false;
+        }
+
+        _context.SaveChanges();
+        return jogosAgendadosIniciados.Count;
     }
 
     public Jogo FinalizarJogo(int jogoId, int golsA, int golsB)
