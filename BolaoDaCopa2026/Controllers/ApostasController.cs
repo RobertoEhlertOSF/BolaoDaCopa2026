@@ -96,7 +96,83 @@ namespace BolaoDaCopa2026.Controllers
             var aposta = _context.Apostas
                 .FirstOrDefault(a => a.JogoId == jogoId && a.ApostadorId == id);
 
-            var payload = ApostaHashService.GerarPayload(jogoId, id, golsSelecaoA, golsSelecaoB);
+            UpsertAposta(jogo, id, golsSelecaoA, golsSelecaoB, aposta);
+
+            _context.SaveChanges();
+            TempData["Sucesso"] = "Palpite salvo com sucesso.";
+
+            return RedirectToAction(nameof(Index), new { fase, filtro, grupo });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult SalvarTodos(
+            List<SalvarTodosApostaInput> apostas,
+            string fase = "Grupo A",
+            string filtro = "todos",
+            string? grupo = null)
+        {
+            var apostadorId = HttpContext.Session.GetInt32("ApostadorId");
+
+            if (apostadorId == null)
+                return RedirectToAction("Login", "Conta");
+
+            if (apostas == null || apostas.Count == 0)
+                return RedirectToAction(nameof(Index), new { fase, filtro, grupo });
+
+            int id = apostadorId.Value;
+
+            var apostasValidas = apostas
+                .Where(a => a.GolsSelecaoA.HasValue && a.GolsSelecaoB.HasValue)
+                .GroupBy(a => a.JogoId)
+                .Select(g => g.Last())
+                .ToList();
+
+            if (apostasValidas.Count == 0)
+                return RedirectToAction(nameof(Index), new { fase, filtro, grupo });
+
+            var jogoIds = apostasValidas
+                .Select(a => a.JogoId)
+                .Distinct()
+                .ToList();
+
+            var jogosAbertos = _context.Jogos
+                .Where(j => jogoIds.Contains(j.Id) && j.EstaAberto)
+                .ToDictionary(j => j.Id);
+
+            var apostasExistentes = _context.Apostas
+                .Where(a => a.ApostadorId == id && jogoIds.Contains(a.JogoId))
+                .ToDictionary(a => a.JogoId);
+
+            var totalSalvas = 0;
+
+            foreach (var entrada in apostasValidas)
+            {
+                if (!jogosAbertos.TryGetValue(entrada.JogoId, out var jogo))
+                    continue;
+
+                var golsSelecaoAEntrada = entrada.GolsSelecaoA!.Value;
+                var golsSelecaoBEntrada = entrada.GolsSelecaoB!.Value;
+
+                if (golsSelecaoAEntrada < 0 || golsSelecaoBEntrada < 0)
+                    continue;
+
+                apostasExistentes.TryGetValue(entrada.JogoId, out var apostaExistente);
+                UpsertAposta(jogo, id, golsSelecaoAEntrada, golsSelecaoBEntrada, apostaExistente);
+                totalSalvas++;
+            }
+
+            _context.SaveChanges();
+
+            if (totalSalvas > 0)
+                TempData["Sucesso"] = "Apostas salvas com sucesso.";
+
+            return RedirectToAction(nameof(Index), new { fase, filtro, grupo });
+        }
+
+        private void UpsertAposta(Jogo jogo, int apostadorId, int golsSelecaoA, int golsSelecaoB, Aposta? aposta = null)
+        {
+            var payload = ApostaHashService.GerarPayload(jogo.Id, apostadorId, golsSelecaoA, golsSelecaoB);
 
             if (aposta == null)
             {
@@ -105,8 +181,8 @@ namespace BolaoDaCopa2026.Controllers
 
                 aposta = new Aposta
                 {
-                    JogoId = jogoId,
-                    ApostadorId = id,
+                    JogoId = jogo.Id,
+                    ApostadorId = apostadorId,
                     SelecaoAId = jogo.SelecaoAId!.Value,
                     SelecaoBId = jogo.SelecaoBId!.Value,
                     GolsSelecaoA = golsSelecaoA,
@@ -120,21 +196,22 @@ namespace BolaoDaCopa2026.Controllers
                 };
 
                 _context.Apostas.Add(aposta);
-            }
-            else
-            {
-                aposta.GolsSelecaoA = golsSelecaoA;
-                aposta.GolsSelecaoB = golsSelecaoB;
-
-                aposta.HashCommit = ApostaHashService.GerarHash(payload, aposta.Salt);
-
-                aposta.AtualizadoEmUtc = DateTime.UtcNow;
+                return;
             }
 
-            _context.SaveChanges();
-
-            return RedirectToAction(nameof(Index), new { fase, filtro, grupo });
+            aposta.GolsSelecaoA = golsSelecaoA;
+            aposta.GolsSelecaoB = golsSelecaoB;
+            aposta.HashCommit = ApostaHashService.GerarHash(payload, aposta.Salt);
+            aposta.AtualizadoEmUtc = DateTime.UtcNow;
         }
+
+        public class SalvarTodosApostaInput
+        {
+            public int JogoId { get; set; }
+            public int? GolsSelecaoA { get; set; }
+            public int? GolsSelecaoB { get; set; }
+        }
+
         public IActionResult Campeao()
         {
             var apostadorId = HttpContext.Session.GetInt32("ApostadorId");

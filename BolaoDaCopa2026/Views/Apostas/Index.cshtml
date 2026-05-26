@@ -28,6 +28,7 @@
 @{
     var apostas = ViewBag.Apostas as List<Aposta>;
     var pontuacaoService = new PontuacaoService();
+    var mensagemSucesso = TempData["Sucesso"] as string;
 
     var filtro = (string)(ViewBag.Filtro ?? "todos");
     var grupo = (string)(ViewBag.Grupo ?? "");
@@ -93,6 +94,11 @@
 
 <div class="container apostas-container">
 
+    @if (!string.IsNullOrWhiteSpace(mensagemSucesso))
+    {
+        <div id="toast-sucesso" class="toast-sucesso">@mensagemSucesso</div>
+    }
+
     <form method="get" class="filtros">
         <input type="hidden" name="fase" value="@fase" />
 
@@ -103,6 +109,14 @@
         </select>
 
         <button type="submit" class="btn-filtro">Aplicar</button>
+    </form>
+
+    <form asp-action="SalvarTodos" method="post" id="form-salvar-todos" class="filtros">
+        <input type="hidden" name="fase" value="@fase" />
+        <input type="hidden" name="filtro" value="@filtro" />
+        <input type="hidden" name="grupo" value="@grupo" />
+
+        <button type="submit" class="btn-filtro">Salvar todos os jogos</button>
     </form>
 
     <div class="lista-jogos">
@@ -176,6 +190,7 @@
                             <div class="placar">
                                 <input type="number"
                                        name="golsSelecaoA"
+                                       data-campo-aposta="golsSelecaoA"
                                        min="0"
                                        value="@aposta?.GolsSelecaoA" />
 
@@ -183,6 +198,7 @@
 
                                 <input type="number"
                                        name="golsSelecaoB"
+                                       data-campo-aposta="golsSelecaoB"
                                        min="0"
                                        value="@aposta?.GolsSelecaoB" />
                             </div>
@@ -208,6 +224,58 @@
     </div>
 
 </div>
+
+<script>
+    (function () {
+        const formSalvarTodos = document.getElementById("form-salvar-todos");
+        if (!formSalvarTodos) return;
+
+        formSalvarTodos.addEventListener("submit", function () {
+            formSalvarTodos.querySelectorAll("input[data-aposta-lote='true']").forEach((el) => el.remove());
+
+            const formulariosPalpite = document.querySelectorAll("form.palpite");
+            let indice = 0;
+
+            formulariosPalpite.forEach(function (formPalpite) {
+                const jogoIdInput = formPalpite.querySelector("input[name='jogoId']");
+                const golsAInput = formPalpite.querySelector("input[data-campo-aposta='golsSelecaoA']");
+                const golsBInput = formPalpite.querySelector("input[data-campo-aposta='golsSelecaoB']");
+
+                const golsA = golsAInput ? golsAInput.value.trim() : "";
+                const golsB = golsBInput ? golsBInput.value.trim() : "";
+
+                if (!jogoIdInput || golsA === "" || golsB === "") return;
+
+                adicionarInputLote("apostas[" + indice + "].JogoId", jogoIdInput.value);
+                adicionarInputLote("apostas[" + indice + "].GolsSelecaoA", golsA);
+                adicionarInputLote("apostas[" + indice + "].GolsSelecaoB", golsB);
+                indice++;
+            });
+        });
+
+        function adicionarInputLote(name, value) {
+            const input = document.createElement("input");
+            input.type = "hidden";
+            input.name = name;
+            input.value = value;
+            input.setAttribute("data-aposta-lote", "true");
+            formSalvarTodos.appendChild(input);
+        }
+    })();
+
+    (function () {
+        const toast = document.getElementById("toast-sucesso");
+        if (!toast) return;
+
+        setTimeout(function () {
+            toast.classList.add("sumindo");
+        }, 2600);
+
+        setTimeout(function () {
+            toast.remove();
+        }, 3200);
+    })();
+</script>
 
 <style>
     /* ============================= */
@@ -246,6 +314,26 @@
         max-width: 1120px;
         margin-bottom: 24px;
     }
+
+    .toast-sucesso {
+        position: fixed;
+        top: 18px;
+        right: 18px;
+        z-index: 1055;
+        padding: 12px 16px;
+        border-radius: 10px;
+        background: #1d7f3e;
+        color: #fff;
+        font-weight: 700;
+        box-shadow: 0 10px 24px rgba(0,0,0,0.25);
+        opacity: 1;
+        transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+        .toast-sucesso.sumindo {
+            opacity: 0;
+            transform: translateY(-8px);
+        }
 
     .lista-jogos {
         display: flex;
@@ -609,6 +697,13 @@
         }
 
     @@media (max-width:900px) {
+        .toast-sucesso {
+            right: 12px;
+            left: 12px;
+            top: 12px;
+            text-align: center;
+        }
+
         .top-actions {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
