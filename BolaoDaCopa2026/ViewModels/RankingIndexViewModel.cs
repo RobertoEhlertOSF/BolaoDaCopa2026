@@ -4,6 +4,7 @@
     {
         public DateTime AtualizadoEmUtc { get; set; }
         public string? TotalPremioTexto { get; set; } // placeholder por enquanto
+        public bool MostrarColunaCampeao { get; set; }
 
         public List<RankingLinhaViewModel> Linhas { get; set; } = new();
     }
@@ -13,6 +14,8 @@
         public int Posicao { get; set; }
         public string Nome { get; set; } = "";
         public int Pontos { get; set; }
+        public string? CampeaoNome { get; set; }
+        public string? CampeaoBandeiraUrl { get; set; }
 
         // NOVOS CAMPOS:
         public int DistanciaDoPrimeiro { get; set; }     
