@@ -231,6 +231,16 @@
                    class="btn-home btn-home--primary">
                     Ranking
                 </a>
+
+                <form asp-controller="Conta"
+                      asp-action="Logout"
+                      method="post"
+                      class="logout-form">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn-home btn-home--secondary">
+                        Sair
+                    </button>
+                </form>
             }
 
             <a href="/Selecoes" class="btn-home btn-home--primary">
@@ -562,6 +572,12 @@
         color: #0b0f17 !important;
     }
 
+    .btn-home--secondary {
+        background: rgba(255,255,255,0.08);
+        color: #fff !important;
+        border: 1px solid rgba(255,255,255,0.16);
+    }
+
         .btn-home--primary:hover,
         .btn-home--primary:focus,
         .btn-home--primary:active,
@@ -571,6 +587,28 @@
             filter: brightness(1.05);
             text-decoration: none !important;
         }
+
+    .btn-home--secondary:hover,
+    .btn-home--secondary:focus,
+    .btn-home--secondary:active,
+    .btn-home--secondary:visited {
+        color: #fff !important;
+        transform: translateY(-2px);
+        filter: brightness(1.05);
+        text-decoration: none !important;
+    }
+
+    .logout-form {
+        margin: 0;
+        display: flex;
+        flex: 1;
+    }
+
+    .logout-form .btn-home {
+        width: 100%;
+        border: none;
+        cursor: pointer;
+    }
 
     @@media (min-width:700px) {
         .games-wrapper {

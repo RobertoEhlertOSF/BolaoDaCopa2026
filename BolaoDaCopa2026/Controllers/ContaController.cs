@@ -1,6 +1,7 @@
 ﻿using BolaoDaCopa2026.Data;
 using BolaoDaCopa2026.Models;
 using BolaoDaCopa2026.Services;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
@@ -172,6 +173,20 @@ public class ContaController : Controller
         HttpContext.Session.SetString("IsAdmin", usuario.IsAdmin.ToString());
 
         return RedirectToAction("Index", "Home");
+    }
+
+    // POST /conta/logout
+    [HttpPost("logout")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Logout()
+    {
+        HttpContext.Session.Clear();
+        await HttpContext.SignOutAsync();
+
+        return RedirectToAction(nameof(Login), new
+        {
+            msg = "Sessão encerrada com sucesso."
+        });
     }
 
     // GET /conta/eula
