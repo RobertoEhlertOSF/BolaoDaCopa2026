@@ -1,0 +1,227 @@
+@model IEnumerable<BolaoDaCopa2026.ViewModels.AdminUsuarioVM>
+
+@{
+    ViewData["Title"] = "Admin - Usuários";
+    var mensagemSucesso = TempData["Sucesso"] as string;
+    var mensagemErro = TempData["Erro"] as string;
+}
+
+<div class="admin-voltar">
+    <a asp-controller="AdminJogos"
+       asp-action="Index"
+       class="btn-voltar">
+        ← Voltar para Admin/Jogos
+    </a>
+</div>
+
+<h1>Gerenciar Usuários</h1>
+<p class="subtitle">Ações disponíveis: alterar e-mail, redefinir senha e excluir usuário.</p>
+
+@if (!string.IsNullOrWhiteSpace(mensagemSucesso))
+{
+    <div class="admin-feedback admin-feedback-sucesso">@mensagemSucesso</div>
+}
+
+@if (!string.IsNullOrWhiteSpace(mensagemErro))
+{
+    <div class="admin-feedback admin-feedback-erro">@mensagemErro</div>
+}
+
+<div class="usuarios-wrapper">
+    <table class="usuarios-table">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>E-mail</th>
+                <th>Total de apostas</th>
+                <th>Resetar senha</th>
+                <th>Excluir</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var usuario in Model)
+            {
+                <tr>
+                    <td class="nome">@usuario.Nome</td>
+
+                    <td>
+                        <form asp-controller="AdminJogos"
+                              asp-action="AtualizarEmailUsuario"
+                              method="post"
+                              class="linha-form">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="usuarioId" value="@usuario.UsuarioId" />
+                            <input type="email"
+                                   name="novoEmail"
+                                   value="@usuario.Email"
+                                   required />
+                            <button type="submit" class="btn-admin">Salvar e-mail</button>
+                        </form>
+                    </td>
+
+                    <td class="numero">@usuario.TotalApostas</td>
+
+                    <td>
+                        <form asp-controller="AdminJogos"
+                              asp-action="ResetarSenhaUsuario"
+                              method="post"
+                              onsubmit="return confirm('Enviar link de redefinição de senha para este e-mail?');">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="usuarioId" value="@usuario.UsuarioId" />
+                            <button type="submit" class="btn-admin">Enviar link de reset</button>
+                        </form>
+                    </td>
+
+                    <td>
+                        <form asp-controller="AdminJogos"
+                              asp-action="ExcluirUsuario"
+                              method="post"
+                              onsubmit="return confirm('Confirma a exclusão deste usuário? Esta ação não pode ser desfeita.');">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="usuarioId" value="@usuario.UsuarioId" />
+                            <button type="submit" class="btn-danger-admin">Excluir</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<style>
+    footer {
+        display: none !important;
+    }
+
+    h1 {
+        margin-bottom: 6px;
+    }
+
+    .subtitle {
+        opacity: 0.75;
+        margin-bottom: 18px;
+    }
+
+    .admin-voltar {
+        margin-bottom: 16px;
+    }
+
+    .btn-voltar {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 16px;
+        border-radius: 10px;
+        background: rgba(255,203,0,0.95);
+        color: #0b0f17;
+        text-decoration: none;
+        font-weight: 800;
+        transition: filter .2s ease, transform .1s ease;
+    }
+
+    .btn-voltar:hover {
+        filter: brightness(1.05);
+        transform: translateX(-2px);
+        color: #0b0f17;
+        text-decoration: none;
+    }
+
+    .admin-feedback {
+        margin: 10px 0 18px;
+        padding: 10px 12px;
+        border-radius: 10px;
+        font-weight: 700;
+    }
+
+    .admin-feedback-sucesso {
+        color: #d8ffe1;
+        background: rgba(29, 127, 62, 0.35);
+        border: 1px solid rgba(29, 127, 62, 0.7);
+    }
+
+    .admin-feedback-erro {
+        color: #ffd8d8;
+        background: rgba(165, 42, 42, 0.35);
+        border: 1px solid rgba(165, 42, 42, 0.7);
+    }
+
+    .usuarios-wrapper {
+        overflow-x: auto;
+        border-radius: 14px;
+        border: 1px solid rgba(255,255,255,0.12);
+        background: rgba(255,255,255,0.04);
+    }
+
+    .usuarios-table {
+        width: 100%;
+        min-width: 1060px;
+        border-collapse: collapse;
+    }
+
+    .usuarios-table th,
+    .usuarios-table td {
+        padding: 12px;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+        vertical-align: middle;
+    }
+
+    .usuarios-table th {
+        background: rgba(255,255,255,0.05);
+        font-weight: 800;
+    }
+
+    .usuarios-table tbody tr:hover td {
+        background: rgba(255,255,255,0.03);
+    }
+
+    .nome {
+        font-weight: 700;
+    }
+
+    .numero {
+        font-weight: 700;
+        text-align: center;
+    }
+
+    .linha-form {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .linha-form input {
+        border-radius: 8px;
+        border: 1px solid #3b3b3b;
+        padding: 8px 10px;
+        background: #1f1f1f;
+        color: #fff;
+        min-width: 180px;
+    }
+
+    .btn-admin {
+        border: none;
+        border-radius: 8px;
+        padding: 9px 12px;
+        background: rgba(255,203,0,0.95);
+        color: #0b0f17;
+        font-weight: 800;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+
+    .btn-danger-admin {
+        border: none;
+        border-radius: 8px;
+        padding: 9px 12px;
+        background: #c53c3c;
+        color: #fff;
+        font-weight: 800;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+
+    .btn-danger-admin:hover {
+        filter: brightness(1.05);
+    }
+</style>
