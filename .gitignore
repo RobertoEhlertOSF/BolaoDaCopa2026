@@ -427,4 +427,5 @@ FodyWeavers.xsd
 *.msm
 *.msp
 BolaoDaCopa2026/bolao.db
-"*.db" 
+BolaoDaCopa2026/App_Data/
+*.db
