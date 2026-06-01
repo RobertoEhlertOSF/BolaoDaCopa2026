@@ -1,4 +1,4 @@
-﻿namespace BolaoDaCopa2026.Services
+namespace BolaoDaCopa2026.Services
 {
     public class EmailSettings
     {
@@ -8,5 +8,7 @@
         public string SmtpPassword { get; set; } = "";
         public string FromEmail { get; set; } = "";
         public string FromName { get; set; } = "";
+        public bool EnableSsl { get; set; } = true;
+        public bool UseAuthentication { get; set; } = true;
     }
 }
