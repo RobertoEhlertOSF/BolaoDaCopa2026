@@ -17,6 +17,7 @@ builder.Services.AddScoped<SelecaoService>();
 builder.Services.AddScoped<ApostaService>();
 builder.Services.AddScoped<ApostaPrazoService>();
 builder.Services.AddScoped<PontuacaoService>();
+builder.Services.AddScoped<HorarioOficialService>();
 
 builder.Services.Configure<EmailSettings>(
     builder.Configuration.GetSection("EmailSettings")

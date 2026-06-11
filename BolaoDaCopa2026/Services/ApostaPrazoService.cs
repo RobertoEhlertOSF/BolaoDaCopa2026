@@ -4,11 +4,17 @@ namespace BolaoDaCopa2026.Services
 {
     public class ApostaPrazoService
     {
+        private readonly HorarioOficialService _horarioOficialService;
         private const string StatusFinalizado = "Finalizado";
         private const string StatusEmAndamentoSemEspaco = "EmAndamento";
         private const string StatusEmAndamentoComEspaco = "Em andamento";
 
-        public DateTime ObterAgora() => DateTime.Now;
+        public ApostaPrazoService(HorarioOficialService horarioOficialService)
+        {
+            _horarioOficialService = horarioOficialService;
+        }
+
+        public DateTime ObterAgora() => _horarioOficialService.ObterAgora();
 
         public bool PodeApostar(Jogo jogo, DateTime? agora = null)
         {

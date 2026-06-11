@@ -723,6 +723,55 @@ public class AdminJogosController : Controller
         return RedirectToAction(nameof(Editar), new { id });
     }
 
+    [HttpPost("AtualizarStatus/{id}")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AtualizarStatus(int id, string status)
+    {
+        if (!UsuarioEhAdmin())
+            return Forbid();
+
+        var jogo = await _context.Jogos
+            .Include(j => j.SelecaoA)
+            .Include(j => j.SelecaoB)
+            .FirstOrDefaultAsync(j => j.Id == id);
+
+        if (jogo == null)
+            return NotFound();
+
+        var statusNormalizado = NormalizarStatus(status);
+
+        if (statusNormalizado == null)
+        {
+            TempData["Erro"] = "Status invalido.";
+            return RedirectToAction(nameof(Editar), new { id });
+        }
+
+        if (statusNormalizado == "Finalizado" &&
+            (!jogo.GolsSelecaoA.HasValue || !jogo.GolsSelecaoB.HasValue))
+        {
+            TempData["Erro"] = "Para marcar como finalizado, informe primeiro o placar do jogo.";
+            return RedirectToAction(nameof(Editar), new { id });
+        }
+
+        jogo.Status = statusNormalizado;
+        jogo.EstaAberto = statusNormalizado == "Agendado";
+
+        if (statusNormalizado != "Finalizado")
+        {
+            jogo.ClassificacaoProcessada = false;
+        }
+        else if (jogo.GolsSelecaoA.HasValue && jogo.GolsSelecaoB.HasValue)
+        {
+            _selecaoService.AtualizarClassificacao(jogo);
+            _apostaService.RecalcularApostasPorJogo(jogo);
+        }
+
+        await _context.SaveChangesAsync();
+
+        TempData["Sucesso"] = "Status atualizado com sucesso.";
+        return RedirectToAction(nameof(Editar), new { id });
+    }
+
     // =====================================================
     // FINALIZAR JOGO
     // =====================================================
@@ -756,5 +805,20 @@ public class AdminJogosController : Controller
             transaction.Rollback();
             throw;
         }
+    }
+
+    private static string? NormalizarStatus(string? status)
+    {
+        if (string.IsNullOrWhiteSpace(status))
+            return null;
+
+        return status.Trim().ToLowerInvariant() switch
+        {
+            "agendado" => "Agendado",
+            "emandamento" => "EmAndamento",
+            "em andamento" => "EmAndamento",
+            "finalizado" => "Finalizado",
+            _ => null
+        };
     }
 }

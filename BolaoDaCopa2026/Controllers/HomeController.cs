@@ -4,6 +4,7 @@ using BolaoDaCopa2026.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
+using BolaoDaCopa2026.Services;
 
 namespace BolaoDaCopa2026.Controllers
 {
@@ -11,6 +12,7 @@ namespace BolaoDaCopa2026.Controllers
     {
         private readonly BolaoContext _context;
         private readonly JogoService _jogoService;
+        private readonly HorarioOficialService _horarioOficialService;
 
         public IActionResult Regras()
         {
@@ -18,17 +20,18 @@ namespace BolaoDaCopa2026.Controllers
         }
 
 
-        public HomeController(BolaoContext context, JogoService jogoService)
+        public HomeController(BolaoContext context, JogoService jogoService, HorarioOficialService horarioOficialService)
         {
             _context = context;
             _jogoService = jogoService;
+            _horarioOficialService = horarioOficialService;
         }
 
         public async Task<IActionResult> Index()
 {
     _jogoService.AtualizarJogosAgendadosParaEmAndamento();
 
-    var agora = DateTime.UtcNow;
+    var agora = _horarioOficialService.ObterAgora();
     var hoje = agora.Date;
 
     var apostadorId = HttpContext.Session.GetInt32("ApostadorId");
@@ -41,19 +44,23 @@ namespace BolaoDaCopa2026.Controllers
         .Take(4)
         .ToListAsync();
 
-    var jogos = jogosHoje;
+    var jogos = jogosHoje.ToList();
 
     if (jogos.Count < 4)
     {
+        var jogoIdsJaSelecionados = jogos
+            .Select(j => j.Id)
+            .ToList();
+
         var proximos = await _context.Jogos
             .Include(j => j.SelecaoA)
             .Include(j => j.SelecaoB)
-            .Where(j => j.DataHora > agora)
+            .Where(j => j.DataHora > agora && !jogoIdsJaSelecionados.Contains(j.Id))
             .OrderBy(j => j.DataHora)
             .Take(4 - jogos.Count)
             .ToListAsync();
 
-        jogos = jogos.Concat(proximos).ToList();
+        jogos.AddRange(proximos);
     }
 
     var apostasUsuario = new List<Aposta>();
@@ -90,6 +97,8 @@ namespace BolaoDaCopa2026.Controllers
                 .FirstOrDefault(a => a.JogoId == j.Id)
         }).ToList()
     };
+
+    ViewBag.Agora = agora;
 
     return View(viewModel);
 }

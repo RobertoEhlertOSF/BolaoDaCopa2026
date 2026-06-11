@@ -27,4 +27,11 @@
     <None Include="Data\Seeds\JogosSeed.cs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="bolao.db" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" />
+    <Content Update="bolao.db-shm" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" />
+    <Content Update="bolao.db-wal" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" />
+    <Content Update="bolao.sqbpro" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" />
+  </ItemGroup>
+
 </Project>

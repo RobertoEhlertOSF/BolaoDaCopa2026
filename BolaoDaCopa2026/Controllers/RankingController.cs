@@ -10,11 +10,13 @@ namespace BolaoDaCopa2026.Controllers
     {
         private readonly BolaoContext _context;
         private readonly ApostaPrazoService _apostaPrazoService;
+        private readonly HorarioOficialService _horarioOficialService;
 
-        public RankingController(BolaoContext context, ApostaPrazoService apostaPrazoService)
+        public RankingController(BolaoContext context, ApostaPrazoService apostaPrazoService, HorarioOficialService horarioOficialService)
         {
             _context = context;
             _apostaPrazoService = apostaPrazoService;
+            _horarioOficialService = horarioOficialService;
         }
 
         public IActionResult Index()
@@ -79,6 +81,8 @@ namespace BolaoDaCopa2026.Controllers
                 MostrarColunaCampeao = mostrarColunaCampeao,
                 Linhas = linhas
             };
+
+            ViewBag.AtualizadoEmOficial = _horarioOficialService.ConverterUtcParaHorarioOficial(vm.AtualizadoEmUtc);
 
             return View(vm);
         }
