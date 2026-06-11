@@ -4,6 +4,7 @@ using BolaoDaCopa2026.Models;
 using BolaoDaCopa2026.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -42,8 +43,16 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.AccessDeniedPath = "/Forbidden/";
     });
 
+var sqliteDbPath = ResolveSqliteDatabasePath(
+    builder.Configuration,
+    builder.Environment.ContentRootPath);
+var sqliteDirectory = Path.GetDirectoryName(sqliteDbPath)
+    ?? throw new InvalidOperationException("Não foi possível determinar o diretório do banco SQLite.");
+
+Directory.CreateDirectory(sqliteDirectory);
+
 builder.Services.AddDbContext<BolaoContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("BolaoConnection")));
+    options.UseSqlite($"Data Source={sqliteDbPath}"));
 
 builder.Services.AddScoped<IPasswordHasher<Usuario>, PasswordHasher<Usuario>>();
 
@@ -65,9 +74,10 @@ else
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<BolaoContext>();
+    var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher<Usuario>>();
 
     context.Database.Migrate();
-    UsuarioSeed.Seed(context);
+    UsuarioSeed.Seed(context, builder.Configuration, app.Environment, passwordHasher);
     JogosSeed.Seed(context);
     JogosSegundaFaseSeed.Seed(context);
     JogosOitavasSeed.Seed(context);
@@ -75,7 +85,15 @@ using (var scope = app.Services.CreateScope())
     JogosSemifinalSeed.Seed(context);
     JogosTerceiroLugarSeed.Seed(context);
     JogosFinalSeed.Seed(context);
-    TesteFuncionalSeed.Seed(context);
+
+    var habilitarSeedFuncional = builder.Configuration.GetValue(
+        "SeedSettings:EnableFunctionalTestSeed",
+        app.Environment.IsDevelopment());
+
+    if (habilitarSeedFuncional)
+    {
+        TesteFuncionalSeed.Seed(context);
+    }
 }
 
 
@@ -107,4 +125,28 @@ app.MapControllerRoute(
 
 
 app.Run();
+
+static string ResolveSqliteDatabasePath(IConfiguration configuration, string contentRootPath)
+{
+    var configuredPath = configuration["Sqlite:DbPath"];
+
+    if (string.IsNullOrWhiteSpace(configuredPath))
+    {
+        var connectionString = configuration.GetConnectionString("BolaoConnection");
+
+        if (!string.IsNullOrWhiteSpace(connectionString))
+        {
+            var sqliteConnection = new SqliteConnectionStringBuilder(connectionString);
+            configuredPath = sqliteConnection.DataSource;
+        }
+    }
+
+    var dbPath = string.IsNullOrWhiteSpace(configuredPath)
+        ? Path.Combine("App_Data", "bolao.db")
+        : configuredPath.Trim();
+
+    return Path.IsPathRooted(dbPath)
+        ? dbPath
+        : Path.GetFullPath(Path.Combine(contentRootPath, dbPath));
+}
 
