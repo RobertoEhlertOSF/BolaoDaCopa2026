@@ -5,17 +5,19 @@ using Microsoft.EntityFrameworkCore;
 public class JogoService
 {
     private readonly BolaoContext _context;
+    private readonly BolaoDaCopa2026.Services.HorarioOficialService _horarioOficialService;
     private const string StatusAgendado = "Agendado";
     private const string StatusEmAndamento = "EmAndamento";
 
-    public JogoService(BolaoContext context)
+    public JogoService(BolaoContext context, BolaoDaCopa2026.Services.HorarioOficialService horarioOficialService)
     {
         _context = context;
+        _horarioOficialService = horarioOficialService;
     }
 
     public int AtualizarJogosAgendadosParaEmAndamento(DateTime? agora = null)
     {
-        var referencia = agora ?? DateTime.Now;
+        var referencia = agora ?? _horarioOficialService.ObterAgora();
 
         var jogosAgendadosIniciados = _context.Jogos
             .Where(j => j.Status == StatusAgendado && j.DataHora <= referencia)

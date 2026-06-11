@@ -7,6 +7,11 @@
     <div class="alert alert-success mt-2">@TempData["Sucesso"]</div>
 }
 
+@if (TempData["Erro"] != null)
+{
+    <div class="alert alert-danger mt-2">@TempData["Erro"]</div>
+}
+
 <form asp-action="AtualizarDataHora" asp-route-id="@Model.Id" method="post" class="mb-4">
     <div>
         <label>Dia e horario</label>
@@ -17,6 +22,29 @@
     </div>
 
     <button type="submit" class="btn btn-primary mt-2">Salvar Dia/Horario</button>
+</form>
+
+<hr />
+
+<h4>Atualizar Status</h4>
+
+<form asp-action="AtualizarStatus" asp-route-id="@Model.Id" method="post" class="mb-4">
+    <div>
+        <label>Status</label>
+        <select name="status" required>
+            <option value="Agendado" selected="@(Model.Status == "Agendado")">Agendado</option>
+            <option value="EmAndamento" selected="@(Model.Status == "EmAndamento")">Em andamento</option>
+            <option value="Finalizado" selected="@(Model.Status == "Finalizado")">Finalizado</option>
+        </select>
+    </div>
+
+    <small class="form-text text-muted">
+        Para marcar como finalizado, o placar precisa estar preenchido abaixo.
+    </small>
+
+    <div>
+        <button type="submit" class="btn btn-warning mt-2">Salvar Status</button>
+    </div>
 </form>
 
 <hr />

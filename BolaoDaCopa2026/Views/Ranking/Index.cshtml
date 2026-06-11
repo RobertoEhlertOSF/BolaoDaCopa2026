@@ -3,6 +3,9 @@
     var classeTabela = Model.MostrarColunaCampeao
         ? "ranking-table com-campeao"
         : "ranking-table sem-campeao";
+    var atualizadoEmOficial = ViewBag.AtualizadoEmOficial is DateTime dataHoraOficial
+        ? dataHoraOficial
+        : Model.AtualizadoEmUtc;
 }
 
 <div class="top-actions">
@@ -18,7 +21,7 @@
     <h1>Classificação</h1>
 
     <div class="ranking-meta">
-        <span><strong>Atualizado em:</strong> @Model.AtualizadoEmUtc.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</span>
+        <span><strong>Atualizado em:</strong> @atualizadoEmOficial.ToString("dd/MM/yyyy HH:mm")</span>
         <span class="dot">•</span>
         <span><strong>Total Prêmio:</strong> @Model.TotalPremioTexto</span>
     </div>

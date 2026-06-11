@@ -4,7 +4,9 @@
 
 @{
     ViewData["Title"] = "Home";
-    var agora = DateTime.Now;
+    var agora = ViewBag.Agora is DateTime agoraOficial
+        ? agoraOficial
+        : DateTime.Now;
 
     var jogosHoje = Model.Jogos
         .Where(j => j.Jogo.DataHora.Date == agora.Date)
