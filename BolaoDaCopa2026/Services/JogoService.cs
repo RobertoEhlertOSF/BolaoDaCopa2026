@@ -46,9 +46,6 @@ public class JogoService
         if (jogo == null)
             throw new InvalidOperationException("Jogo não encontrado.");
 
-        if (jogo.Status == "Finalizado")
-            return jogo;
-
         jogo.GolsSelecaoA = golsA;
         jogo.GolsSelecaoB = golsB;
         jogo.Status = "Finalizado";
