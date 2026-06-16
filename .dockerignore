@@ -1,0 +1,9 @@
+**/.git
+**/.vs
+**/bin
+**/obj
+BolaoDaCopa2026/App_Data/
+BolaoDaCopa2026/bolao.db
+BolaoDaCopa2026/bolao.db-shm
+BolaoDaCopa2026/bolao.db-wal
+BolaoDaCopa2026/bolao.sqbpro
