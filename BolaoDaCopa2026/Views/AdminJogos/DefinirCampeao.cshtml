@@ -1,26 +1,202 @@
-﻿@model List<BolaoDaCopa2026.Models.Selecao>
+@model BolaoDaCopa2026.ViewModels.DefinirCampeaoAdminViewModel
 
-<h1>Definir Campeão</h1>
+<div class="admin-voltar">
+    <a asp-action="Index" class="btn-voltar">← Voltar para admin</a>
+</div>
 
-<form asp-action="SalvarCampeao" method="post">
+<h1 class="mb-4">Gerenciar campeão</h1>
 
-    <div class="time">
-        <label>Selecione o Campeão</label>
+@if (TempData["Sucesso"] != null)
+{
+    <div class="admin-feedback admin-feedback-sucesso">@TempData["Sucesso"]</div>
+}
 
-        <select name="selecaoId" class="form-control">
-            <option value="">Selecione</option>
+@if (TempData["Erro"] != null)
+{
+    <div class="admin-feedback admin-feedback-erro">@TempData["Erro"]</div>
+}
 
-            @foreach (var selecao in Model)
-            {
-                <option value="@selecao.Id">
-                    @selecao.Nome (@selecao.Grupo)
-                </option>
-            }
-        </select>
-    </div>
+<div class="admin-grid">
+    <section class="admin-card">
+        <h2>Campeão oficial</h2>
+        <p>Use esta opção quando quiser definir o campeão real e recalcular a pontuação de campeão.</p>
 
-    <button type="submit" class="btn-salvar">
-        Salvar Campeão
-    </button>
+        <form asp-action="SalvarCampeao" method="post">
+            @Html.AntiForgeryToken()
 
-</form>
+            <label for="campeaoOficial">Seleção</label>
+            <select id="campeaoOficial" name="selecaoId" class="form-control" required>
+                <option value="">Selecione</option>
+                @foreach (var selecao in Model.Selecoes)
+                {
+                    <option value="@selecao.Id">@selecao.Nome (@selecao.Grupo)</option>
+                }
+            </select>
+
+            <button type="submit" class="btn-admin mt-3">Salvar campeão oficial</button>
+        </form>
+    </section>
+
+    <section class="admin-card">
+        <h2>Campeão do apostador</h2>
+        <p>Depois que o prazo fecha, somente o admin pode ajustar o campeão escolhido por um usuário.</p>
+
+        <form asp-action="SalvarCampeaoApostador" method="post">
+            @Html.AntiForgeryToken()
+
+            <label for="apostadorId">Usuário</label>
+            <select id="apostadorId" name="apostadorId" class="form-control" required>
+                <option value="">Selecione</option>
+                @foreach (var apostador in Model.Apostadores)
+                {
+                    <option value="@apostador.ApostadorId">
+                        @apostador.Nome - @apostador.Email - Atual: @apostador.CampeaoAtualNome
+                    </option>
+                }
+            </select>
+
+            <label for="campeaoApostador" class="mt-3">Novo campeão</label>
+            <select id="campeaoApostador" name="selecaoId" class="form-control" required>
+                <option value="">Selecione</option>
+                @foreach (var selecao in Model.Selecoes)
+                {
+                    <option value="@selecao.Id">@selecao.Nome (@selecao.Grupo)</option>
+                }
+            </select>
+
+            <button type="submit" class="btn-admin mt-3">Salvar campeão do usuário</button>
+        </form>
+    </section>
+</div>
+
+@if (Model.Apostadores.Any())
+{
+    <section class="admin-card mt-4">
+        <h2>Resumo atual</h2>
+
+        <div class="admin-table-wrapper">
+            <table class="table table-hover table-bordered align-middle admin-table">
+                <thead>
+                    <tr>
+                        <th>Usuário</th>
+                        <th>E-mail</th>
+                        <th>Campeão atual</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var apostador in Model.Apostadores)
+                    {
+                        <tr>
+                            <td>@apostador.Nome</td>
+                            <td>@apostador.Email</td>
+                            <td>@apostador.CampeaoAtualNome</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>
+}
+
+<style>
+    footer {
+        display: none !important;
+    }
+
+    .admin-voltar {
+        margin-bottom: 16px;
+    }
+
+    .btn-voltar,
+    .btn-admin {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 16px;
+        border-radius: 10px;
+        background: rgba(255,203,0,0.95);
+        color: #0b0f17;
+        font-weight: 800;
+        text-decoration: none;
+        border: none;
+        transition: filter .2s ease, transform .1s ease;
+    }
+
+    .btn-voltar:hover,
+    .btn-admin:hover {
+        filter: brightness(1.05);
+        transform: translateY(-2px);
+        color: #0b0f17;
+        text-decoration: none;
+    }
+
+    .admin-feedback {
+        margin: 10px 0 18px;
+        padding: 10px 12px;
+        border-radius: 10px;
+        font-weight: 700;
+    }
+
+    .admin-feedback-sucesso {
+        color: #d8ffe1;
+        background: rgba(29, 127, 62, 0.35);
+        border: 1px solid rgba(29, 127, 62, 0.7);
+    }
+
+    .admin-feedback-erro {
+        color: #ffd8d8;
+        background: rgba(165, 42, 42, 0.35);
+        border: 1px solid rgba(165, 42, 42, 0.7);
+    }
+
+    .admin-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 18px;
+    }
+
+    .admin-card {
+        padding: 20px;
+        border-radius: 18px;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.10);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+    }
+
+    .admin-card h2 {
+        margin-bottom: 10px;
+    }
+
+    .admin-card p {
+        color: rgba(255,255,255,0.78);
+        margin-bottom: 16px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid rgba(255,255,255,0.14);
+        background: rgba(255,255,255,0.08);
+        color: #fff;
+    }
+
+    .form-control option {
+        color: #000;
+        background: #fff;
+    }
+
+    .admin-table-wrapper {
+        overflow-x: auto;
+        border-radius: 14px;
+        background: rgba(255,255,255,0.03);
+    }
+
+    .admin-table {
+        margin-bottom: 0;
+    }
+
+    .admin-table thead th {
+        white-space: nowrap;
+    }
+</style>

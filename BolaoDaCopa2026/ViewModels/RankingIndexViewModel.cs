@@ -3,7 +3,8 @@
     public class RankingIndexViewModel
     {
         public DateTime AtualizadoEmUtc { get; set; }
-        public string? TotalPremioTexto { get; set; } // placeholder por enquanto
+        public string? TotalPremioTexto { get; set; }
+        public List<string> PremiacaoItens { get; set; } = new();
         public bool MostrarColunaCampeao { get; set; }
 
         public List<RankingLinhaViewModel> Linhas { get; set; } = new();

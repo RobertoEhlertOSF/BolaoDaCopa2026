@@ -28,6 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Update="App_Data\**\*" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" />
     <Content Update="bolao.db" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" />
     <Content Update="bolao.db-shm" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" />
     <Content Update="bolao.db-wal" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" />

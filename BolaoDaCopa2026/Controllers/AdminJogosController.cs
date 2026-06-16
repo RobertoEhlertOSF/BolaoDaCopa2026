@@ -294,9 +294,35 @@ public class AdminJogosController : Controller
         if (!UsuarioEhAdmin())
             return Forbid();
 
-        var selecoes = _context.Selecoes.ToList();
+        var selecoes = _context.Selecoes
+            .OrderBy(s => s.Nome)
+            .ToList();
 
-        return View(selecoes);
+        var apostadores = _context.Apostadores
+            .AsNoTracking()
+            .Include(a => a.Usuario)
+            .Include(a => a.SelecaoCampea)
+            .Where(a => a.Usuario != null && !a.Usuario.IsAdmin)
+            .OrderBy(a => a.Nome)
+            .Select(a => new CampeaoApostadorAdminViewModel
+            {
+                ApostadorId = a.Id,
+                Nome = a.Nome,
+                Email = a.Usuario != null ? a.Usuario.Email : string.Empty,
+                SelecaoCampeaId = a.SelecaoCampeaId,
+                CampeaoAtualNome = a.SelecaoCampea != null
+                    ? a.SelecaoCampea.Nome
+                    : "Nao definido"
+            })
+            .ToList();
+
+        var vm = new DefinirCampeaoAdminViewModel
+        {
+            Selecoes = selecoes,
+            Apostadores = apostadores
+        };
+
+        return View(vm);
     }
 
     [HttpPost("SalvarCampeao")]
@@ -310,6 +336,39 @@ public class AdminJogosController : Controller
         _apostaService.RecalcularCampeao(selecaoId);
 
         return RedirectToAction("Index");
+    }
+
+    [HttpPost("SalvarCampeaoApostador")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SalvarCampeaoApostador(int apostadorId, int selecaoId)
+    {
+        if (!UsuarioEhAdmin())
+            return Forbid();
+
+        var apostador = await _context.Apostadores
+            .Include(a => a.Usuario)
+            .FirstOrDefaultAsync(a => a.Id == apostadorId);
+
+        if (apostador == null || apostador.Usuario == null || apostador.Usuario.IsAdmin)
+        {
+            TempData["Erro"] = "Usuario nao encontrado.";
+            return RedirectToAction(nameof(DefinirCampeao));
+        }
+
+        var selecaoExiste = await _context.Selecoes
+            .AnyAsync(s => s.Id == selecaoId);
+
+        if (!selecaoExiste)
+        {
+            TempData["Erro"] = "Selecao invalida.";
+            return RedirectToAction(nameof(DefinirCampeao));
+        }
+
+        apostador.SelecaoCampeaId = selecaoId;
+        await _context.SaveChangesAsync();
+
+        TempData["Sucesso"] = $"Campeao de {apostador.Nome} atualizado com sucesso.";
+        return RedirectToAction(nameof(DefinirCampeao));
     }
 
     // =====================================================

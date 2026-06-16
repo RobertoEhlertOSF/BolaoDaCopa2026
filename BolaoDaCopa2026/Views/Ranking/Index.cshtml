@@ -25,6 +25,16 @@
         <span class="dot">•</span>
         <span><strong>Total Prêmio:</strong> @Model.TotalPremioTexto</span>
     </div>
+
+    @if (Model.PremiacaoItens.Any())
+    {
+        <div class="ranking-premiacao">
+            @foreach (var item in Model.PremiacaoItens)
+            {
+                <div class="premiacao-item">@item</div>
+            }
+        </div>
+    }
 </header>
 
 <div class="ranking-card">
@@ -186,6 +196,24 @@
             opacity: .6;
         }
 
+    .ranking-premiacao {
+        margin: 14px auto 0;
+        display: inline-flex;
+        flex-direction: column;
+        gap: 6px;
+        padding: 14px 18px;
+        border-radius: 16px;
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.14);
+        color: rgba(255,255,255,0.92);
+        text-align: left;
+        font-weight: 700;
+    }
+
+    .premiacao-item {
+        white-space: nowrap;
+    }
+
     .ranking-card {
         max-width: 760px;
         margin: 0 auto 30px;
@@ -297,6 +325,16 @@
 
         .ranking-meta {
             font-size: .9rem;
+        }
+
+        .ranking-premiacao {
+            display: flex;
+            width: 100%;
+            text-align: left;
+        }
+
+        .premiacao-item {
+            white-space: normal;
         }
     }
 

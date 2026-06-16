@@ -77,7 +77,15 @@ namespace BolaoDaCopa2026.Controllers
             var vm = new RankingIndexViewModel
             {
                 AtualizadoEmUtc = DateTime.UtcNow,
-                TotalPremioTexto = "Em definição",
+                TotalPremioTexto = "R$2.300",
+                PremiacaoItens = new List<string>
+                {
+                    "1º lugar geral: R$1.035",
+                    "2º lugar geral: R$575",
+                    "3º lugar geral: R$230",
+                    "4º lugar geral: R$230",
+                    "Artilheiro do bolão: R$230"
+                },
                 MostrarColunaCampeao = mostrarColunaCampeao,
                 Linhas = linhas
             };
