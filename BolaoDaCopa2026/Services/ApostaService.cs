@@ -27,16 +27,20 @@ public class ApostaService
         foreach (var aposta in apostas)
         {
             aposta.Apostador.PontosJogos -= aposta.Pontos;
-            aposta.Pontos = 0; 
+            aposta.Pontos = 0;
         }
 
         foreach (var aposta in apostas)
         {
-            int pontos = _pontuacaoService.CalcularPontuacaoApostador(
+            int pontosBase = _pontuacaoService.CalcularPontuacaoApostador(
                 jogo.GolsSelecaoA.Value,
                 jogo.GolsSelecaoB.Value,
                 aposta.GolsSelecaoA,
                 aposta.GolsSelecaoB);
+
+            int bonusMataMata = _pontuacaoService.CalcularBonusMataMata(jogo, aposta);
+
+            int pontos = pontosBase + bonusMataMata;
 
             aposta.Pontos = pontos;
             aposta.Apostador.PontosJogos += pontos;
@@ -54,17 +58,7 @@ public class ApostaService
     {
         var jogosFinalizados = _context.Jogos
             .Where(j => j.Status == "Finalizado" && j.GolsSelecaoA.HasValue && j.GolsSelecaoB.HasValue)
-            .Select(j => new
-            {
-                j.Id,
-                GolsA = j.GolsSelecaoA!.Value,
-                GolsB = j.GolsSelecaoB!.Value
-            })
-            .ToList();
-
-        var resultadoPorJogo = jogosFinalizados.ToDictionary(
-            j => j.Id,
-            j => (j.GolsA, j.GolsB));
+            .ToDictionary(j => j.Id);
 
         var pontosJogosPorApostador = new Dictionary<int, int>();
         var exatosPorApostador = new Dictionary<int, int>();
@@ -75,13 +69,17 @@ public class ApostaService
         {
             var pontos = 0;
 
-            if (resultadoPorJogo.TryGetValue(aposta.JogoId, out var resultado))
+            if (jogosFinalizados.TryGetValue(aposta.JogoId, out var jogo))
             {
-                pontos = _pontuacaoService.CalcularPontuacaoApostador(
-                    resultado.GolsA,
-                    resultado.GolsB,
+                int pontosBase = _pontuacaoService.CalcularPontuacaoApostador(
+                    jogo.GolsSelecaoA!.Value,
+                    jogo.GolsSelecaoB!.Value,
                     aposta.GolsSelecaoA,
                     aposta.GolsSelecaoB);
+
+                int bonusMataMata = _pontuacaoService.CalcularBonusMataMata(jogo, aposta);
+
+                pontos = pontosBase + bonusMataMata;
             }
 
             aposta.Pontos = pontos;
@@ -91,7 +89,9 @@ public class ApostaService
 
             pontosJogosPorApostador[aposta.ApostadorId] += pontos;
 
-            if (pontos == 10)
+            if (jogosFinalizados.TryGetValue(aposta.JogoId, out var jogoExato) &&
+                aposta.GolsSelecaoA == jogoExato.GolsSelecaoA &&
+                aposta.GolsSelecaoB == jogoExato.GolsSelecaoB)
             {
                 if (!exatosPorApostador.ContainsKey(aposta.ApostadorId))
                     exatosPorApostador[aposta.ApostadorId] = 0;
@@ -157,4 +157,3 @@ public class ApostaService
         _context.SaveChanges();
     }
 }
-

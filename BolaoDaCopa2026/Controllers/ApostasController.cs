@@ -30,19 +30,16 @@ namespace BolaoDaCopa2026.Controllers
 
             int id = apostadorId.Value;
 
-            // Jogos base
             var jogosQuery = _context.Jogos
                 .Include(j => j.SelecaoA)
                 .Include(j => j.SelecaoB)
                 .AsQueryable();
 
-            // ===== FILTRO POR FASE =====
             if (!string.IsNullOrWhiteSpace(fase))
             {
                 jogosQuery = jogosQuery.Where(j => j.Fase == fase);
             }
 
-            // ===== PEGAR APOSTAS DO USUÁRIO =====
             var apostas = _context.Apostas
                 .Where(a => a.ApostadorId == id)
                 .ToList();
@@ -67,9 +64,11 @@ namespace BolaoDaCopa2026.Controllers
                 .ToList();
 
             var agora = _apostaPrazoService.ObterAgora();
+
             var podeApostarPorJogo = jogos.ToDictionary(
                 j => j.Id,
                 j => _apostaPrazoService.PodeApostar(j, agora));
+
             var statusPorJogo = jogos.ToDictionary(
                 j => j.Id,
                 j => _apostaPrazoService.ObterStatusCronologico(j, agora));
@@ -90,6 +89,7 @@ namespace BolaoDaCopa2026.Controllers
             int jogoId,
             int golsSelecaoA,
             int golsSelecaoB,
+            int? selecaoVencedoraId,
             string fase = "Grupo A",
             string filtro = "todos",
             string? grupo = null)
@@ -118,10 +118,22 @@ namespace BolaoDaCopa2026.Controllers
                 return RedirectToAction(nameof(Index), new { fase, filtro, grupo });
             }
 
+            if (!TentarValidarSelecaoVencedora(
+                    jogo,
+                    golsSelecaoA,
+                    golsSelecaoB,
+                    selecaoVencedoraId,
+                    out var selecaoVencedoraFinal,
+                    out var erro))
+            {
+                TempData["Erro"] = erro;
+                return RedirectToAction(nameof(Index), new { fase, filtro, grupo });
+            }
+
             var aposta = _context.Apostas
                 .FirstOrDefault(a => a.JogoId == jogoId && a.ApostadorId == id);
 
-            UpsertAposta(jogo, id, golsSelecaoA, golsSelecaoB, aposta);
+            UpsertAposta(jogo, id, golsSelecaoA, golsSelecaoB, selecaoVencedoraFinal, aposta);
 
             _context.SaveChanges();
             TempData["Sucesso"] = "Palpite salvo com sucesso.";
@@ -194,8 +206,28 @@ namespace BolaoDaCopa2026.Controllers
                     continue;
                 }
 
+                if (!TentarValidarSelecaoVencedora(
+                        jogo,
+                        golsSelecaoAEntrada,
+                        golsSelecaoBEntrada,
+                        entrada.SelecaoVencedoraId,
+                        out var selecaoVencedoraFinal,
+                        out _))
+                {
+                    totalInvalidas++;
+                    continue;
+                }
+
                 apostasExistentes.TryGetValue(entrada.JogoId, out var apostaExistente);
-                UpsertAposta(jogo, id, golsSelecaoAEntrada, golsSelecaoBEntrada, apostaExistente);
+
+                UpsertAposta(
+                    jogo,
+                    id,
+                    golsSelecaoAEntrada,
+                    golsSelecaoBEntrada,
+                    selecaoVencedoraFinal,
+                    apostaExistente);
+
                 totalSalvas++;
             }
 
@@ -206,22 +238,22 @@ namespace BolaoDaCopa2026.Controllers
                 TempData["Sucesso"] = "Apostas salvas com sucesso.";
 
             if (totalEncerradas > 0 && totalInvalidas > 0)
-            {
                 TempData["Erro"] = $"Algumas apostas não foram salvas: {totalEncerradas} jogo(s) já iniciado(s) e {totalInvalidas} palpite(s) inválido(s).";
-            }
             else if (totalEncerradas > 0)
-            {
                 TempData["Erro"] = $"As apostas para {totalEncerradas} jogo(s) já foram encerradas.";
-            }
             else if (totalInvalidas > 0)
-            {
-                TempData["Erro"] = $"Foram ignorados {totalInvalidas} palpite(s) com placar inválido.";
-            }
+                TempData["Erro"] = $"Foram ignorados {totalInvalidas} palpite(s) inválido(s).";
 
             return RedirectToAction(nameof(Index), new { fase, filtro, grupo });
         }
 
-        private void UpsertAposta(Jogo jogo, int apostadorId, int golsSelecaoA, int golsSelecaoB, Aposta? aposta = null)
+        private void UpsertAposta(
+            Jogo jogo,
+            int apostadorId,
+            int golsSelecaoA,
+            int golsSelecaoB,
+            int? selecaoVencedoraId,
+            Aposta? aposta = null)
         {
             var payload = ApostaHashService.GerarPayload(jogo.Id, apostadorId, golsSelecaoA, golsSelecaoB);
 
@@ -238,6 +270,7 @@ namespace BolaoDaCopa2026.Controllers
                     SelecaoBId = jogo.SelecaoBId!.Value,
                     GolsSelecaoA = golsSelecaoA,
                     GolsSelecaoB = golsSelecaoB,
+                    SelecaoVencedoraId = selecaoVencedoraId,
 
                     Salt = salt,
                     HashCommit = hash,
@@ -252,8 +285,49 @@ namespace BolaoDaCopa2026.Controllers
 
             aposta.GolsSelecaoA = golsSelecaoA;
             aposta.GolsSelecaoB = golsSelecaoB;
+            aposta.SelecaoVencedoraId = selecaoVencedoraId;
             aposta.HashCommit = ApostaHashService.GerarHash(payload, aposta.Salt);
             aposta.AtualizadoEmUtc = DateTime.UtcNow;
+        }
+
+        private static bool EhFaseMataMata(string? fase)
+        {
+            return !string.IsNullOrWhiteSpace(fase)
+                && !fase.StartsWith("Grupo ", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool TentarValidarSelecaoVencedora(
+            Jogo jogo,
+            int golsSelecaoA,
+            int golsSelecaoB,
+            int? selecaoVencedoraId,
+            out int? selecaoVencedoraFinal,
+            out string erro)
+        {
+            selecaoVencedoraFinal = null;
+            erro = string.Empty;
+
+            if (!EhFaseMataMata(jogo.Fase))
+                return true;
+
+            if (golsSelecaoA != golsSelecaoB)
+                return true;
+
+            if (!selecaoVencedoraId.HasValue)
+            {
+                erro = "Em jogos de mata-mata com palpite empatado, escolha quem avança.";
+                return false;
+            }
+
+            if (selecaoVencedoraId.Value != jogo.SelecaoAId &&
+                selecaoVencedoraId.Value != jogo.SelecaoBId)
+            {
+                erro = "Seleção vencedora inválida para este jogo.";
+                return false;
+            }
+
+            selecaoVencedoraFinal = selecaoVencedoraId.Value;
+            return true;
         }
 
         public class SalvarTodosApostaInput
@@ -261,6 +335,7 @@ namespace BolaoDaCopa2026.Controllers
             public int JogoId { get; set; }
             public int? GolsSelecaoA { get; set; }
             public int? GolsSelecaoB { get; set; }
+            public int? SelecaoVencedoraId { get; set; }
         }
 
         public IActionResult Campeao()

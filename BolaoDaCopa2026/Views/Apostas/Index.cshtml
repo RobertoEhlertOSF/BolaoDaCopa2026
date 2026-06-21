@@ -131,19 +131,26 @@
         @foreach (var jogo in Model.OrderBy(j => j.DataHora))
         {
             var aposta = apostas?.FirstOrDefault(a => a.JogoId == jogo.Id);
+            var ehMataMata = !string.IsNullOrWhiteSpace(jogo.Fase)
+            && !jogo.Fase.StartsWith("Grupo ", StringComparison.OrdinalIgnoreCase);
+
             var podeApostar = podeApostarPorJogo.TryGetValue(jogo.Id, out var valorPodeApostar)
-                ? valorPodeApostar
-                : false;
+            ? valorPodeApostar
+            : false;
+
             var statusJogo = statusPorJogo.TryGetValue(jogo.Id, out var valorStatus)
-                ? valorStatus
-                : "Em andamento";
+            ? valorStatus
+            : "Em andamento";
+
             var jogoFinalizado =
-                string.Equals(statusJogo, "Finalizado", StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(jogo.Status, "Finalizado", StringComparison.OrdinalIgnoreCase);
+            string.Equals(statusJogo, "Finalizado", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(jogo.Status, "Finalizado", StringComparison.OrdinalIgnoreCase);
+
             var jogoEmAndamento =
-                string.Equals(statusJogo, "Em andamento", StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(jogo.Status, "EmAndamento", StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(jogo.Status, "Em andamento", StringComparison.OrdinalIgnoreCase);
+            string.Equals(statusJogo, "Em andamento", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(jogo.Status, "EmAndamento", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(jogo.Status, "Em andamento", StringComparison.OrdinalIgnoreCase);
+
             var podeVerApostasDoJogo = jogoFinalizado || jogoEmAndamento;
             var urlDetalheApostas = Url.Action("ApostasJogo", "Home", new { id = jogo.Id });
 
@@ -159,15 +166,23 @@
                 aposta.GolsSelecaoB
                 );
 
-                if (pontos == 10) classePontos = "pontos-exato";
+                if (ehMataMata &&
+                jogo.SelecaoVencedoraId.HasValue &&
+                aposta.SelecaoVencedoraId.HasValue &&
+                jogo.SelecaoVencedoraId.Value == aposta.SelecaoVencedoraId.Value)
+                {
+                    pontos += 1;
+                }
+
+                if (pontos >= 10) classePontos = "pontos-exato";
                 else if (pontos == 7 || pontos == 5) classePontos = "pontos-parcial";
-                else if (pontos == 2) classePontos = "pontos-minimo";
+                else if (pontos == 2 || pontos == 1) classePontos = "pontos-minimo";
             }
 
             var statusCurto = statusJogo;
 
             <div class="jogo @(podeApostar ? "aberto" : "encerrado") @(podeVerApostasDoJogo ? "jogo-clickable" : "")"
-                 data-detalhe-url="@(podeVerApostasDoJogo ? urlDetalheApostas : "")">
+                 data-detalhe-url="@(podeVerApostasDoJogo? urlDetalheApostas : "")">
 
                 <div class="jogo-meta">
                     <div class="jogo-data">@jogo.DataHora.ToString("dd/MM/yy")</div>
@@ -227,6 +242,38 @@
                                        value="@aposta?.GolsSelecaoB" />
                             </div>
 
+                            @if (ehMataMata)
+                            {
+                                var mostrarDesempate = aposta != null
+                                && aposta.GolsSelecaoA == aposta.GolsSelecaoB;
+
+                                <div class="desempate @(mostrarDesempate ? "" : "desempate-oculto")" data-desempate>
+                                    <div class="desempate-titulo">Quem avança?</div>
+
+                                    @if (jogo.SelecaoAId.HasValue)
+                                    {
+                                        <label class="desempate-opcao">
+                                            <input type="radio"
+                                                   name="selecaoVencedoraId"
+                                                   value="@jogo.SelecaoAId"
+                                                   checked="@(aposta?.SelecaoVencedoraId == jogo.SelecaoAId)" />
+                                            @(jogo.SelecaoA?.Nome ?? "Seleção A")
+                                        </label>
+                                    }
+
+                                    @if (jogo.SelecaoBId.HasValue)
+                                    {
+                                        <label class="desempate-opcao">
+                                            <input type="radio"
+                                                   name="selecaoVencedoraId"
+                                                   value="@jogo.SelecaoBId"
+                                                   checked="@(aposta?.SelecaoVencedoraId == jogo.SelecaoBId)" />
+                                            @(jogo.SelecaoB?.Nome ?? "Seleção B")
+                                        </label>
+                                    }
+                                </div>
+                            }
+
                             <button class="btn btn-salvar" type="submit">
                                 @(aposta == null ? "Salvar" : "Atualizar")
                             </button>
@@ -237,7 +284,24 @@
                         <div class="resultado-fechado">
                             @if (jogoFinalizado && aposta != null)
                             {
-                                <span class="pontos @classePontos">(@pontos pts)</span>
+                                <div class="resultado-finalizado">
+                                    @if (ehMataMata && aposta.SelecaoVencedoraId.HasValue)
+                                    {
+                                        var selecaoEscolhida =
+                                        aposta.SelecaoVencedoraId == jogo.SelecaoAId
+                                        ? jogo.SelecaoA?.Nome
+                                        : aposta.SelecaoVencedoraId == jogo.SelecaoBId
+                                        ? jogo.SelecaoB?.Nome
+                                        : null;
+
+                                        if (!string.IsNullOrWhiteSpace(selecaoEscolhida))
+                                        {
+                                            <span class="quem-avancou">Avança: @selecaoEscolhida</span>
+                                        }
+                                    }
+
+                                    <span class="pontos @classePontos">(@pontos pts)</span>
+                                </div>
                             }
                             else
                             {
@@ -268,6 +332,7 @@
                 const jogoIdInput = formPalpite.querySelector("input[name='jogoId']");
                 const golsAInput = formPalpite.querySelector("input[data-campo-aposta='golsSelecaoA']");
                 const golsBInput = formPalpite.querySelector("input[data-campo-aposta='golsSelecaoB']");
+                const vencedorInput = formPalpite.querySelector("input[name='selecaoVencedoraId']:checked");
 
                 const golsA = golsAInput ? golsAInput.value.trim() : "";
                 const golsB = golsBInput ? golsBInput.value.trim() : "";
@@ -277,6 +342,11 @@
                 adicionarInputLote("apostas[" + indice + "].JogoId", jogoIdInput.value);
                 adicionarInputLote("apostas[" + indice + "].GolsSelecaoA", golsA);
                 adicionarInputLote("apostas[" + indice + "].GolsSelecaoB", golsB);
+
+                if (vencedorInput) {
+                    adicionarInputLote("apostas[" + indice + "].SelecaoVencedoraId", vencedorInput.value);
+                }
+
                 indice++;
             });
         });
@@ -318,19 +388,45 @@
                 const alvo = event.target;
                 if (!(alvo instanceof Element)) return;
 
-                // Mantém o fluxo normal para elementos interativos dentro do card.
                 if (alvo.closest("input, button, select, textarea, label, form, a")) return;
 
                 window.location.href = destino;
             });
         });
     })();
+
+    (function () {
+        document.querySelectorAll("form.palpite").forEach(function (form) {
+            const golsAInput = form.querySelector("input[data-campo-aposta='golsSelecaoA']");
+            const golsBInput = form.querySelector("input[data-campo-aposta='golsSelecaoB']");
+            const desempate = form.querySelector("[data-desempate]");
+
+            if (!golsAInput || !golsBInput || !desempate) return;
+
+            function atualizarDesempate() {
+                const golsA = golsAInput.value.trim();
+                const golsB = golsBInput.value.trim();
+
+                const deveMostrar = golsA !== "" && golsB !== "" && Number(golsA) === Number(golsB);
+
+                desempate.classList.toggle("desempate-oculto", !deveMostrar);
+
+                if (!deveMostrar) {
+                    desempate.querySelectorAll("input[type='radio']").forEach(function (radio) {
+                        radio.checked = false;
+                    });
+                }
+            }
+
+            golsAInput.addEventListener("input", atualizarDesempate);
+            golsBInput.addEventListener("input", atualizarDesempate);
+
+            atualizarDesempate();
+        });
+    })();
 </script>
 
 <style>
-    /* ============================= */
-    /* DESKTOP: scroll só se precisar */
-    /* ============================= */
     @@media (min-width: 901px) {
         html, body {
             height: 100%;
@@ -347,8 +443,6 @@
             flex: 1;
         }
     }
-
-    /* MOBILE: mantém scroll normal  */
 
     @@media (max-width: 900px) {
         html, body {
@@ -388,10 +482,10 @@
         background: #a52a2a;
     }
 
-        .toast-feedback.sumindo {
-            opacity: 0;
-            transform: translateY(-8px);
-        }
+    .toast-feedback.sumindo {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
 
     .lista-jogos {
         display: flex;
@@ -455,78 +549,33 @@
         gap: 12px;
     }
 
-    .btn-voltar {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        padding: 10px 16px;
-        border-radius: 10px;
-        background: rgba(255, 203, 0, 0.95);
-        color: #0b0f17;
-        text-decoration: none;
-        font-weight: 800;
-        border: none;
-        transition: filter 0.2s ease, transform 0.1s ease;
-    }
-
-        .btn-voltar:hover {
-            filter: brightness(1.05);
-            transform: translateX(-2px);
-            color: #0b0f17;
-            text-decoration: none;
-        }
-
-        .btn-voltar:focus,
-        .btn-voltar:active {
-            color: #0b0f17;
-            text-decoration: none;
-        }
-
-    .btn-campeao {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        padding: 10px 16px;
-        border-radius: 10px;
-        font-weight: 800;
-        text-decoration: none;
-        transition: filter 0.2s ease, transform 0.1s ease;
-    }
-
-        .btn-campeao:hover {
-            filter: brightness(1.05);
-            transform: translateY(-2px);
-            text-decoration: none;
-        }
-
-        .btn-campeao:focus,
-        .btn-campeao:active {
-            text-decoration: none;
-        }
-
+    .btn-voltar,
+    .btn-campeao,
     .btn-regras {
         display: inline-flex;
         align-items: center;
         justify-content: center;
+        gap: 8px;
         padding: 10px 16px;
         border-radius: 10px;
-        border: none;
         font-weight: 800;
-        background: rgba(255,203,0,0.95);
-        color: #0b0f17 !important;
-        text-decoration: none !important;
+        text-decoration: none;
         transition: filter 0.2s ease, transform 0.1s ease;
     }
 
-        .btn-regras:hover,
-        .btn-regras:focus,
-        .btn-regras:active {
+    .btn-voltar,
+    .btn-regras {
+        background: rgba(255, 203, 0, 0.95);
+        color: #0b0f17 !important;
+        border: none;
+    }
+
+        .btn-voltar:hover,
+        .btn-campeao:hover,
+        .btn-regras:hover {
             filter: brightness(1.05);
             transform: translateY(-2px);
-            color: #0b0f17 !important;
-            text-decoration: none !important;
+            text-decoration: none;
         }
 
     header h1 {
@@ -599,16 +648,16 @@
         border: 1px solid rgba(255,255,255,0.08);
     }
 
-    .jogo.jogo-clickable {
-        cursor: pointer;
-        transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.12s ease;
-    }
-
-        .jogo.jogo-clickable:hover {
-            border-color: rgba(255, 203, 0, 0.55);
-            box-shadow: 0 8px 22px rgba(0,0,0,0.22);
-            transform: translateY(-1px);
+        .jogo.jogo-clickable {
+            cursor: pointer;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.12s ease;
         }
+
+            .jogo.jogo-clickable:hover {
+                border-color: rgba(255, 203, 0, 0.55);
+                box-shadow: 0 8px 22px rgba(0,0,0,0.22);
+                transform: translateY(-1px);
+            }
 
     .jogo-meta {
         display: flex;
@@ -719,10 +768,51 @@
         opacity: 0.8;
     }
 
+    .desempate {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        font-size: 0.85rem;
+        color: rgba(255,255,255,0.85);
+        min-width: 130px;
+    }
+
+    .desempate-oculto {
+        display: none;
+    }
+
+    .desempate-titulo {
+        font-weight: 800;
+        color: rgba(255,203,0,0.95);
+        white-space: nowrap;
+    }
+
+    .desempate-opcao {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        line-height: 1.2;
+    }
+
     .resultado-fechado {
         display: flex;
         align-items: center;
         justify-content: flex-end;
+    }
+
+    .resultado-finalizado {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 4px;
+    }
+
+    .quem-avancou {
+        font-size: 0.78rem;
+        font-weight: 800;
+        color: rgba(255, 203, 0, 0.95);
+        white-space: nowrap;
     }
 
     .pontos {
@@ -915,6 +1005,12 @@
             display: none;
         }
 
+        .desempate {
+            align-items: flex-start;
+            width: 100%;
+            max-width: 180px;
+        }
+
         .btn-salvar {
             width: 74%;
             min-width: 74px;
@@ -924,6 +1020,11 @@
 
         .resultado-fechado {
             justify-content: center;
+        }
+
+        .resultado-finalizado {
+            align-items: center;
+            text-align: center;
         }
     }
 </style>

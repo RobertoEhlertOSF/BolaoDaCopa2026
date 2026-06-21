@@ -6,7 +6,6 @@ public class PontuacaoService
         int golsRealA, int golsRealB,
         int golsPalpiteA, int golsPalpiteB)
     {
-        // Placar exato
         if (golsPalpiteA == golsRealA && golsPalpiteB == golsRealB)
             return 10;
 
@@ -17,25 +16,17 @@ public class PontuacaoService
         bool acertouB = golsPalpiteB == golsRealB;
         bool acertouUmLado = acertouA || acertouB;
 
-        // =========================
-        // CASO: JOGO FOI EMPATE
-        // =========================
         if (realEmpate)
         {
-            // Acertou empate (mesmo com placar errado)
             if (palpiteEmpate)
                 return 5;
 
-            // Acertou gols de um lado
             if (acertouUmLado)
                 return 2;
 
             return 0;
         }
 
-        // =========================
-        // CASO: JOGO NÃO FOI EMPATE
-        // =========================
         bool acertouVencedor = false;
 
         if (!palpiteEmpate)
@@ -46,20 +37,51 @@ public class PontuacaoService
             acertouVencedor = realAVenceu == palpiteAVenceu;
         }
 
-        // Vencedor + um lado
         if (acertouVencedor && acertouUmLado)
             return 7;
 
-        // Só vencedor
         if (acertouVencedor)
             return 5;
 
-        // Só gols
         if (acertouUmLado)
             return 2;
 
         return 0;
     }
+
+    public int CalcularBonusMataMata(
+        Jogo jogo,
+        Aposta aposta)
+    {
+        if (!EhFaseMataMata(jogo.Fase))
+            return 0;
+
+        if (!jogo.GolsSelecaoA.HasValue || !jogo.GolsSelecaoB.HasValue)
+            return 0;
+
+        var vencedorRealId = ObterVencedorDoJogo(
+            jogo.SelecaoAId,
+            jogo.SelecaoBId,
+            jogo.GolsSelecaoA.Value,
+            jogo.GolsSelecaoB.Value,
+            jogo.SelecaoVencedoraId);
+
+        var vencedorApostaId = ObterVencedorDoJogo(
+            aposta.SelecaoAId,
+            aposta.SelecaoBId,
+            aposta.GolsSelecaoA,
+            aposta.GolsSelecaoB,
+            aposta.SelecaoVencedoraId);
+
+        if (!vencedorRealId.HasValue || !vencedorApostaId.HasValue)
+            return 0;
+
+        if (vencedorRealId.Value != vencedorApostaId.Value)
+            return 0;
+
+        return ObterBonusPorFase(jogo.Fase);
+    }
+
     public void AtualizarPontuacaoSelecao(Selecao selecao, int golsMarcados, int golsSofridos)
     {
         selecao.GolsPro += golsMarcados;
@@ -79,6 +101,41 @@ public class PontuacaoService
         {
             selecao.Derrotas++;
         }
+    }
+
+    private static int? ObterVencedorDoJogo(
+        int? selecaoAId,
+        int? selecaoBId,
+        int golsA,
+        int golsB,
+        int? selecaoVencedoraId)
+    {
+        if (golsA > golsB)
+            return selecaoAId;
+
+        if (golsB > golsA)
+            return selecaoBId;
+
+        return selecaoVencedoraId;
+    }
+
+    private static int ObterBonusPorFase(string? fase)
+    {
+        return fase?.Trim().ToLowerInvariant() switch
+        {
+            "segunda fase" => 1,
+            "oitavas" => 1,
+            "quartas" => 2,
+            "semifinal" => 2,
+            "final" => 3,
+            _ => 0
+        };
+    }
+
+    private static bool EhFaseMataMata(string? fase)
+    {
+        return !string.IsNullOrWhiteSpace(fase)
+            && !fase.StartsWith("Grupo ", StringComparison.OrdinalIgnoreCase);
     }
 }
 

@@ -3,6 +3,7 @@ using System;
 using BolaoDaCopa2026.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BolaoDaCopa2026.Migrations
 {
     [DbContext(typeof(BolaoContext))]
-    partial class BolaoContextModelSnapshot : ModelSnapshot
+    [Migration("20260621210536_AddSelecaoVencedoraNaAposta")]
+    partial class AddSelecaoVencedoraNaAposta
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0-preview.3.24172.4");
@@ -157,9 +160,6 @@ namespace BolaoDaCopa2026.Migrations
                     b.Property<int?>("SelecaoBId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("SelecaoVencedoraId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -169,8 +169,6 @@ namespace BolaoDaCopa2026.Migrations
                     b.HasIndex("SelecaoAId");
 
                     b.HasIndex("SelecaoBId");
-
-                    b.HasIndex("SelecaoVencedoraId");
 
                     b.ToTable("Jogos");
                 });
@@ -1024,16 +1022,9 @@ namespace BolaoDaCopa2026.Migrations
                         .HasForeignKey("SelecaoBId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("BolaoDaCopa2026.Models.Selecao", "SelecaoVencedora")
-                        .WithMany()
-                        .HasForeignKey("SelecaoVencedoraId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.Navigation("SelecaoA");
 
                     b.Navigation("SelecaoB");
-
-                    b.Navigation("SelecaoVencedora");
                 });
 
             modelBuilder.Entity("BolaoDaCopa2026.Models.PasswordResetToken", b =>

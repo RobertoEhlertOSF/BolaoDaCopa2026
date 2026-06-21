@@ -36,7 +36,7 @@ public class JogoService
         return jogosAgendadosIniciados.Count;
     }
 
-    public Jogo FinalizarJogo(int jogoId, int golsA, int golsB)
+    public Jogo FinalizarJogo(int jogoId, int golsA, int golsB, int? selecaoVencedoraId = null)
     {
         var jogo = _context.Jogos
             .Include(j => j.SelecaoA)
@@ -46,11 +46,45 @@ public class JogoService
         if (jogo == null)
             throw new InvalidOperationException("Jogo não encontrado.");
 
+        if (golsA < 0 || golsB < 0)
+            throw new InvalidOperationException("Placar inválido.");
+
         jogo.GolsSelecaoA = golsA;
         jogo.GolsSelecaoB = golsB;
         jogo.Status = "Finalizado";
         jogo.EstaAberto = false;
 
+        jogo.SelecaoVencedoraId = DefinirSelecaoVencedora(jogo, golsA, golsB, selecaoVencedoraId);
+
         return jogo;
+    }
+
+    private static int? DefinirSelecaoVencedora(Jogo jogo, int golsA, int golsB, int? selecaoVencedoraId)
+    {
+        if (!EhFaseMataMata(jogo.Fase))
+            return null;
+
+        if (golsA > golsB)
+            return jogo.SelecaoAId;
+
+        if (golsB > golsA)
+            return jogo.SelecaoBId;
+
+        if (!selecaoVencedoraId.HasValue)
+            throw new InvalidOperationException("Em jogo empatado de mata-mata, informe quem avançou.");
+
+        if (selecaoVencedoraId.Value != jogo.SelecaoAId &&
+            selecaoVencedoraId.Value != jogo.SelecaoBId)
+        {
+            throw new InvalidOperationException("Seleção vencedora inválida para este jogo.");
+        }
+
+        return selecaoVencedoraId.Value;
+    }
+
+    private static bool EhFaseMataMata(string? fase)
+    {
+        return !string.IsNullOrWhiteSpace(fase)
+            && !fase.StartsWith("Grupo ", StringComparison.OrdinalIgnoreCase);
     }
 }
