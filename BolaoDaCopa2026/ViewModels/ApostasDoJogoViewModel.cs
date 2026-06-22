@@ -13,6 +13,7 @@ namespace BolaoDaCopa2026.Models.ViewModels
         public string NomeUsuario { get; set; } = string.Empty;
         public int? GolsSelecaoA { get; set; }
         public int? GolsSelecaoB { get; set; }
+        public string? NomeSelecaoVencedoraPalpite { get; set; }
         public bool EsqueceuApostar => !GolsSelecaoA.HasValue || !GolsSelecaoB.HasValue;
     }
 }

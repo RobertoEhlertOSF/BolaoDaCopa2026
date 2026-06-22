@@ -255,7 +255,12 @@ namespace BolaoDaCopa2026.Controllers
             int? selecaoVencedoraId,
             Aposta? aposta = null)
         {
-            var payload = ApostaHashService.GerarPayload(jogo.Id, apostadorId, golsSelecaoA, golsSelecaoB);
+            var payload = ApostaHashService.GerarPayload(
+                jogo.Id,
+                apostadorId,
+                golsSelecaoA,
+                golsSelecaoB,
+                selecaoVencedoraId);
 
             if (aposta == null)
             {
@@ -290,12 +295,6 @@ namespace BolaoDaCopa2026.Controllers
             aposta.AtualizadoEmUtc = DateTime.UtcNow;
         }
 
-        private static bool EhFaseMataMata(string? fase)
-        {
-            return !string.IsNullOrWhiteSpace(fase)
-                && !fase.StartsWith("Grupo ", StringComparison.OrdinalIgnoreCase);
-        }
-
         private static bool TentarValidarSelecaoVencedora(
             Jogo jogo,
             int golsSelecaoA,
@@ -307,11 +306,20 @@ namespace BolaoDaCopa2026.Controllers
             selecaoVencedoraFinal = null;
             erro = string.Empty;
 
-            if (!EhFaseMataMata(jogo.Fase))
+            if (!PontuacaoService.EhFaseMataMata(jogo.Fase))
                 return true;
 
-            if (golsSelecaoA != golsSelecaoB)
+            if (golsSelecaoA > golsSelecaoB)
+            {
+                selecaoVencedoraFinal = jogo.SelecaoAId;
                 return true;
+            }
+
+            if (golsSelecaoB > golsSelecaoA)
+            {
+                selecaoVencedoraFinal = jogo.SelecaoBId;
+                return true;
+            }
 
             if (!selecaoVencedoraId.HasValue)
             {

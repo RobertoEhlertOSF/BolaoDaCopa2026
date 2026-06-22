@@ -142,7 +142,8 @@ namespace BolaoDaCopa2026.Controllers
                     {
                         NomeUsuario = apostador.Nome,
                         GolsSelecaoA = aposta?.GolsSelecaoA,
-                        GolsSelecaoB = aposta?.GolsSelecaoB
+                        GolsSelecaoB = aposta?.GolsSelecaoB,
+                        NomeSelecaoVencedoraPalpite = ObterNomeSelecaoVencedora(jogo, aposta)
                     };
                 }).ToList()
             };
@@ -169,9 +170,35 @@ namespace BolaoDaCopa2026.Controllers
 
         private bool UsuarioEhAdmin()
         {
-            return HttpContext.Session.GetString("IsAdmin") == "true";
+            return string.Equals(
+                HttpContext.Session.GetString("IsAdmin"),
+                "true",
+                StringComparison.OrdinalIgnoreCase);
         }
 
+        private static string? ObterNomeSelecaoVencedora(Jogo jogo, Aposta? aposta)
+        {
+            if (aposta == null || !PontuacaoService.EhFaseMataMata(jogo.Fase))
+                return null;
+
+            var selecaoVencedoraId = PontuacaoService.ResolverSelecaoVencedoraId(
+                aposta.SelecaoAId,
+                aposta.SelecaoBId,
+                aposta.GolsSelecaoA,
+                aposta.GolsSelecaoB,
+                aposta.SelecaoVencedoraId);
+
+            if (!selecaoVencedoraId.HasValue)
+                return null;
+
+            if (selecaoVencedoraId == jogo.SelecaoAId)
+                return jogo.SelecaoA?.Nome;
+
+            if (selecaoVencedoraId == jogo.SelecaoBId)
+                return jogo.SelecaoB?.Nome;
+
+            return null;
+        }
 
     }
 }

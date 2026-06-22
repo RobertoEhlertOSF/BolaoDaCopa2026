@@ -59,14 +59,14 @@ public class PontuacaoService
         if (!jogo.GolsSelecaoA.HasValue || !jogo.GolsSelecaoB.HasValue)
             return 0;
 
-        var vencedorRealId = ObterVencedorDoJogo(
+        var vencedorRealId = ResolverSelecaoVencedoraId(
             jogo.SelecaoAId,
             jogo.SelecaoBId,
             jogo.GolsSelecaoA.Value,
             jogo.GolsSelecaoB.Value,
             jogo.SelecaoVencedoraId);
 
-        var vencedorApostaId = ObterVencedorDoJogo(
+        var vencedorApostaId = ResolverSelecaoVencedoraId(
             aposta.SelecaoAId,
             aposta.SelecaoBId,
             aposta.GolsSelecaoA,
@@ -103,7 +103,7 @@ public class PontuacaoService
         }
     }
 
-    private static int? ObterVencedorDoJogo(
+    public static int? ResolverSelecaoVencedoraId(
         int? selecaoAId,
         int? selecaoBId,
         int golsA,
@@ -128,11 +128,12 @@ public class PontuacaoService
             "quartas" => 2,
             "semifinal" => 2,
             "final" => 3,
+            "terceiro lugar" => 3,
             _ => 0
         };
     }
 
-    private static bool EhFaseMataMata(string? fase)
+    public static bool EhFaseMataMata(string? fase)
     {
         return !string.IsNullOrWhiteSpace(fase)
             && !fase.StartsWith("Grupo ", StringComparison.OrdinalIgnoreCase);

@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Security.Claims;
 using System.Text;
 
 namespace BolaoDaCopa2026.Controllers;
@@ -120,9 +121,8 @@ public class ContaController : Controller
     // POST /conta/login
     [HttpPost("login")]
     [ValidateAntiForgeryToken]
-    public IActionResult FazerLogin(LoginFormDto dto)
+    public async Task<IActionResult> FazerLogin(LoginFormDto dto)
     {
-        String erro;
         if (string.IsNullOrWhiteSpace(dto.Email) ||
             string.IsNullOrWhiteSpace(dto.Senha))
         {
@@ -167,10 +167,41 @@ public class ContaController : Controller
             return RedirectToAction(nameof(Login));
         }
 
-        HttpContext.Session.SetInt32("ApostadorId", apostador.Id);
-        HttpContext.Session.SetString("NomeUsuario", apostador.Nome);
-        HttpContext.Session.SetInt32("UsuarioId", usuario.Id);
-        HttpContext.Session.SetString("IsAdmin", usuario.IsAdmin.ToString());
+        var claims = new List<Claim>
+        {
+            new(SessaoUsuarioService.ClaimUsuarioId, usuario.Id.ToString()),
+            new(SessaoUsuarioService.ClaimApostadorId, apostador.Id.ToString()),
+            new(SessaoUsuarioService.ClaimNomeUsuario, apostador.Nome),
+            new(SessaoUsuarioService.ClaimIsAdmin, usuario.IsAdmin ? "true" : "false"),
+            new(ClaimTypes.Name, apostador.Nome),
+            new(ClaimTypes.Email, usuario.Email)
+        };
+
+        var identity = new ClaimsIdentity(
+            claims,
+            Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationDefaults.AuthenticationScheme);
+
+        var principal = new ClaimsPrincipal(identity);
+
+        var authProperties = new AuthenticationProperties
+        {
+            IsPersistent = dto.ManterConectado,
+            AllowRefresh = true
+        };
+
+        if (dto.ManterConectado)
+        {
+            authProperties.ExpiresUtc = DateTimeOffset.UtcNow.AddDays(30);
+        }
+
+        await HttpContext.SignInAsync(principal, authProperties);
+
+        SessaoUsuarioService.PreencherSessao(
+            HttpContext.Session,
+            apostador.Id,
+            apostador.Nome,
+            usuario.Id,
+            usuario.IsAdmin);
 
         return RedirectToAction("Index", "Home");
     }
@@ -440,6 +471,7 @@ public class LoginFormDto
 {
     public string Email { get; set; } = "";
     public string Senha { get; set; } = "";
+    public bool ManterConectado { get; set; }
 }
 
 public class EsqueciSenhaFormDto

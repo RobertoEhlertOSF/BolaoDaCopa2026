@@ -37,26 +37,52 @@
     var grupo = (string)(ViewBag.Grupo ?? "");
     var fase = (string)(ViewBag.Fase ?? "Grupo A");
 
-    var fases = new List<string>
+    var fasesGrupo = new List<(string Valor, string Rotulo)>
     {
-        "Grupo A","Grupo B","Grupo C","Grupo D","Grupo E","Grupo F",
-        "Grupo G","Grupo H","Grupo I","Grupo J","Grupo K","Grupo L",
-        "Segunda Fase","Oitavas","Quartas","Semifinal","Terceiro Lugar", "Final"
+        ("Grupo A", "A"), ("Grupo B", "B"), ("Grupo C", "C"), ("Grupo D", "D"),
+        ("Grupo E", "E"), ("Grupo F", "F"), ("Grupo G", "G"), ("Grupo H", "H"),
+        ("Grupo I", "I"), ("Grupo J", "J"), ("Grupo K", "K"), ("Grupo L", "L")
     };
 
-    var indiceAtual = fases.IndexOf(fase);
+    var fasesMataMata = new List<(string Valor, string Rotulo)>
+    {
+        ("Segunda Fase", "2ª Fase"),
+        ("Oitavas", "Oitavas"),
+        ("Quartas", "Quartas"),
+        ("Semifinal", "Semi"),
+        ("Terceiro Lugar", "3º Lugar"),
+        ("Final", "Final")
+    };
 
-    var faseAnterior = fases[
-        indiceAtual == 0
-            ? fases.Count - 1
-            : indiceAtual - 1
-    ];
+    int? ResolverSelecaoVencedoraId(Jogo jogo, Aposta? aposta)
+    {
+        if (aposta == null || !PontuacaoService.EhFaseMataMata(jogo.Fase))
+            return null;
 
-    var proximaFase = fases[
-        indiceAtual == fases.Count - 1
-            ? 0
-            : indiceAtual + 1
-    ];
+        return PontuacaoService.ResolverSelecaoVencedoraId(
+            aposta.SelecaoAId,
+            aposta.SelecaoBId,
+            aposta.GolsSelecaoA,
+            aposta.GolsSelecaoB,
+            aposta.SelecaoVencedoraId);
+    }
+
+    string? ObterNomeSelecaoVencedora(Jogo jogo, Aposta? aposta)
+    {
+        var selecaoVencedoraId = ResolverSelecaoVencedoraId(jogo, aposta);
+
+        if (!selecaoVencedoraId.HasValue)
+            return null;
+
+        if (selecaoVencedoraId == jogo.SelecaoAId)
+            return jogo.SelecaoA?.Nome;
+
+        if (selecaoVencedoraId == jogo.SelecaoBId)
+            return jogo.SelecaoB?.Nome;
+
+        return null;
+    }
+
 }
 
 <header>
@@ -64,35 +90,42 @@
 </header>
 
 <div class="fase-nav">
+    <div class="fase-titulo-wrap">
+        <span class="fase-subtitulo">Escolha a fase</span>
+        <div class="fase-titulo">@fase</div>
+    </div>
 
-    @if (faseAnterior != null)
-    {
-        <a class="fase-btn"
-           asp-action="Index"
-           asp-route-fase="@faseAnterior"
-           asp-route-filtro="@filtro"
-           asp-route-grupo="@grupo">‹</a>
-    }
-    else
-    {
-        <button class="fase-btn" disabled>‹</button>
-    }
+    <div class="fase-nav-bloco">
+        <span class="fase-nav-label">Grupos</span>
+        <div class="fase-chips">
+            @foreach (var item in fasesGrupo)
+            {
+                var ativo = string.Equals(fase, item.Valor, StringComparison.OrdinalIgnoreCase);
 
-    <div class="fase-titulo">@fase</div>
+                <a class="fase-chip @(ativo ? "fase-chip--ativa" : "")"
+                   asp-action="Index"
+                   asp-route-fase="@item.Valor"
+                   asp-route-filtro="@filtro"
+                   asp-route-grupo="@grupo">@item.Rotulo</a>
+            }
+        </div>
+    </div>
 
-    @if (proximaFase != null)
-    {
-        <a class="fase-btn"
-           asp-action="Index"
-           asp-route-fase="@proximaFase"
-           asp-route-filtro="@filtro"
-           asp-route-grupo="@grupo">›</a>
-    }
-    else
-    {
-        <button class="fase-btn" disabled>›</button>
-    }
+    <div class="fase-nav-bloco">
+        <span class="fase-nav-label">Mata-mata</span>
+        <div class="fase-chips fase-chips--mata-mata">
+            @foreach (var item in fasesMataMata)
+            {
+                var ativo = string.Equals(fase, item.Valor, StringComparison.OrdinalIgnoreCase);
 
+                <a class="fase-chip @(ativo ? "fase-chip--ativa" : "")"
+                   asp-action="Index"
+                   asp-route-fase="@item.Valor"
+                   asp-route-filtro="@filtro"
+                   asp-route-grupo="@grupo">@item.Rotulo</a>
+            }
+        </div>
+    </div>
 </div>
 
 <div class="container apostas-container">
@@ -153,30 +186,32 @@
 
             var podeVerApostasDoJogo = jogoFinalizado || jogoEmAndamento;
             var urlDetalheApostas = Url.Action("ApostasJogo", "Home", new { id = jogo.Id });
+            var rotuloVencedor = jogo.Fase switch
+            {
+                "Final" => "Quem vence?",
+                "Terceiro Lugar" => "Quem fica em 3o?",
+                _ => "Quem avanca?"
+            };
 
             int pontos = 0;
+            int pontosBase = 0;
             string classePontos = "pontos-neutro";
+            var nomeSelecaoEscolhida = ObterNomeSelecaoVencedora(jogo, aposta);
 
             if (jogoFinalizado && aposta != null && jogo.GolsSelecaoA.HasValue && jogo.GolsSelecaoB.HasValue)
             {
-                pontos = pontuacaoService.CalcularPontuacaoApostador(
-                jogo.GolsSelecaoA.Value,
-                jogo.GolsSelecaoB.Value,
-                aposta.GolsSelecaoA,
-                aposta.GolsSelecaoB
+                pontosBase = pontuacaoService.CalcularPontuacaoApostador(
+                    jogo.GolsSelecaoA.Value,
+                    jogo.GolsSelecaoB.Value,
+                    aposta.GolsSelecaoA,
+                    aposta.GolsSelecaoB
                 );
 
-                if (ehMataMata &&
-                jogo.SelecaoVencedoraId.HasValue &&
-                aposta.SelecaoVencedoraId.HasValue &&
-                jogo.SelecaoVencedoraId.Value == aposta.SelecaoVencedoraId.Value)
-                {
-                    pontos += 1;
-                }
+                pontos = aposta.Pontos;
 
-                if (pontos >= 10) classePontos = "pontos-exato";
-                else if (pontos == 7 || pontos == 5) classePontos = "pontos-parcial";
-                else if (pontos == 2 || pontos == 1) classePontos = "pontos-minimo";
+                if (pontosBase == 10) classePontos = "pontos-exato";
+                else if (pontosBase == 7 || pontosBase == 5 || pontos > pontosBase) classePontos = "pontos-parcial";
+                else if (pontosBase == 2) classePontos = "pontos-minimo";
             }
 
             var statusCurto = statusJogo;
@@ -248,7 +283,7 @@
                                 && aposta.GolsSelecaoA == aposta.GolsSelecaoB;
 
                                 <div class="desempate @(mostrarDesempate ? "" : "desempate-oculto")" data-desempate>
-                                    <div class="desempate-titulo">Quem avança?</div>
+                                    <div class="desempate-titulo">@rotuloVencedor</div>
 
                                     @if (jogo.SelecaoAId.HasValue)
                                     {
@@ -285,19 +320,9 @@
                             @if (jogoFinalizado && aposta != null)
                             {
                                 <div class="resultado-finalizado">
-                                    @if (ehMataMata && aposta.SelecaoVencedoraId.HasValue)
+                                    @if (!string.IsNullOrWhiteSpace(nomeSelecaoEscolhida))
                                     {
-                                        var selecaoEscolhida =
-                                        aposta.SelecaoVencedoraId == jogo.SelecaoAId
-                                        ? jogo.SelecaoA?.Nome
-                                        : aposta.SelecaoVencedoraId == jogo.SelecaoBId
-                                        ? jogo.SelecaoB?.Nome
-                                        : null;
-
-                                        if (!string.IsNullOrWhiteSpace(selecaoEscolhida))
-                                        {
-                                            <span class="quem-avancou">Avança: @selecaoEscolhida</span>
-                                        }
+                                        <span class="quem-avancou">Vencedor previsto: @nomeSelecaoEscolhida</span>
                                     }
 
                                     <span class="pontos @classePontos">(@pontos pts)</span>
@@ -588,13 +613,32 @@
         margin: 8px auto 22px;
         padding: 0 18px;
         display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .fase-titulo-wrap {
+        display: flex;
+        flex-direction: column;
         align-items: center;
-        justify-content: space-between;
-        gap: 14px;
+        gap: 6px;
+    }
+
+    .fase-subtitulo {
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.58);
+    }
+
+    .fase-nav-bloco {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
     }
 
     .fase-titulo {
-        flex: 1;
         text-align: center;
         font-weight: 900;
         letter-spacing: 0.08em;
@@ -604,37 +648,56 @@
         font-size: 1.05rem;
     }
 
-    .fase-btn {
-        width: 46px;
-        height: 46px;
+    .fase-nav-label {
+        text-align: center;
+        font-size: 0.8rem;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.72);
+    }
+
+    .fase-chips {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .fase-chip {
+        min-width: 42px;
+        padding: 9px 14px;
         border-radius: 999px;
-        border: none;
-        background: rgba(255,203,0,0.95);
-        color: #0b0f17;
-        font-size: 28px;
-        line-height: 1;
+        border: 1px solid rgba(255,255,255,0.12);
+        background: rgba(255,255,255,0.05);
+        color: rgba(255,255,255,0.84);
         display: inline-flex;
         align-items: center;
         justify-content: center;
         text-decoration: none;
         font-weight: 800;
-        transition: filter 0.2s ease, transform 0.1s ease;
-        opacity: 1;
+        transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease, transform 0.1s ease;
+        white-space: nowrap;
     }
 
-        .fase-btn:hover {
-            filter: brightness(1.05);
+        .fase-chip:hover {
+            border-color: rgba(255, 203, 0, 0.45);
+            background: rgba(255, 203, 0, 0.12);
+            color: #fff;
             transform: translateY(-2px);
-            color: #0b0f17;
             text-decoration: none;
         }
 
-        .fase-btn:disabled {
-            opacity: 0.45;
-            cursor: not-allowed;
-            transform: none;
-            filter: none;
-        }
+    .fase-chip--ativa {
+        background: rgba(255,203,0,0.95);
+        border-color: rgba(255,203,0,0.95);
+        color: #0b0f17;
+        box-shadow: 0 8px 18px rgba(0,0,0,0.18);
+    }
+
+    .fase-chip--ativa:hover {
+        color: #0b0f17;
+    }
 
     .jogo {
         position: relative;
@@ -909,6 +972,23 @@
                 width: 100%;
                 max-width: 260px;
             }
+
+        .fase-nav {
+            gap: 14px;
+        }
+
+        .fase-titulo {
+            font-size: 1rem;
+        }
+
+        .fase-chips {
+            justify-content: flex-start;
+        }
+
+        .fase-chip {
+            padding: 8px 12px;
+            font-size: 0.92rem;
+        }
 
         .jogo {
             grid-template-columns: minmax(0, 1fr) 74px;

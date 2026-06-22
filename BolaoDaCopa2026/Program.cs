@@ -39,9 +39,10 @@ builder.Services.AddSession(options =>
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
-        options.ExpireTimeSpan = TimeSpan.FromMinutes(20);
+        options.ExpireTimeSpan = TimeSpan.FromHours(12);
         options.SlidingExpiration = true;
         options.AccessDeniedPath = "/Forbidden/";
+        options.LoginPath = "/conta/login";
     });
 
 var sqliteDbPath = ResolveSqliteDatabasePath(
@@ -65,6 +66,7 @@ if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
+    app.UseHttpsRedirection();
 }
 else
 {
@@ -96,14 +98,16 @@ using (var scope = app.Services.CreateScope())
         TesteFuncionalSeed.Seed(context);
     }
 }
-
-
-app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseSession();
 app.UseRouting();
 
 app.UseAuthentication();
+app.Use(async (context, next) =>
+{
+    SessaoUsuarioService.RestaurarSessaoSeAutenticado(context);
+    await next();
+});
 app.UseAuthorization();
 
 app.MapRazorPages();

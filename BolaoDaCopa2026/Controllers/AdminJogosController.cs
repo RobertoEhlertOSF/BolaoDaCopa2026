@@ -741,6 +741,28 @@ public class AdminJogosController : Controller
         }
         else if (jogo.GolsSelecaoA.HasValue && jogo.GolsSelecaoB.HasValue)
         {
+            if (PontuacaoService.EhFaseMataMata(jogo.Fase))
+            {
+                if (jogo.GolsSelecaoA.Value > jogo.GolsSelecaoB.Value)
+                {
+                    jogo.SelecaoVencedoraId = jogo.SelecaoAId;
+                }
+                else if (jogo.GolsSelecaoB.Value > jogo.GolsSelecaoA.Value)
+                {
+                    jogo.SelecaoVencedoraId = jogo.SelecaoBId;
+                }
+                else if (jogo.SelecaoVencedoraId != jogo.SelecaoAId &&
+                         jogo.SelecaoVencedoraId != jogo.SelecaoBId)
+                {
+                    TempData["Erro"] = "Em jogo empatado de mata-mata, informe quem avançou no formulário de resultado.";
+                    return RedirectToAction(nameof(Editar), new { id });
+                }
+            }
+            else
+            {
+                jogo.SelecaoVencedoraId = null;
+            }
+
             _selecaoService.AtualizarClassificacao(jogo);
             _apostaService.RecalcularApostasPorJogo(jogo);
         }

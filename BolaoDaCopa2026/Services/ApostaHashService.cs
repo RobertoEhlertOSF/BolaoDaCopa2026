@@ -11,10 +11,11 @@ namespace BolaoDaCopa2026.Services
             return Convert.ToBase64String(bytes);
         }
 
-        public static string GerarPayload(int jogoId, int apostadorId, int golsA, int golsB)
+        public static string GerarPayload(int jogoId, int apostadorId, int golsA, int golsB, int? selecaoVencedoraId)
         {
             // FORMATO FIXO — nunca mudar sem versionar
-            return $"type=APOSTA|jogoId={jogoId}|apostadorId={apostadorId}|A={golsA}|B={golsB}|v=1";
+            var vencedor = selecaoVencedoraId?.ToString() ?? "null";
+            return $"type=APOSTA|jogoId={jogoId}|apostadorId={apostadorId}|A={golsA}|B={golsB}|V={vencedor}|v=2";
         }
 
         public static string GerarHash(string payload, string salt)
