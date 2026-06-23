@@ -31,6 +31,16 @@
             ? nome.Substring(0, 3)
             : nome;
     }
+
+    public string NomeSelecaoOuFallback(Selecao? selecao, string? descricao)
+    {
+        return selecao?.Nome ?? descricao ?? "Não definido";
+    }
+
+    public string? BandeiraSelecaoOuFallback(Selecao? selecao)
+    {
+        return selecao?.BandeiraUrl;
+    }
 }
 
 @if (ViewBag.AvisoCampeao == true)
@@ -91,6 +101,10 @@
                 {
                     var jogo = item.Jogo;
                     var aposta = item.ApostaUsuario;
+                    var nomeSelecaoA = NomeSelecaoOuFallback(jogo.SelecaoA, jogo.DescricaoSelecaoA);
+                    var nomeSelecaoB = NomeSelecaoOuFallback(jogo.SelecaoB, jogo.DescricaoSelecaoB);
+                    var bandeiraSelecaoA = BandeiraSelecaoOuFallback(jogo.SelecaoA);
+                    var bandeiraSelecaoB = BandeiraSelecaoOuFallback(jogo.SelecaoB);
 
                     var finalizado = jogo.Status == "Finalizado";
                     var emAndamento = jogo.Status == "EmAndamento";
@@ -115,9 +129,17 @@
 
                         <div class="matchup">
 
-                            <div class="team" title="@jogo.SelecaoA.Nome">
-                                <img src="@jogo.SelecaoA.BandeiraUrl" alt="@jogo.SelecaoA.Nome" />
-                                <span>@SiglaSelecao(jogo.SelecaoA.Nome)</span>
+                            <div class="team" title="@nomeSelecaoA">
+                                @if (!string.IsNullOrWhiteSpace(bandeiraSelecaoA))
+                                {
+                                    <img src="@bandeiraSelecaoA" alt="@nomeSelecaoA" />
+                                }
+                                else
+                                {
+                                    <span class="team-placeholder">?</span>
+                                }
+
+                                <span>@SiglaSelecao(nomeSelecaoA)</span>
                             </div>
 
                             @if (finalizado || emAndamento)
@@ -133,9 +155,17 @@
                                 <div class="vs">×</div>
                             }
 
-                            <div class="team" title="@jogo.SelecaoB.Nome">
-                                <img src="@jogo.SelecaoB.BandeiraUrl" alt="@jogo.SelecaoB.Nome" />
-                                <span>@SiglaSelecao(jogo.SelecaoB.Nome)</span>
+                            <div class="team" title="@nomeSelecaoB">
+                                @if (!string.IsNullOrWhiteSpace(bandeiraSelecaoB))
+                                {
+                                    <img src="@bandeiraSelecaoB" alt="@nomeSelecaoB" />
+                                }
+                                else
+                                {
+                                    <span class="team-placeholder">?</span>
+                                }
+
+                                <span>@SiglaSelecao(nomeSelecaoB)</span>
                             </div>
 
                         </div>
@@ -485,6 +515,20 @@
 
         .team img {
             height: 22px;
+            flex-shrink: 0;
+        }
+
+        .team .team-placeholder {
+            width: 22px;
+            height: 22px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.10);
+            border: 1px solid rgba(255,255,255,0.12);
+            font-size: 12px;
+            line-height: 1;
             flex-shrink: 0;
         }
 

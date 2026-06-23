@@ -1,6 +1,39 @@
-﻿@model IEnumerable<BolaoDaCopa2026.Models.Selecao>
+@model BolaoDaCopa2026.ViewModels.SelecoesIndexViewModel
 
-<!-- ====== AÇÕES TOPO (Voltar / Regras) ====== -->
+@functions {
+    public string SiglaSelecao(string nome)
+    {
+        if (string.IsNullOrWhiteSpace(nome))
+            return "";
+
+        nome = nome.Trim().ToUpper();
+
+        return nome.Length >= 3
+            ? nome.Substring(0, 3)
+            : nome;
+    }
+
+    public string ClasseStatus(string status)
+    {
+        if (string.Equals(status, "Finalizado", StringComparison.OrdinalIgnoreCase))
+            return "status-chip status-chip--finalizado";
+
+        if (string.Equals(status, "EmAndamento", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(status, "Em andamento", StringComparison.OrdinalIgnoreCase))
+            return "status-chip status-chip--andamento";
+
+        return "status-chip status-chip--aguardando";
+    }
+
+    public string TextoStatus(string status)
+    {
+        if (string.Equals(status, "EmAndamento", StringComparison.OrdinalIgnoreCase))
+            return "Em andamento";
+
+        return status;
+    }
+}
+
 <div class="top-actions">
     <a asp-controller="Home"
        asp-action="Index"
@@ -15,220 +48,542 @@
     </a>
 </div>
 
-<header>
-    <h1>Classificação</h1>
-    <style>
+<header class="selecoes-header">
+    <h1>Seleções e Mata-mata</h1>
+    <p>Acompanhe a classificação da fase de grupos e os confrontos do mata-mata.</p>
+</header>
 
-        footer {
-            display: none !important;
+<div class="visao-nav">
+    <a asp-action="Index"
+       asp-route-visao="grupos"
+       class="visao-chip @(Model.VisaoAtual == "grupos" ? "visao-chip--ativa" : "")">
+        Primeira fase
+    </a>
+
+    <a asp-action="Index"
+       asp-route-visao="mata-mata"
+       class="visao-chip @(Model.VisaoAtual == "mata-mata" ? "visao-chip--ativa" : "")">
+        Mata-mata
+    </a>
+</div>
+
+@if (Model.VisaoAtual == "grupos")
+{
+    <div class="container">
+        @foreach (var grupo in Model.Grupos)
+        {
+            <div class="fase">
+                <h2>Grupo @grupo.NomeGrupo</h2>
+
+                <div class="tabela-scroll">
+                    <div class="jogo classificacao-row classificacao-header">
+                        <div>Seleção</div>
+                        <div class="col-num">J</div>
+                        <div class="col-num">P</div>
+                        <div class="col-num">V</div>
+                        <div class="col-num">E</div>
+                        <div class="col-num">D</div>
+                        <div class="col-num">GP</div>
+                        <div class="col-num">GC</div>
+                        <div class="col-num">SG</div>
+                    </div>
+
+                    @foreach (var s in grupo.Selecoes)
+                    {
+                        <div class="jogo aberto classificacao-row">
+                            <div class="time">
+                                <img src="@s.BandeiraUrl" alt="@(s.Nome ?? "Não definido")" />
+
+                                <span class="nome-completo">@(s.Nome ?? "Não definido")</span>
+
+                                <span class="nome-abreviado">
+                                    @SiglaSelecao(s.Nome ?? "Não definido")
+                                </span>
+                            </div>
+
+                            <div class="col-num">@s.Jogos</div>
+                            <div class="col-num">@s.Pontos</div>
+                            <div class="col-num">@s.Vitorias</div>
+                            <div class="col-num">@s.Empates</div>
+                            <div class="col-num">@s.Derrotas</div>
+                            <div class="col-num">@s.GolsPro</div>
+                            <div class="col-num">@s.GolsContra</div>
+                            <div class="col-num">@(@s.GolsPro - s.GolsContra)</div>
+                        </div>
+                    }
+                </div>
+            </div>
         }
+    </div>
+}
+else
+{
+    <div class="container mata-mata-container">
+        @foreach (var fase in Model.FasesMataMata)
+        {
+            <section class="mata-fase">
+                <div class="mata-fase-topo">
+                    <h2>@fase.Rotulo</h2>
+                    <span class="mata-fase-badge">@fase.Jogos.Count confronto(s)</span>
+                </div>
 
-        /* Linha de classificação (cabeçalho e times) */
-        .classificacao-row {
-            display: grid;
-            grid-template-columns: 1fr 40px 40px 40px 40px 40px 50px 50px 50px;
-            align-items: center;
-            column-gap: 8px;
+                <div class="mata-jogos">
+                    @foreach (var jogo in fase.Jogos)
+                    {
+                        var placarDisponivel = jogo.GolsSelecaoA.HasValue && jogo.GolsSelecaoB.HasValue;
+
+                        <article class="mata-jogo-card">
+                            <div class="mata-jogo-meta">
+                                <span class="@ClasseStatus(jogo.Status)">@TextoStatus(jogo.Status)</span>
+                                <span class="mata-jogo-data">@jogo.DataHora.ToString("dd/MM/yyyy HH:mm")</span>
+                            </div>
+
+                            <div class="mata-confronto">
+                                <div class="mata-time">
+                                    @if (!string.IsNullOrWhiteSpace(jogo.BandeiraSelecaoA))
+                                    {
+                                        <img src="@jogo.BandeiraSelecaoA" alt="@jogo.NomeSelecaoA" />
+                                    }
+                                    else
+                                    {
+                                        <div class="mata-placeholder-flag">?</div>
+                                    }
+
+                                    <div class="mata-time-texto">
+                                        <strong>@jogo.NomeSelecaoA</strong>
+                                        @if (!string.IsNullOrWhiteSpace(jogo.OrigemSelecaoA))
+                                        {
+                                            <span>@jogo.OrigemSelecaoA</span>
+                                        }
+                                    </div>
+                                </div>
+
+                                <div class="mata-placar @(placarDisponivel ? "" : "mata-placar--pendente")">
+                                    @(placarDisponivel ? $"{jogo.GolsSelecaoA} × {jogo.GolsSelecaoB}" : "vs")
+                                </div>
+
+                                <div class="mata-time mata-time--direita">
+                                    <div class="mata-time-texto">
+                                        <strong>@jogo.NomeSelecaoB</strong>
+                                        @if (!string.IsNullOrWhiteSpace(jogo.OrigemSelecaoB))
+                                        {
+                                            <span>@jogo.OrigemSelecaoB</span>
+                                        }
+                                    </div>
+
+                                    @if (!string.IsNullOrWhiteSpace(jogo.BandeiraSelecaoB))
+                                    {
+                                        <img src="@jogo.BandeiraSelecaoB" alt="@jogo.NomeSelecaoB" />
+                                    }
+                                    else
+                                    {
+                                        <div class="mata-placeholder-flag">?</div>
+                                    }
+                                </div>
+                            </div>
+
+                            @if (!string.IsNullOrWhiteSpace(jogo.NomeVencedor))
+                            {
+                                <div class="mata-vencedor">
+                                    Classificado: <strong>@jogo.NomeVencedor</strong>
+                                </div>
+                            }
+                        </article>
+                    }
+                </div>
+            </section>
         }
+    </div>
+}
 
-        /* Cabeçalho */
-        .classificacao-header {
-            opacity: 0.6;
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
+<style>
+    footer {
+        display: none !important;
+    }
 
-        /* Números centralizados */
-        .col-num {
-            text-align: center;
-        }
+    .top-actions {
+        max-width: 1100px;
+        margin: 10px auto 18px;
+        padding: 0 18px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+    }
 
-        /* ===== topo: voltar + regras ===== */
+    .btn-voltar,
+    .btn-regras {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 16px;
+        border-radius: 10px;
+        border: none;
+        font-weight: 800;
+        background: rgba(255, 203, 0, 0.95);
+        color: #0b0f17 !important;
+        text-decoration: none !important;
+        transition: filter .2s ease, transform .1s ease;
+    }
+
+    .btn-voltar:hover,
+    .btn-regras:hover,
+    .btn-voltar:focus,
+    .btn-regras:focus {
+        filter: brightness(1.05);
+        transform: translateY(-2px);
+        color: #0b0f17 !important;
+        text-decoration: none !important;
+    }
+
+    .selecoes-header {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .selecoes-header p {
+        opacity: 0.75;
+        margin-top: 8px;
+    }
+
+    .visao-nav {
+        max-width: 1100px;
+        margin: 0 auto 22px;
+        padding: 0 18px;
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .visao-chip {
+        padding: 10px 16px;
+        border-radius: 999px;
+        border: 1px solid rgba(255,255,255,0.12);
+        background: rgba(255,255,255,0.05);
+        color: rgba(255,255,255,0.84);
+        text-decoration: none;
+        font-weight: 800;
+        transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease, transform 0.1s ease;
+    }
+
+    .visao-chip:hover {
+        border-color: rgba(255, 203, 0, 0.45);
+        background: rgba(255, 203, 0, 0.12);
+        color: #fff;
+        transform: translateY(-2px);
+        text-decoration: none;
+    }
+
+    .visao-chip--ativa,
+    .visao-chip--ativa:hover {
+        background: rgba(255,203,0,0.95);
+        border-color: rgba(255,203,0,0.95);
+        color: #0b0f17;
+    }
+
+    .classificacao-row {
+        display: grid;
+        grid-template-columns: 1fr 40px 40px 40px 40px 40px 50px 50px 50px;
+        align-items: center;
+        column-gap: 8px;
+    }
+
+    .classificacao-header {
+        opacity: 0.6;
+        font-size: 0.8rem;
+        font-weight: bold;
+    }
+
+    .col-num {
+        text-align: center;
+    }
+
+    .tabela-scroll {
+        width: 100%;
+    }
+
+    .fase {
+        margin-bottom: 24px;
+    }
+
+    .time {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+        font-weight: 700;
+    }
+
+    .time img {
+        width: 26px;
+        height: 18px;
+        object-fit: cover;
+        border-radius: 3px;
+        flex-shrink: 0;
+    }
+
+    .nome-completo,
+    .nome-abreviado {
+        min-width: 0;
+    }
+
+    .nome-abreviado {
+        display: none;
+    }
+
+    .mata-mata-container {
+        max-width: 1120px;
+    }
+
+    .mata-fase {
+        margin-bottom: 26px;
+    }
+
+    .mata-fase-topo {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 14px;
+    }
+
+    .mata-fase-topo h2 {
+        margin: 0;
+    }
+
+    .mata-fase-badge {
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.08);
+        color: rgba(255,255,255,0.8);
+        font-size: 0.82rem;
+        font-weight: 700;
+    }
+
+    .mata-jogos {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 16px;
+    }
+
+    .mata-jogo-card {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.10);
+        border-radius: 16px;
+        padding: 16px;
+    }
+
+    .mata-jogo-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 14px;
+    }
+
+    .mata-jogo-data {
+        font-size: 0.86rem;
+        color: rgba(255,255,255,0.68);
+        text-align: right;
+    }
+
+    .status-chip {
+        display: inline-flex;
+        align-items: center;
+        padding: 5px 10px;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .status-chip--finalizado {
+        background: rgba(39, 174, 96, 0.16);
+        color: #60d394;
+    }
+
+    .status-chip--andamento {
+        background: rgba(255, 203, 0, 0.16);
+        color: #ffcb00;
+    }
+
+    .status-chip--aguardando {
+        background: rgba(255,255,255,0.08);
+        color: rgba(255,255,255,0.74);
+    }
+
+    .mata-confronto {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+        align-items: center;
+        gap: 12px;
+    }
+
+    .mata-time {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+    }
+
+    .mata-time--direita {
+        justify-content: flex-end;
+    }
+
+    .mata-time img,
+    .mata-placeholder-flag {
+        width: 28px;
+        height: 20px;
+        border-radius: 4px;
+        flex-shrink: 0;
+    }
+
+    .mata-placeholder-flag {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255,255,255,0.08);
+        color: rgba(255,255,255,0.55);
+        font-weight: 800;
+    }
+
+    .mata-time-texto {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+    }
+
+    .mata-time-texto strong {
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .mata-time-texto span {
+        font-size: 0.8rem;
+        color: rgba(255,255,255,0.62);
+    }
+
+    .mata-time--direita .mata-time-texto {
+        text-align: right;
+    }
+
+    .mata-placar {
+        min-width: 68px;
+        padding: 8px 10px;
+        border-radius: 10px;
+        background: rgba(255, 203, 0, 0.16);
+        color: #ffcb00;
+        text-align: center;
+        font-weight: 900;
+    }
+
+    .mata-placar--pendente {
+        background: rgba(255,255,255,0.08);
+        color: rgba(255,255,255,0.72);
+    }
+
+    .mata-vencedor {
+        margin-top: 14px;
+        padding-top: 12px;
+        border-top: 1px solid rgba(255,255,255,0.08);
+        color: rgba(255,255,255,0.82);
+        font-size: 0.92rem;
+    }
+
+    @@media (max-width:900px) {
         .top-actions {
-            max-width: 1100px;
-            margin: 10px auto 18px;
-            padding: 0 18px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 12px;
+            flex-direction: column;
+            align-items: stretch;
         }
 
-        .btn-voltar {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 16px;
-            border-radius: 10px;
-            background: rgba(255, 203, 0, 0.95);
-            color: #0b0f17;
-            text-decoration: none;
-            font-weight: 800;
-            border: none;
-            transition: filter .2s ease, transform .1s ease;
-        }
-
-            .btn-voltar:hover {
-                filter: brightness(1.05);
-                transform: translateX(-2px);
-                color: #0b0f17;
-                text-decoration: none;
-            }
-
-            .btn-voltar:focus,
-            .btn-voltar:active {
-                color: #0b0f17;
-                text-decoration: none;
-            }
-
+        .btn-voltar,
         .btn-regras {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 10px 16px;
-            border-radius: 10px;
-            border: none;
-            font-weight: 800;
-            background: rgba(255, 203, 0, 0.95);
-            color: #0b0f17 !important;
-            text-decoration: none !important;
-            transition: filter .2s ease, transform .1s ease;
-        }
-
-            .btn-regras:hover,
-            .btn-regras:focus,
-            .btn-regras:active {
-                filter: brightness(1.05);
-                transform: translateY(-2px);
-                color: #0b0f17 !important;
-                text-decoration: none !important;
-            }
-
-        /* ===== container scroll mobile ===== */
-
-        .tabela-scroll {
             width: 100%;
         }
 
-        .nome-abreviado {
+        .tabela-scroll {
+            overflow-x: auto;
+            padding-bottom: 6px;
+        }
+
+        .classificacao-row {
+            min-width: 520px;
+        }
+
+        .nome-completo {
             display: none;
         }
 
-        @@media (max-width:900px) {
-            /* container com scroll lateral */
-            .tabela-scroll {
-                overflow-x: auto;
-                padding-bottom: 6px;
-            }
-            /* largura mínima da tabela */
-            .classificacao-row {
-                min-width: 520px;
-            }
-            /* esconder nome completo */
-            .nome-completo {
-                display: none;
-            }
-            /* mostrar sigla */
-            .nome-abreviado {
-                display: inline;
-                font-weight: 700;
-                letter-spacing: 1px;
-            }
-            /* linha da classificação */
-            .classificacao-row {
-                grid-template-columns: 90px 32px 32px 32px 32px 32px 38px 38px 38px;
-                column-gap: 4px;
-                font-size: 13px;
-            }
-            /* alinhar seleção */
-            .time {
-                justify-content: flex-start;
-                font-size: 13px;
-                gap: 6px;
-            }
-                /* reduzir bandeira */
-                .time img {
-                    width: 22px;
-                    height: 15px;
-                }
-            /* números menores */
-            .col-num {
-                font-size: 13px;
-            }
+        .nome-abreviado {
+            display: inline;
+            font-weight: 700;
+            letter-spacing: 1px;
         }
 
-        /* scroll bonito */
-        .tabela-scroll::-webkit-scrollbar {
-            height: 4px;
+        .classificacao-row {
+            grid-template-columns: 90px 32px 32px 32px 32px 32px 38px 38px 38px;
+            column-gap: 4px;
+            font-size: 13px;
         }
 
-        .tabela-scroll::-webkit-scrollbar-thumb {
-            background: rgba(255,203,0,0.6);
-            border-radius: 10px;
+        .time {
+            justify-content: flex-start;
+            font-size: 13px;
+            gap: 6px;
         }
 
-    </style>
-</header>
+        .time img {
+            width: 22px;
+            height: 15px;
+        }
 
-<div class="container">
+        .col-num {
+            font-size: 13px;
+        }
 
-    @foreach (var grupo in Model.GroupBy(s => s.Grupo).OrderBy(g => g.Key))
-    {
-        <div class="fase">
+        .mata-fase-topo {
+            flex-direction: column;
+            align-items: flex-start;
+        }
 
-            <h2>Grupo @grupo.Key</h2>
+        .mata-jogos {
+            grid-template-columns: 1fr;
+        }
 
-            <div class="tabela-scroll">
+        .mata-jogo-meta,
+        .mata-confronto {
+            grid-template-columns: 1fr;
+        }
 
-                <!-- Cabeçalho -->
-                <div class="jogo classificacao-row classificacao-header">
-                    <div>Seleção</div>
-                    <div class="col-num">J</div>
-                    <div class="col-num">P</div>
-                    <div class="col-num">V</div>
-                    <div class="col-num">E</div>
-                    <div class="col-num">D</div>
-                    <div class="col-num">GP</div>
-                    <div class="col-num">GC</div>
-                    <div class="col-num">SG</div>
-                </div>
+        .mata-jogo-meta {
+            align-items: flex-start;
+        }
 
-                @foreach (var s in grupo
-                            .OrderByDescending(s => s.Pontos)
-                            .ThenByDescending(s => s.GolsPro - s.GolsContra)
-                            .ThenByDescending(s => s.GolsPro))
-                {
-                    <div class="jogo aberto classificacao-row">
+        .mata-jogo-data {
+            text-align: left;
+        }
 
-                        <!-- Seleção -->
-                        <div class="time">
-                            <img src="@s.BandeiraUrl" alt="@s.Nome" />
+        .mata-time,
+        .mata-time--direita {
+            justify-content: flex-start;
+        }
 
-                            <span class="nome-completo">
-                                @s.Nome
-                            </span>
+        .mata-time--direita .mata-time-texto {
+            text-align: left;
+        }
 
-                            <span class="nome-abreviado">
-                                @(s.Nome.Length >= 3 ? s.Nome.Substring(0, 3).ToUpper() : s.Nome.ToUpper())
-                            </span>
-                        </div>
-
-                        <!-- Estatísticas -->
-                        <div class="col-num">@s.Jogos</div>
-                        <div class="col-num">@s.Pontos</div>
-                        <div class="col-num">@s.Vitorias</div>
-                        <div class="col-num">@s.Empates</div>
-                        <div class="col-num">@s.Derrotas</div>
-                        <div class="col-num">@s.GolsPro</div>
-                        <div class="col-num">@s.GolsContra</div>
-                        <div class="col-num">@(@s.GolsPro - s.GolsContra)</div>
-
-                    </div>
-                }
-
-            </div>
-
-        </div>
+        .mata-placar {
+            width: 100%;
+        }
     }
 
-</div>
+    .tabela-scroll::-webkit-scrollbar {
+        height: 4px;
+    }
+
+    .tabela-scroll::-webkit-scrollbar-thumb {
+        background: rgba(255,203,0,0.6);
+        border-radius: 10px;
+    }
+</style>

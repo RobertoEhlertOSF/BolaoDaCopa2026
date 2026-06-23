@@ -16,17 +16,12 @@ namespace BolaoDaCopa2026.Data
         public DbSet<Selecao> Selecoes { get; set; }
         public DbSet<Aposta> Apostas { get; set; }
         public DbSet<Jogo> Jogos { get; set; }
-
         public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
-
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // =========================
-            // Usuario <-> Apostador (1:1)
-            // =========================
             modelBuilder.Entity<Usuario>()
                 .HasOne(u => u.Apostador)
                 .WithOne(a => a.Usuario)
@@ -34,20 +29,6 @@ namespace BolaoDaCopa2026.Data
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // =========================
-            // Usuario <-> Apostador (1:1)
-            // =========================
-            modelBuilder.Entity<Usuario>()
-                .HasOne(u => u.Apostador)
-                .WithOne(a => a.Usuario)
-                .HasForeignKey<Apostador>(a => a.UsuarioId)
-                .IsRequired()
-                .OnDelete(DeleteBehavior.Cascade);
-
-
-            // =========================
-            // Apostador -> Apostas (1:N)
-            // =========================
             modelBuilder.Entity<Aposta>()
                 .HasOne(a => a.Apostador)
                 .WithMany(ap => ap.Apostas)
@@ -55,29 +36,26 @@ namespace BolaoDaCopa2026.Data
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // =========================
-            // Aposta -> Selecao A
-            // =========================
             modelBuilder.Entity<Aposta>()
                 .HasOne(a => a.SelecaoA)
                 .WithMany()
-                .HasForeignKey("SelecaoAId")
+                .HasForeignKey(a => a.SelecaoAId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // =========================
-            // Aposta -> Selecao B
-            // =========================
             modelBuilder.Entity<Aposta>()
                 .HasOne(a => a.SelecaoB)
                 .WithMany()
-                .HasForeignKey("SelecaoBId")
+                .HasForeignKey(a => a.SelecaoBId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // =========================
-            // Selecao
-            // =========================
+            modelBuilder.Entity<Aposta>()
+                .HasOne(a => a.SelecaoVencedora)
+                .WithMany()
+                .HasForeignKey(a => a.SelecaoVencedoraId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             modelBuilder.Entity<Selecao>()
                 .Property(s => s.Nome)
                 .IsRequired()
@@ -105,6 +83,12 @@ namespace BolaoDaCopa2026.Data
                 .HasForeignKey(j => j.SelecaoBId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<Jogo>()
+                .HasOne(j => j.SelecaoVencedora)
+                .WithMany()
+                .HasForeignKey(j => j.SelecaoVencedoraId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             modelBuilder.Entity<PasswordResetToken>()
                 .HasOne(t => t.Usuario)
                 .WithMany()
@@ -114,7 +98,6 @@ namespace BolaoDaCopa2026.Data
             modelBuilder.Entity<PasswordResetToken>()
                 .HasIndex(t => t.TokenHash)
                 .IsUnique();
-
         }
     }
 }

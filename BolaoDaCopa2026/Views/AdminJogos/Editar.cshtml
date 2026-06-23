@@ -1,6 +1,16 @@
 @model BolaoDaCopa2026.Models.Jogo
 
-<h2>Editar Jogo: @Model.SelecaoA.Nome x @Model.SelecaoB.Nome</h2>
+@{
+    var ehMataMata = !string.IsNullOrWhiteSpace(Model.Fase)
+        && !Model.Fase.StartsWith("Grupo ", StringComparison.OrdinalIgnoreCase);
+
+    var mostrarVencedor = ehMataMata
+        && Model.GolsSelecaoA.HasValue
+        && Model.GolsSelecaoB.HasValue
+        && Model.GolsSelecaoA.Value == Model.GolsSelecaoB.Value;
+}
+
+<h2>Editar Jogo: @(Model.SelecaoA?.Nome ?? "A definir") x @(Model.SelecaoB?.Nome ?? "A definir")</h2>
 
 @if (TempData["Sucesso"] != null)
 {
@@ -14,14 +24,14 @@
 
 <form asp-action="AtualizarDataHora" asp-route-id="@Model.Id" method="post" class="mb-4">
     <div>
-        <label>Dia e horario</label>
+        <label>Dia e horário</label>
         <input type="datetime-local"
                name="dataHora"
                value="@Model.DataHora.ToString("yyyy-MM-ddTHH:mm")"
                required />
     </div>
 
-    <button type="submit" class="btn btn-primary mt-2">Salvar Dia/Horario</button>
+    <button type="submit" class="btn btn-primary mt-2">Salvar Dia/Horário</button>
 </form>
 
 <hr />
@@ -51,17 +61,99 @@
 
 <h4>Atualizar Resultado</h4>
 
-<form asp-action="Finalizar" asp-route-id="@Model.Id" method="post">
+<form asp-action="Finalizar" asp-route-id="@Model.Id" method="post" id="form-finalizar-jogo">
     <div>
-        <label>@Model.SelecaoA.Nome</label>
-        <input type="number" name="golsA" value="@Model.GolsSelecaoA ?? 0" min="0" />
+        <label>@(Model.SelecaoA?.Nome ?? "Seleção A")</label>
+        <input type="number"
+               name="golsA"
+               id="golsA"
+               value="@(Model.GolsSelecaoA ?? 0)"
+               min="0" />
     </div>
 
     <div>
-        <label>@Model.SelecaoB.Nome</label>
-        <input type="number" name="golsB" value="@Model.GolsSelecaoB ?? 0" min="0" />
+        <label>@(Model.SelecaoB?.Nome ?? "Seleção B")</label>
+        <input type="number"
+               name="golsB"
+               id="golsB"
+               value="@(Model.GolsSelecaoB ?? 0)"
+               min="0" />
     </div>
+
+    @if (ehMataMata)
+    {
+        <div id="box-vencedor"
+             class="mt-3 @(mostrarVencedor ? "" : "d-none")">
+            <strong>Quem avançou / venceu?</strong>
+
+            @if (Model.SelecaoAId.HasValue)
+            {
+                <div>
+                    <label>
+                        <input type="radio"
+                               name="selecaoVencedoraId"
+                               value="@Model.SelecaoAId"
+                               checked="@(Model.SelecaoVencedoraId == Model.SelecaoAId)" />
+                        @(Model.SelecaoA?.Nome ?? "Seleção A")
+                    </label>
+                </div>
+            }
+
+            @if (Model.SelecaoBId.HasValue)
+            {
+                <div>
+                    <label>
+                        <input type="radio"
+                               name="selecaoVencedoraId"
+                               value="@Model.SelecaoBId"
+                               checked="@(Model.SelecaoVencedoraId == Model.SelecaoBId)" />
+                        @(Model.SelecaoB?.Nome ?? "Seleção B")
+                    </label>
+                </div>
+            }
+
+            <small class="form-text text-muted">
+                Necessário apenas se o placar do mata-mata terminar empatado.
+            </small>
+        </div>
+    }
 
     <button type="submit" class="btn btn-success mt-2">Finalizar Jogo</button>
     <a asp-action="Index" class="btn btn-secondary mt-2">Cancelar</a>
 </form>
+
+@if (ehMataMata)
+{
+    <script>
+        (function () {
+            const golsA = document.getElementById("golsA");
+            const golsB = document.getElementById("golsB");
+            const boxVencedor = document.getElementById("box-vencedor");
+
+            if (!golsA || !golsB || !boxVencedor) return;
+
+            function atualizarBoxVencedor() {
+                const valorA = golsA.value.trim();
+                const valorB = golsB.value.trim();
+
+                const deveMostrar =
+                    valorA !== "" &&
+                    valorB !== "" &&
+                    Number(valorA) === Number(valorB);
+
+                boxVencedor.classList.toggle("d-none", !deveMostrar);
+
+                if (!deveMostrar) {
+                    boxVencedor.querySelectorAll("input[type='radio']").forEach(function (radio) {
+                        radio.checked = false;
+                    });
+                }
+            }
+
+            golsA.addEventListener("input", atualizarBoxVencedor);
+            golsB.addEventListener("input", atualizarBoxVencedor);
+
+            atualizarBoxVencedor();
+        })();
+    </script>
+}

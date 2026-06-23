@@ -2,6 +2,26 @@
 
 @{
     ViewData["Title"] = "Apostas do Jogo";
+
+    var ehMataMata = !string.IsNullOrWhiteSpace(Model.Jogo.Fase)
+        && !Model.Jogo.Fase.StartsWith("Grupo ", StringComparison.OrdinalIgnoreCase);
+
+    var nomeSelecaoA = Model.Jogo.SelecaoA?.Nome ?? "Seleção A";
+    var nomeSelecaoB = Model.Jogo.SelecaoB?.Nome ?? "Seleção B";
+
+    string? nomeSelecaoVencedoraOficial = null;
+
+    if (ehMataMata)
+    {
+        if (Model.Jogo.SelecaoVencedoraId == Model.Jogo.SelecaoAId)
+        {
+            nomeSelecaoVencedoraOficial = Model.Jogo.SelecaoA?.Nome;
+        }
+        else if (Model.Jogo.SelecaoVencedoraId == Model.Jogo.SelecaoBId)
+        {
+            nomeSelecaoVencedoraOficial = Model.Jogo.SelecaoB?.Nome;
+        }
+    }
 }
 
 <div class="top-actions">
@@ -18,40 +38,66 @@
 
 <div class="jogo-head">
     <span class="fase">@Model.Jogo.Fase</span>
-    <strong>@Model.Jogo.SelecaoA.Nome</strong>
+    <strong>@(Model.Jogo.SelecaoA?.Nome ?? "A definir")</strong>
     <span class="placar-oficial">@(Model.Jogo.GolsSelecaoA?.ToString() ?? "-") - @(Model.Jogo.GolsSelecaoB?.ToString() ?? "-")</span>
-    <strong>@Model.Jogo.SelecaoB.Nome</strong>
+    <strong>@(Model.Jogo.SelecaoB?.Nome ?? "A definir")</strong>
     <span class="data">@Model.Jogo.DataHora.ToString("dd/MM/yyyy HH:mm")</span>
+
+    @if (!string.IsNullOrWhiteSpace(nomeSelecaoVencedoraOficial))
+    {
+        <span class="vencedor-oficial">Vencedor oficial: @nomeSelecaoVencedoraOficial</span>
+    }
 </div>
 
 <div class="container apostas-jogo-container">
     <div class="apostas-tabela">
-        <div class="apostas-header">
+        <div class="apostas-header @(ehMataMata ? "apostas-header--mata-mata" : "")">
             <span>Usuário</span>
-            <span>@Model.Jogo.SelecaoA.Nome</span>
-            <span>Palpite @Model.Jogo.SelecaoA.Nome</span>
-            <span>Palpite @Model.Jogo.SelecaoB.Nome</span>
-            <span>@Model.Jogo.SelecaoB.Nome</span>
+            <span>Palpite @nomeSelecaoA</span>
+            <span>Palpite @nomeSelecaoB</span>
+            @if (ehMataMata)
+            {
+                <span>Vencedor previsto</span>
+            }
         </div>
 
         @foreach (var item in Model.ApostasPorJogador)
         {
-            <div class="apostas-linha">
+            <div class="apostas-linha @(ehMataMata ? "apostas-linha--mata-mata" : "")">
                 <span class="usuario">@item.NomeUsuario</span>
-                <span class="selecao">@Model.Jogo.SelecaoA.Nome</span>
 
                 @if (!item.EsqueceuApostar)
                 {
-                    <span class="palpite">@item.GolsSelecaoA</span>
-                    <span class="palpite">@item.GolsSelecaoB</span>
+                    <div class="palpite-item">
+                        <span class="palpite-time-label">@nomeSelecaoA</span>
+                        <span class="palpite">@item.GolsSelecaoA</span>
+                    </div>
+
+                    <div class="palpite-item">
+                        <span class="palpite-time-label">@nomeSelecaoB</span>
+                        <span class="palpite">@item.GolsSelecaoB</span>
+                    </div>
                 }
                 else
                 {
-                    <span class="esqueceu">⚠️ Esqueceu de apostar</span>
-                    <span class="esqueceu-mobile">⚠️ Esqueceu de apostar</span>
+                    <span class="esqueceu @(ehMataMata ? "esqueceu--mata-mata" : "")">Esqueceu de apostar</span>
+                    <span class="esqueceu-mobile">Esqueceu de apostar</span>
                 }
 
-                <span class="selecao">@Model.Jogo.SelecaoB.Nome</span>
+                @if (ehMataMata && !item.EsqueceuApostar)
+                {
+                    <div class="vencedor-palpite-box">
+                        <span class="vencedor-palpite-label">Vencedor previsto</span>
+                        @if (!string.IsNullOrWhiteSpace(item.NomeSelecaoVencedoraPalpite))
+                        {
+                            <span class="vencedor-palpite">@item.NomeSelecaoVencedoraPalpite</span>
+                        }
+                        else
+                        {
+                            <span class="vencedor-palpite vencedor-palpite--vazio">-</span>
+                        }
+                    </div>
+                }
             </div>
         }
     </div>
@@ -92,6 +138,15 @@
         font-size: 13px;
     }
 
+    .vencedor-oficial {
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: rgba(255, 203, 0, 0.16);
+        color: #ffcb00;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
     .apostas-tabela {
         display: flex;
         flex-direction: column;
@@ -101,9 +156,14 @@
     .apostas-header,
     .apostas-linha {
         display: grid;
-        grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr;
+        grid-template-columns: 1.5fr 1fr 1fr;
         gap: 8px;
         align-items: center;
+    }
+
+    .apostas-header--mata-mata,
+    .apostas-linha--mata-mata {
+        grid-template-columns: 1.5fr 1fr 1fr 1.2fr;
     }
 
     .apostas-header {
@@ -123,9 +183,25 @@
 
     .usuario {
         font-weight: 700;
+        min-width: 0;
+        word-break: break-word;
     }
 
-    .palpite {
+    .palpite-item,
+    .vencedor-palpite-box {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-width: 0;
+    }
+
+    .palpite-time-label,
+    .vencedor-palpite-label {
+        display: none;
+    }
+
+    .palpite,
+    .vencedor-palpite {
         background: rgba(255, 203, 0, 0.16);
         color: #ffcb00;
         border-radius: 8px;
@@ -134,11 +210,33 @@
         padding: 6px;
     }
 
+    .palpite {
+        min-width: 56px;
+    }
+
+    .vencedor-palpite-box {
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .vencedor-palpite {
+        width: 100%;
+    }
+
+    .vencedor-palpite--vazio {
+        color: rgba(255,255,255,0.7);
+        background: rgba(255,255,255,0.08);
+    }
+
     .esqueceu {
-        grid-column: 3 / 5;
+        grid-column: 2 / 4;
         text-align: center;
         color: #ffcc00;
         font-weight: 700;
+    }
+
+    .esqueceu--mata-mata {
+        grid-column: 2 / 5;
     }
 
     .esqueceu-mobile {
@@ -150,16 +248,46 @@
             display: none;
         }
 
-        .apostas-linha {
-            grid-template-columns: 1fr 1fr;
+        .apostas-linha,
+        .apostas-linha--mata-mata {
+            grid-template-columns: 1fr;
             gap: 10px 8px;
         }
 
-        .selecao {
-            display: none;
+        .usuario {
+            font-size: 1rem;
         }
 
-        .esqueceu {
+        .palpite-item,
+        .vencedor-palpite-box {
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .palpite-time-label,
+        .vencedor-palpite-label {
+            display: block;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: rgba(255,255,255,0.82);
+            line-height: 1.2;
+        }
+
+        .palpite,
+        .vencedor-palpite {
+            min-width: 64px;
+        }
+
+        .vencedor-palpite-box {
+            flex-direction: row;
+        }
+
+        .esqueceu,
+        .esqueceu--mata-mata {
             display: none;
         }
 

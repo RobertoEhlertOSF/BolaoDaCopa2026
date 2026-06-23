@@ -96,7 +96,7 @@ namespace BolaoDaCopa2026.Data.Seeds
                     if (apostaExistente == null)
                     {
                         var salt = ApostaHashService.GerarSalt();
-                        var hashPayload = ApostaHashService.GerarPayload(jogo.Id, apostador.Id, golsA, golsB);
+                        var hashPayload = ApostaHashService.GerarPayload(jogo.Id, apostador.Id, golsA, golsB, null);
                         var hash = ApostaHashService.GerarHash(hashPayload, salt);
 
                         context.Apostas.Add(new Aposta
@@ -122,7 +122,7 @@ namespace BolaoDaCopa2026.Data.Seeds
                     apostaExistente.GolsSelecaoA = golsA;
                     apostaExistente.GolsSelecaoB = golsB;
                     apostaExistente.HashCommit = ApostaHashService.GerarHash(
-                        ApostaHashService.GerarPayload(jogo.Id, apostador.Id, golsA, golsB),
+                        ApostaHashService.GerarPayload(jogo.Id, apostador.Id, golsA, golsB, null),
                         apostaExistente.Salt);
                     apostaExistente.AtualizadoEmUtc = DateTime.UtcNow;
                 }

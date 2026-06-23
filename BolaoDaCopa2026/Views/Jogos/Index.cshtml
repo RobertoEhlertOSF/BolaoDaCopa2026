@@ -1,5 +1,17 @@
-﻿@page
+@page
 @model BolaoDaCopa2026.Pages.Jogos.IndexModel
+
+@functions {
+    public string NomeSelecaoOuFallback(BolaoDaCopa2026.Models.Selecao? selecao, string? descricao)
+    {
+        return selecao?.Nome ?? descricao ?? "Não definido";
+    }
+
+    public string? BandeiraSelecaoOuFallback(BolaoDaCopa2026.Models.Selecao? selecao)
+    {
+        return selecao?.BandeiraUrl;
+    }
+}
 
 <header>
     <h1>Jogos da Copa</h1>
@@ -12,19 +24,32 @@
 
         @foreach (var jogo in Model.Jogos)
         {
+            var nomeSelecaoA = NomeSelecaoOuFallback(jogo.SelecaoA, jogo.DescricaoSelecaoA);
+            var nomeSelecaoB = NomeSelecaoOuFallback(jogo.SelecaoB, jogo.DescricaoSelecaoB);
+            var bandeiraSelecaoA = BandeiraSelecaoOuFallback(jogo.SelecaoA);
+            var bandeiraSelecaoB = BandeiraSelecaoOuFallback(jogo.SelecaoB);
+
             <div class="jogo @(jogo.EstaAberto ? "aberto" : "fechado")">
 
                 <div class="times">
                     <div class="time">
-                        <img src="@jogo.SelecaoA.BandeiraUrl">
-                        @jogo.SelecaoA.Nome
+                        @if (!string.IsNullOrWhiteSpace(bandeiraSelecaoA))
+                        {
+                            <img src="@bandeiraSelecaoA" alt="@nomeSelecaoA">
+                        }
+
+                        @nomeSelecaoA
                     </div>
 
                     <div class="vs">vs</div>
 
                     <div class="time">
-                        <img src="@jogo.SelecaoB.BandeiraUrl">
-                        @jogo.SelecaoB.Nome
+                        @if (!string.IsNullOrWhiteSpace(bandeiraSelecaoB))
+                        {
+                            <img src="@bandeiraSelecaoB" alt="@nomeSelecaoB">
+                        }
+
+                        @nomeSelecaoB
                     </div>
                 </div>
 

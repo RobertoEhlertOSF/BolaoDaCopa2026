@@ -1,7 +1,5 @@
 ﻿namespace BolaoDaCopa2026.Models
 {
-    using BolaoDaCopa2026.Models;
-
     public class Aposta
     {
         public int Id { get; set; }
@@ -18,16 +16,20 @@
         public int GolsSelecaoA { get; set; }
         public int GolsSelecaoB { get; set; }
 
+        // Para o mata-mata, para eu relembrar
+        
+        public int? SelecaoVencedoraId { get; set; }
+        public Selecao? SelecaoVencedora { get; set; }
+
         public int ApostadorId { get; set; }
         public Apostador Apostador { get; set; }
 
         public int Pontos { get; set; }
 
-        public string HashCommit { get; set; } = string.Empty; //Hash do momento exato da aposta, qualquer modificação nao vai bater
-        public string Salt { get; set; } = string.Empty; //Função para deixar o hash unico, sem repetir mesmo com apostas iguais
-        
-        public DateTime CriadoEmUtc { get; set; } //Prova de que a aposta foi feita antes do jogo
-        public DateTime AtualizadoEmUtc { get; set; } //Momento da ultima atualização da aposta
+        public string HashCommit { get; set; } = string.Empty;
+        public string Salt { get; set; } = string.Empty;
 
+        public DateTime CriadoEmUtc { get; set; }
+        public DateTime AtualizadoEmUtc { get; set; }
     }
 }

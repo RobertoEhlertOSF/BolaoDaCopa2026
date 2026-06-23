@@ -32,9 +32,6 @@ public class AdminJogosController : Controller
         _emailService = emailService;
     }
 
-    // =====================================================
-    // MÉTODO PRIVADO - VALIDA ADMIN
-    // =====================================================
     private bool UsuarioEhAdmin()
     {
         var usuarioId = HttpContext.Session.GetInt32("UsuarioId");
@@ -48,9 +45,6 @@ public class AdminJogosController : Controller
         return usuario != null && usuario.IsAdmin;
     }
 
-    // =====================================================
-    // TELA SEGUNDA FASE
-    // =====================================================
     [HttpGet("SegundaFase")]
     public IActionResult SegundaFase()
     {
@@ -63,34 +57,25 @@ public class AdminJogosController : Controller
             .ToList();
 
         var selecoes = _context.Selecoes.ToList();
-
         var viewModel = new List<JogoAdminVM>();
 
-        for (int i = 0; i < jogos.Count; i++)
+        foreach (var jogo in jogos)
         {
-            var jogo = jogos[i];
-
-            var vm = new JogoAdminVM
+            viewModel.Add(new JogoAdminVM
             {
                 Id = jogo.Id,
                 SelecaoAId = jogo.SelecaoAId,
                 SelecaoBId = jogo.SelecaoBId,
                 DescricaoSelecaoA = jogo.DescricaoSelecaoA,
                 DescricaoSelecaoB = jogo.DescricaoSelecaoB,
-                DataHora = jogo.DataHora
-            };
-
-            vm.TodasSelecoes = selecoes.ToList();            
-
-            viewModel.Add(vm);
+                DataHora = jogo.DataHora,
+                TodasSelecoes = selecoes.ToList()
+            });
         }
 
         return View(viewModel);
     }
 
-    // =====================================================
-    // TELA Oitavas
-    // =====================================================
     [HttpGet("Oitavas")]
     public IActionResult Oitavas()
     {
@@ -103,34 +88,25 @@ public class AdminJogosController : Controller
             .ToList();
 
         var selecoes = _context.Selecoes.ToList();
-
         var viewModel = new List<JogoAdminVM>();
 
-        for (int i = 0; i < jogos.Count; i++)
+        foreach (var jogo in jogos)
         {
-            var jogo = jogos[i];
-
-            var vm = new JogoAdminVM
+            viewModel.Add(new JogoAdminVM
             {
                 Id = jogo.Id,
                 SelecaoAId = jogo.SelecaoAId,
                 SelecaoBId = jogo.SelecaoBId,
                 DescricaoSelecaoA = jogo.DescricaoSelecaoA,
                 DescricaoSelecaoB = jogo.DescricaoSelecaoB,
-                DataHora = jogo.DataHora 
-            };
-
-            vm.TodasSelecoes = selecoes.ToList();
-
-            viewModel.Add(vm);
+                DataHora = jogo.DataHora,
+                TodasSelecoes = selecoes.ToList()
+            });
         }
 
         return View(viewModel);
     }
 
-    // =====================================================
-    // TELA Quartas
-    // =====================================================
     [HttpGet("Quartas")]
     public IActionResult Quartas()
     {
@@ -143,34 +119,25 @@ public class AdminJogosController : Controller
             .ToList();
 
         var selecoes = _context.Selecoes.ToList();
-
         var viewModel = new List<JogoAdminVM>();
 
-        for (int i = 0; i < jogos.Count; i++)
+        foreach (var jogo in jogos)
         {
-            var jogo = jogos[i];
-
-            var vm = new JogoAdminVM
+            viewModel.Add(new JogoAdminVM
             {
                 Id = jogo.Id,
                 SelecaoAId = jogo.SelecaoAId,
                 SelecaoBId = jogo.SelecaoBId,
                 DescricaoSelecaoA = jogo.DescricaoSelecaoA,
                 DescricaoSelecaoB = jogo.DescricaoSelecaoB,
-                DataHora = jogo.DataHora
-            };
-
-            vm.TodasSelecoes = selecoes.ToList();
-
-            viewModel.Add(vm);
+                DataHora = jogo.DataHora,
+                TodasSelecoes = selecoes.ToList()
+            });
         }
 
         return View(viewModel);
     }
 
-    // =====================================================
-    // TELA Semifinal
-    // =====================================================
     [HttpGet("Semifinal")]
     public IActionResult Semifinal()
     {
@@ -183,34 +150,25 @@ public class AdminJogosController : Controller
             .ToList();
 
         var selecoes = _context.Selecoes.ToList();
-
         var viewModel = new List<JogoAdminVM>();
 
-        for (int i = 0; i < jogos.Count; i++)
+        foreach (var jogo in jogos)
         {
-            var jogo = jogos[i];
-
-            var vm = new JogoAdminVM
+            viewModel.Add(new JogoAdminVM
             {
                 Id = jogo.Id,
                 SelecaoAId = jogo.SelecaoAId,
                 SelecaoBId = jogo.SelecaoBId,
                 DescricaoSelecaoA = jogo.DescricaoSelecaoA,
                 DescricaoSelecaoB = jogo.DescricaoSelecaoB,
-                DataHora = jogo.DataHora
-            };
-
-            vm.TodasSelecoes = selecoes.ToList();
-
-            viewModel.Add(vm);
+                DataHora = jogo.DataHora,
+                TodasSelecoes = selecoes.ToList()
+            });
         }
 
         return View(viewModel);
     }
 
-    // =====================================================
-    // TELA Terceiro Lugar
-    // =====================================================
     [HttpGet("TerceiroLugar")]
     public IActionResult TerceiroLugar()
     {
@@ -223,34 +181,25 @@ public class AdminJogosController : Controller
             .ToList();
 
         var selecoes = _context.Selecoes.ToList();
-
         var viewModel = new List<JogoAdminVM>();
 
-        for (int i = 0; i < jogos.Count; i++)
+        foreach (var jogo in jogos)
         {
-            var jogo = jogos[i];
-
-            var vm = new JogoAdminVM
+            viewModel.Add(new JogoAdminVM
             {
                 Id = jogo.Id,
                 SelecaoAId = jogo.SelecaoAId,
                 SelecaoBId = jogo.SelecaoBId,
                 DescricaoSelecaoA = jogo.DescricaoSelecaoA,
                 DescricaoSelecaoB = jogo.DescricaoSelecaoB,
-                DataHora = jogo.DataHora
-            };
-
-            vm.TodasSelecoes = selecoes.ToList();
-
-            viewModel.Add(vm);
+                DataHora = jogo.DataHora,
+                TodasSelecoes = selecoes.ToList()
+            });
         }
 
         return View(viewModel);
     }
 
-    // =====================================================
-    // TELA Final
-    // =====================================================
     [HttpGet("Final")]
     public IActionResult Final()
     {
@@ -263,26 +212,20 @@ public class AdminJogosController : Controller
             .ToList();
 
         var selecoes = _context.Selecoes.ToList();
-
         var viewModel = new List<JogoAdminVM>();
 
-        for (int i = 0; i < jogos.Count; i++)
+        foreach (var jogo in jogos)
         {
-            var jogo = jogos[i];
-
-            var vm = new JogoAdminVM
+            viewModel.Add(new JogoAdminVM
             {
                 Id = jogo.Id,
                 SelecaoAId = jogo.SelecaoAId,
                 SelecaoBId = jogo.SelecaoBId,
                 DescricaoSelecaoA = jogo.DescricaoSelecaoA,
                 DescricaoSelecaoB = jogo.DescricaoSelecaoB,
-                DataHora = jogo.DataHora
-            };
-
-            vm.TodasSelecoes = selecoes.ToList();
-
-            viewModel.Add(vm);
+                DataHora = jogo.DataHora,
+                TodasSelecoes = selecoes.ToList()
+            });
         }
 
         return View(viewModel);
@@ -332,7 +275,6 @@ public class AdminJogosController : Controller
         if (!UsuarioEhAdmin())
             return Forbid();
 
-        // chama seu service centralizado
         _apostaService.RecalcularCampeao(selecaoId);
 
         return RedirectToAction("Index");
@@ -371,9 +313,6 @@ public class AdminJogosController : Controller
         return RedirectToAction(nameof(DefinirCampeao));
     }
 
-    // =====================================================
-    // SALVAR SEGUNDA FASE
-    // =====================================================
     [HttpPost("SalvarSegundaFase")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> SalvarSegundaFase(int id, int? selecaoAId, int? selecaoBId)
@@ -394,9 +333,6 @@ public class AdminJogosController : Controller
         return RedirectToAction("SegundaFase");
     }
 
-    // =====================================================
-    // SALVAR Oitavas
-    // =====================================================
     [HttpPost("SalvarOitavas")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> SalvarOitavas(int id, int? selecaoAId, int? selecaoBId)
@@ -417,9 +353,6 @@ public class AdminJogosController : Controller
         return RedirectToAction("Oitavas");
     }
 
-    // =====================================================
-    // SALVAR Quartas
-    // =====================================================
     [HttpPost("SalvarQuartas")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> SalvarQuartas(int id, int? selecaoAId, int? selecaoBId)
@@ -440,9 +373,6 @@ public class AdminJogosController : Controller
         return RedirectToAction("Quartas");
     }
 
-    // =====================================================
-    // SALVAR Semifinal
-    // =====================================================
     [HttpPost("SalvarSemifinal")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> SalvarSemifinal(int id, int? selecaoAId, int? selecaoBId)
@@ -463,9 +393,6 @@ public class AdminJogosController : Controller
         return RedirectToAction("Semifinal");
     }
 
-    // =====================================================
-    // SALVAR Terceiro Lugar
-    // =====================================================
     [HttpPost("SalvarTerceiroLugar")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> SalvarTerceiroLugar(int id, int? selecaoAId, int? selecaoBId)
@@ -486,9 +413,6 @@ public class AdminJogosController : Controller
         return RedirectToAction("TerceiroLugar");
     }
 
-    // =====================================================
-    // SALVAR Final
-    // =====================================================
     [HttpPost("SalvarFinal")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> SalvarFinal(int id, int? selecaoAId, int? selecaoBId)
@@ -509,9 +433,6 @@ public class AdminJogosController : Controller
         return RedirectToAction("Final");
     }
 
-    // =====================================================
-    // LISTAR TODOS OS JOGOS
-    // =====================================================
     [HttpGet("")]
     public IActionResult Index()
     {
@@ -523,15 +444,13 @@ public class AdminJogosController : Controller
         var jogos = _context.Jogos
             .Include(j => j.SelecaoA)
             .Include(j => j.SelecaoB)
+            .Include(j => j.SelecaoVencedora)
             .OrderBy(j => j.DataHora)
             .ToList();
 
         return View(jogos);
     }
 
-    // =====================================================
-    // GERENCIAR USUÁRIOS
-    // =====================================================
     [HttpGet("Usuarios")]
     public IActionResult Usuarios()
     {
@@ -568,6 +487,7 @@ public class AdminJogosController : Controller
         }
 
         var emailNormalizado = novoEmail.Trim().ToLowerInvariant();
+
         if (!new EmailAddressAttribute().IsValid(emailNormalizado))
         {
             TempData["Erro"] = "Formato de e-mail inválido.";
@@ -695,6 +615,7 @@ public class AdminJogosController : Controller
             return Forbid();
 
         var usuarioLogadoId = HttpContext.Session.GetInt32("UsuarioId");
+
         if (usuarioLogadoId == usuarioId)
         {
             TempData["Erro"] = "Não é possível excluir o usuário atualmente logado.";
@@ -743,9 +664,6 @@ public class AdminJogosController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    // =====================================================
-    // EDITAR JOGO
-    // =====================================================
     [HttpGet("Editar/{id}")]
     public IActionResult Editar(int id)
     {
@@ -755,6 +673,7 @@ public class AdminJogosController : Controller
         var jogo = _context.Jogos
             .Include(j => j.SelecaoA)
             .Include(j => j.SelecaoB)
+            .Include(j => j.SelecaoVencedora)
             .FirstOrDefault(j => j.Id == id);
 
         if (jogo == null)
@@ -818,9 +737,32 @@ public class AdminJogosController : Controller
         if (statusNormalizado != "Finalizado")
         {
             jogo.ClassificacaoProcessada = false;
+            jogo.SelecaoVencedoraId = null;
         }
         else if (jogo.GolsSelecaoA.HasValue && jogo.GolsSelecaoB.HasValue)
         {
+            if (PontuacaoService.EhFaseMataMata(jogo.Fase))
+            {
+                if (jogo.GolsSelecaoA.Value > jogo.GolsSelecaoB.Value)
+                {
+                    jogo.SelecaoVencedoraId = jogo.SelecaoAId;
+                }
+                else if (jogo.GolsSelecaoB.Value > jogo.GolsSelecaoA.Value)
+                {
+                    jogo.SelecaoVencedoraId = jogo.SelecaoBId;
+                }
+                else if (jogo.SelecaoVencedoraId != jogo.SelecaoAId &&
+                         jogo.SelecaoVencedoraId != jogo.SelecaoBId)
+                {
+                    TempData["Erro"] = "Em jogo empatado de mata-mata, informe quem avançou no formulário de resultado.";
+                    return RedirectToAction(nameof(Editar), new { id });
+                }
+            }
+            else
+            {
+                jogo.SelecaoVencedoraId = null;
+            }
+
             _selecaoService.AtualizarClassificacao(jogo);
             _apostaService.RecalcularApostasPorJogo(jogo);
         }
@@ -831,12 +773,9 @@ public class AdminJogosController : Controller
         return RedirectToAction(nameof(Editar), new { id });
     }
 
-    // =====================================================
-    // FINALIZAR JOGO
-    // =====================================================
     [HttpPost("Finalizar/{id}")]
     [ValidateAntiForgeryToken]
-    public IActionResult Finalizar(int id, int golsA, int golsB)
+    public IActionResult Finalizar(int id, int golsA, int golsB, int? selecaoVencedoraId)
     {
         if (!UsuarioEhAdmin())
             return Forbid();
@@ -848,7 +787,7 @@ public class AdminJogosController : Controller
 
         try
         {
-            var jogo = _jogoService.FinalizarJogo(id, golsA, golsB);
+            var jogo = _jogoService.FinalizarJogo(id, golsA, golsB, selecaoVencedoraId);
 
             _selecaoService.AtualizarClassificacao(jogo);
             _apostaService.RecalcularApostasPorJogo(jogo);
@@ -858,6 +797,12 @@ public class AdminJogosController : Controller
             transaction.Commit();
 
             return RedirectToAction("Index");
+        }
+        catch (InvalidOperationException ex)
+        {
+            transaction.Rollback();
+            TempData["Erro"] = ex.Message;
+            return RedirectToAction(nameof(Editar), new { id });
         }
         catch
         {

@@ -80,10 +80,10 @@ namespace BolaoDaCopa2026.Controllers
                 TotalPremioTexto = "R$2.300",
                 PremiacaoItens = new List<string>
                 {
-                    "1º lugar geral: R$1.035",
+                    "1º lugar geral: R$1.150",
                     "2º lugar geral: R$575",
                     "3º lugar geral: R$230",
-                    "4º lugar geral: R$230",
+                    "4º lugar geral: R$115",
                     "Artilheiro do bolão: R$230"
                 },
                 MostrarColunaCampeao = mostrarColunaCampeao,
